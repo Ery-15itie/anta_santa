@@ -1,14 +1,38 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  # Sidekiq Web UI (開発/管理者用) - ログインユーザーのみアクセス可能
+  require 'sidekiq/web'
+  authenticate :user, lambda { |u| u.persisted? } do 
+    mount Sidekiq::Web => '/sidekiq'
+  end
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  # 認証ルーティング: コメントアウトを解除し、有効化！
+  devise_for :users, controllers: {
+    omniauth_callbacks: 'users/omniauth_callbacks',
+    sessions: 'devise/sessions', 
+    registrations: 'devise/registrations' 
+  }
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # ログイン後のルート
+  authenticated :user do
+    root to: "dashboard#index", as: :authenticated_root
+  end
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  # 未ログイン時のルート
+  root to: "home#index" 
+
+  # ソーシャル機能
+  resources :users, only: [:show, :edit, :update] do
+    resource :relationships, only: [:create, :destroy]
+  end
+  resources :groups
+
+  # コア機能
+  resources :templates 
+  resources :evaluations 
+
+  # レポート・統計
+  resources :reports, only: [:index, :show]
+
+  # その他
+  resource :github_integration, only: [:show, :create] 
 end
