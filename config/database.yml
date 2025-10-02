@@ -1,0 +1,17 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8mb4
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  # Docker Composeのdbサービス名
+  host: db
+  # Docker Composeのdbサービスに設定された環境変数を使用
+  username: <%= ENV.fetch('MYSQL_USER') { 'root' } %>
+  password: <%= ENV.fetch('MYSQL_ROOT_PASSWORD') { '' } %> # 環境変数に合わせて適宜修正
+
+development:
+  <<: *default
+  database: santa_report_app_development 
+
+test:
+  <<: *default
+  database: santa_report_app_test

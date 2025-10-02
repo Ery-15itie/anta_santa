@@ -1,0 +1,41 @@
+FROM ruby:3.3.8-slim
+
+# Rails app lives here
+WORKDIR /rails
+
+# Install packages needed for development
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+    build-essential \
+    curl \
+    default-mysql-client \
+    default-libmysqlclient-dev \
+    git \
+    libjemalloc2 \
+    libvips \
+    libyaml-dev \
+    nodejs \
+    npm \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Install yarn
+RUN npm install --global yarn
+
+# Set development environment
+ENV RAILS_ENV="development"
+ENV BUNDLE_PATH="/usr/local/bundle"
+
+# Install gems
+COPY Gemfile ./
+COPY Gemfile.lock* ./
+RUN bundle install
+
+# Copy application code
+COPY . .
+
+# Expose port 3000
+EXPOSE 3000
+
+# Start server
+CMD ["rails", "server", "-b", "0.0.0.0"]
