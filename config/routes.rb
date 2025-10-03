@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => '/sidekiq'
   end
 
-  # 認証ルーティング: コメントアウトを解除し、有効化！
+  # 認証ルーティング:有効化
   devise_for :users, controllers: {
     omniauth_callbacks: 'users/omniauth_callbacks',
     sessions: 'devise/sessions', 

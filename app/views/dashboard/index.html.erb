@@ -1,0 +1,15 @@
+<div class="container mt-5">
+  <h1 class="mb-4">ようこそ、<%= @user.name %> さん！</h1>
+  
+  <div class="alert alert-success">
+    <strong>ログイン成功!</strong> ダッシュボードへようこそ。
+  </div>
+  
+  <p>あなたの GitHub ユーザー名: <strong><%= @user.github_username %></strong></p>
+
+  <h2 class="mt-5">次のステップ</h2>
+  <ul>
+    <li>Step 1: GitHub認証の環境設定を行います。</li>
+    <li>Step 2: 評価テンプレートの作成・管理画面を実装します。</li>
+  </ul>
+</div>

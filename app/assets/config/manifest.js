@@ -1,3 +1,13 @@
 //= link_tree ../images
-//= link_directory ../javascripts .js
-//= link_directory ../stylesheets .css
+//= link_tree ../builds
+
+// 個別のファイルを明示的にリンク
+
+// 必須のStimulus Controllers
+//= link controllers/application.js
+//= link controllers/hello_controller.js
+
+//= link controllers/index.js
+
+// 既存のすべてのCSS/SCSSファイルをリンク
+//= link application.css
