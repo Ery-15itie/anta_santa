@@ -1,38 +1,77 @@
 Rails.application.routes.draw do
-  # Sidekiq Web UI (開発/管理者用) - ログインユーザーのみアクセス可能
-  require 'sidekiq/web'
-  authenticate :user, lambda { |u| u.persisted? } do 
-    mount Sidekiq::Web => '/sidekiq'
-  end
-
-  # 認証ルーティング:有効化
+  # Devise (GitHub OmniAuth) のルーティング
   devise_for :users, controllers: {
     omniauth_callbacks: 'users/omniauth_callbacks',
-    sessions: 'devise/sessions', 
-    registrations: 'devise/registrations' 
+    registrations: 'users/registrations',
+    sessions: 'users/sessions'
   }
 
-  # ログイン後のルート
+  # ログイン後のリダイレクト先
   authenticated :user do
-    root to: "dashboard#index", as: :authenticated_root
+    root 'dashboard#index', as: :authenticated_root
   end
 
-  # 未ログイン時のルート
-  root to: "home#index" 
+  # トップページ (未認証ユーザー)
+  root 'home#index'
 
-  # ソーシャル機能
+  # ダッシュボード
+  get 'dashboard', to: 'dashboard#index'
+
+  # ユーザープロフィール
   resources :users, only: [:show, :edit, :update] do
-    resource :relationships, only: [:create, :destroy]
+    member do
+      get :followers
+      get :following
+    end
   end
-  resources :groups
 
-  # コア機能
-  resources :templates 
-  resources :evaluations 
+  # フォロー機能
+  resources :relationships, only: [:create, :destroy]
 
-  # レポート・統計
+  # テンプレート管理
+  resources :templates do
+    member do
+      post :duplicate
+    end
+    resources :template_items, only: [:create, :update, :destroy]
+  end
+
+  # 評価機能
+  resources :evaluations do
+    member do
+      patch :submit
+      patch :publish
+    end
+    resources :evaluation_scores, only: [:create, :update]
+  end
+
+  # レポート
   resources :reports, only: [:index, :show]
 
-  # その他
-  resource :github_integration, only: [:show, :create] 
+  # グループ
+  resources :groups do
+    member do
+      post :join
+      delete :leave
+    end
+    resources :group_memberships, only: [:create, :destroy]
+  end
+
+  # GitHub連携
+  namespace :github do
+    get 'connect', to: 'integration#connect'
+    delete 'disconnect', to: 'integration#disconnect'
+    post 'sync', to: 'integration#sync'
+  end
+
+  # Health Check
+  get "up" => "rails/health#show", as: :rails_health_check
+
+  # API (将来的な拡張用)
+  namespace :api do
+    namespace :v1 do
+      resources :evaluations, only: [:index, :show]
+      resources :github_stats, only: [:index]
+    end
+  end
 end

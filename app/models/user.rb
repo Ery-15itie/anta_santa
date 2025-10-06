@@ -25,6 +25,25 @@ class User < ApplicationRecord
   # ユーザーのデフォルト名を設定する (GitHubから取得できない場合など)
   before_validation :set_default_name, on: :create
 
+  # GitHub認証からユーザーを作成/検索するメソッド 
+  def self.from_omniauth(auth)
+    # providerとuidで既存ユーザーを検索
+    user = where(provider: auth.provider, uid: auth.uid).first
+
+    # ユーザーが存在すればそのまま返す
+    return user if user.present?
+
+    # ユーザーが存在しない場合、新規作成
+    where(email: auth.info.email).first_or_create do |new_user|
+      new_user.email = auth.info.email
+      new_user.password = Devise.friendly_token[0, 20] # ランダムなパスワードを設定
+      new_user.name = auth.info.name || auth.info.nickname # GitHubのユーザー名を使用
+      new_user.github_username = auth.info.nickname || auth.info.name # GitHubのニックネームを使用
+      new_user.provider = auth.provider
+      new_user.uid = auth.uid
+    end
+  end
+
   private
 
   def set_default_name
