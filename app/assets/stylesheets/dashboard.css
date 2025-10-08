@@ -1,0 +1,188 @@
+/* === テーマカラー定義 === */
+:root {
+    --primary-color: #B8860B;   /* ゴールド/真鍮色 (褒め色) */
+    --secondary-color: #4A4A4A; /* ダークグレー (落ち着き) */
+    --success-color: #38761D;   /* 落ち着いたグリーン (成功) */
+    --background-light: #FCF9F3; /* クラフト紙のような背景 */
+    --background-dark: #F8F8F8;  /* 全体背景 */
+    --text-primary: #333;
+    --text-secondary: #666;
+}
+
+/* --- 全体的な設定 --- */
+body {
+    background-color: var(--background-dark);
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+    color: var(--text-primary);
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1; /* コンテンツが手前に来るように */
+}
+
+.dashboard-title {
+    color: var(--secondary-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* --- カード共通スタイル (温かみのあるクラフト紙風) --- */
+.card, .stat-card {
+    background-color: var(--background-light);
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* 柔らかな影 */
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover, .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* --- 統計カード --- */
+.stat-card {
+    padding: 30px;
+    text-align: center;
+}
+
+.icon-img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 15px;
+}
+
+.icon-lg-img {
+    width: 80px;
+    height: 80px;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    line-height: 1.2;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-top: 5px;
+}
+
+/* --- アクションカード --- */
+.action-card {
+    padding: 30px;
+    border: 2px dashed #D3B688; /* 落ち着いた金色の破線 */
+}
+
+.action-title {
+    color: var(--secondary-color);
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.action-description {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+}
+
+/* --- ボタンのスタイル (年中使用できる色に) --- */
+.btn-primary-custom {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.btn-primary-custom:hover {
+    background-color: #A67C0A;
+    border-color: #A67C0A;
+}
+
+.btn-secondary-custom {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.btn-secondary-custom:hover {
+    background-color: #333;
+    border-color: #333;
+}
+
+/* --- 最近のメッセージカード --- */
+.recent-messages-card {
+    border-color: #E0E0E0;
+}
+
+.messages-header {
+    background-color: #F0F0F0;
+    padding: 15px 20px;
+    border-bottom: 1px solid #E0E0E0;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.message-item {
+    background-color: #FFFFFF;
+}
+
+.evaluator-name {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.checked-items-count {
+    color: var(--success-color);
+}
+
+/* 背景全体を覆うレイヤーの定義 */
+.snow-layer {
+    content: '';
+    position: fixed; /* 画面全体に固定 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -2; /* コンテンツより下に配置 */
+}
+
+/* レイヤー 1: 近くの大きな粒子 */
+.layer-1 {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.7) 1.5px, transparent 0);
+    background-size: 30px 30px;
+    animation: gentle-fall 20s linear infinite;
+    opacity: 0.6;
+}
+
+/* レイヤー 2: 遠くの小さな粒子 */
+.layer-2 {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.5) 0.8px, transparent 0);
+    background-size: 20px 20px;
+    animation: gentle-fall 25s linear infinite reverse; /* 逆方向・遅めに */
+    opacity: 0.4;
+}
+
+/* 粒子が優しく落ちるアニメーション */
+@keyframes gentle-fall {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        /* 画面の高さの 2倍分移動させ、切れ目なくアニメーション */
+        background-position: 0 200vh;
+    }
+}

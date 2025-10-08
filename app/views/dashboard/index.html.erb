@@ -1,15 +1,96 @@
-<div class="container mt-5">
-  <h1 class="mb-4">ようこそ、<%= @user.name %> さん！</h1>
-  
-  <div class="alert alert-success">
-    <strong>ログイン成功!</strong> ダッシュボードへようこそ。
-  </div>
-  
-  <p>あなたの GitHub ユーザー名: <strong><%= @user.github_username %></strong></p>
+<%= stylesheet_link_tag "dashboard", media: "all", 'data-turbo-track': "reload" %>
 
-  <h2 class="mt-5">次のステップ</h2>
-  <ul>
-    <li>Step 1: GitHub認証の環境設定を行います。</li>
-    <li>Step 2: 評価テンプレートの作成・管理画面を実装します。</li>
-  </ul>
+<div class="container mt-5 dashboard-container">
+  <div class="snow-layer layer-1"></div>
+  <div class="snow-layer layer-2"></div>
+  
+  <div class="text-center mb-5">
+    <h1 class="dashboard-title mb-3">ようこそ、<%= @user.display_name %>さん!</h1>
+    <p class="lead subtitle">あなたに届いた温かいメッセージを見てみましょう!</p>
+  </div>
+
+  <div class="row mb-5 stats-section">
+    <div class="col-md-4 mb-4">
+      <div class="stat-card">
+        <%= image_tag 'icons/gift.png', class: 'icon-img', alt: 'もらったメッセージ' %>
+        <div class="stat-number"><%= @total_received || 0 %></div>
+        <div class="stat-label">もらったメッセージ</div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="stat-card">
+        <%= image_tag 'icons/star.png', class: 'icon-img', alt: '褒められたポイント' %>
+        <div class="stat-number"><%= @total_checked_items || 0 %></div>
+        <div class="stat-label">褒められたポイント</div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="stat-card">
+        <%= image_tag 'icons/message.png', class: 'icon-img', alt: '送ったメッセージ' %>
+        <div class="stat-number"><%= @total_given || 0 %></div>
+        <div class="stat-label">送ったメッセージ</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-5 action-section">
+    <div class="col-md-6 mb-4">
+      <div class="action-card text-center send-card">
+        <%= image_tag 'icons/send.png', class: 'icon-lg-img mb-3', alt: '送る' %>
+        <h5 class="action-title">誰かを褒めてみよう!</h5>
+        <p class="action-description">仲間の素敵な活動を見つけて、温かいメッセージを送りましょう</p>
+        <%= link_to "メッセージを送る", new_evaluation_path, class: "btn btn-primary-custom btn-lg w-100" %>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="action-card text-center list-card">
+        <%= image_tag 'icons/list.png', class: 'icon-lg-img mb-3', alt: '一覧' %>
+        <h5 class="action-title">もらったメッセージを見る</h5>
+        <p class="action-description">あなたに届いた温かいメッセージの一覧を確認できます</p>
+        <%= link_to "メッセージ一覧", evaluations_path, class: "btn btn-secondary-custom btn-lg w-100" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card recent-messages-card">
+    <div class="card-header messages-header">
+      <h4 class="mb-0">最近届いたメッセージ</h4>
+    </div>
+    <div class="card-body p-4">
+      <% if @received_evaluations.any? %>
+        <div>
+          <% @received_evaluations.each do |evaluation| %>
+            <div class="message-item p-3 mb-3 border rounded">
+              <div class="d-flex w-100 justify-content-between align-items-start mb-2">
+                <div class="flex-grow-1">
+                  <h5 class="mb-1">
+                    <span class="evaluator-name"><%= evaluation.evaluator.display_name %>さん</span>からのメッセージ
+                  </h5>
+                  <p class="mb-2 message-preview text-muted">
+                    <%= truncate(evaluation.message, length: 100) %>
+                  </p>
+                  <small class="fw-bold checked-items-count">
+                    ✨ <strong><%= evaluation.evaluation_scores.where(is_checked: true).count %>個</strong> の良いところを見つけてくれました
+                  </small>
+                </div>
+                <small class="text-muted text-nowrap ms-3 message-time">
+                  <%= time_ago_in_words(evaluation.created_at) %>前
+                </small>
+              </div>
+              <%= link_to "メッセージを見る →", evaluation_path(evaluation), class: "btn btn-outline-primary btn-sm mt-2" %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state text-center p-5">
+          <%= image_tag 'icons/empty.png', class: 'icon-lg-img mb-4 text-muted', alt: '空のポスト' %>
+          <p class="text-muted fs-5">まだメッセージが届いていません</p>
+          <p class="text-muted">活動を続けて、仲間からの温かいメッセージを受け取りましょう!</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>

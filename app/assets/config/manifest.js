@@ -11,3 +11,4 @@
 
 // 既存のすべてのCSS/SCSSファイルをリンク
 //= link application.css
+//= link dashboard.css

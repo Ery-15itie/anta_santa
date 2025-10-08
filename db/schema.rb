@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_02_191654) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_07_223432) do
   create_table "evaluation_scores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "evaluation_id", null: false
     t.bigint "template_item_id", null: false
@@ -31,6 +31,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_02_191654) do
     t.integer "total_score", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "message"
+    t.string "from_name"
     t.index ["evaluated_user_id"], name: "index_evaluations_on_evaluated_user_id"
     t.index ["evaluator_id"], name: "index_evaluations_on_evaluator_id"
     t.index ["template_id"], name: "index_evaluations_on_template_id"
@@ -67,6 +69,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_02_191654) do
     t.integer "weight"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "category"
+    t.string "sub_category"
+    t.integer "position", default: 0, null: false
     t.index ["template_id"], name: "index_template_items_on_template_id"
   end
 
