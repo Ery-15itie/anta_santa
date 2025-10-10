@@ -1,9 +1,9 @@
-<%= stylesheet_link_tag "dashboard", media: "all", 'data-turbo-track': "reload" %>
+<%= stylesheet_link_tag "dashboard", media: "all", "data-turbo-track": "reload" %>
 
 <div class="container mt-5 dashboard-container">
-  <div class="snow-layer layer-1"></div>
-  <div class="snow-layer layer-2"></div>
-  
+  <!-- ふわふわ光の粒子 -->
+  <div id="particles-container"></div>
+
   <div class="text-center mb-5">
     <h1 class="dashboard-title mb-3">ようこそ、<%= @user.display_name %>さん!</h1>
     <p class="lead subtitle">あなたに届いた温かいメッセージを見てみましょう!</p>
@@ -11,24 +11,24 @@
 
   <div class="row mb-5 stats-section">
     <div class="col-md-4 mb-4">
-      <div class="stat-card">
-        <%= image_tag 'icons/gift.png', class: 'icon-img', alt: 'もらったメッセージ' %>
+      <div class="stat-card text-center">
+        <%= image_tag "icons/gift.png", class: "icon-img mx-auto d-block mb-2", alt: "もらったメッセージ" %>
         <div class="stat-number"><%= @total_received || 0 %></div>
         <div class="stat-label">もらったメッセージ</div>
       </div>
     </div>
 
     <div class="col-md-4 mb-4">
-      <div class="stat-card">
-        <%= image_tag 'icons/star.png', class: 'icon-img', alt: '褒められたポイント' %>
+      <div class="stat-card text-center">
+        <%= image_tag "icons/star.png", class: "icon-img mx-auto d-block mb-2", alt: "褒められたポイント" %>
         <div class="stat-number"><%= @total_checked_items || 0 %></div>
         <div class="stat-label">褒められたポイント</div>
       </div>
     </div>
 
     <div class="col-md-4 mb-4">
-      <div class="stat-card">
-        <%= image_tag 'icons/message.png', class: 'icon-img', alt: '送ったメッセージ' %>
+      <div class="stat-card text-center">
+        <%= image_tag "icons/message.png", class: "icon-img mx-auto d-block mb-2", alt: "送ったメッセージ" %>
         <div class="stat-number"><%= @total_given || 0 %></div>
         <div class="stat-label">送ったメッセージ</div>
       </div>
@@ -38,7 +38,7 @@
   <div class="row mb-5 action-section">
     <div class="col-md-6 mb-4">
       <div class="action-card text-center send-card">
-        <%= image_tag 'icons/send.png', class: 'icon-lg-img mb-3', alt: '送る' %>
+        <%= image_tag "icons/send.png", class: "icon-lg-img mx-auto d-block mb-3", alt: "送る" %>
         <h5 class="action-title">誰かを褒めてみよう!</h5>
         <p class="action-description">仲間の素敵な活動を見つけて、温かいメッセージを送りましょう</p>
         <%= link_to "メッセージを送る", new_evaluation_path, class: "btn btn-primary-custom btn-lg w-100" %>
@@ -47,7 +47,7 @@
 
     <div class="col-md-6 mb-4">
       <div class="action-card text-center list-card">
-        <%= image_tag 'icons/list.png', class: 'icon-lg-img mb-3', alt: '一覧' %>
+        <%= image_tag "icons/list.png", class: "icon-lg-img mx-auto d-block mb-3", alt: "一覧" %>
         <h5 class="action-title">もらったメッセージを見る</h5>
         <p class="action-description">あなたに届いた温かいメッセージの一覧を確認できます</p>
         <%= link_to "メッセージ一覧", evaluations_path, class: "btn btn-secondary-custom btn-lg w-100" %>
@@ -86,7 +86,7 @@
         </div>
       <% else %>
         <div class="empty-state text-center p-5">
-          <%= image_tag 'icons/empty.png', class: 'icon-lg-img mb-4 text-muted', alt: '空のポスト' %>
+          <%= image_tag "icons/empty.png", class: "icon-lg-img mx-auto d-block mb-4 text-muted", alt: "空のポスト" %>
           <p class="text-muted fs-5">まだメッセージが届いていません</p>
           <p class="text-muted">活動を続けて、仲間からの温かいメッセージを受け取りましょう!</p>
         </div>
@@ -94,3 +94,5 @@
     </div>
   </div>
 </div>
+
+<%= javascript_importmap_tags %>

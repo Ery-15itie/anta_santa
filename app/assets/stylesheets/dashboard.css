@@ -148,41 +148,93 @@ body {
     color: var(--success-color);
 }
 
-/* 背景全体を覆うレイヤーの定義 */
-.snow-layer {
-    content: '';
-    position: fixed; /* 画面全体に固定 */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -2; /* コンテンツより下に配置 */
+/* 粒子コンテナ */
+#particles-container {
+  position: absolute; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
 }
 
-/* レイヤー 1: 近くの大きな粒子 */
-.layer-1 {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.7) 1.5px, transparent 0);
-    background-size: 30px 30px;
-    animation: gentle-fall 20s linear infinite;
+/* 光の粒子 - 陽だまり風 */
+.light-particle {
+  position: absolute;
+  border-radius: 50%;
+  /* 柔らかなクリーム色のグラデーション */
+  background: radial-gradient(
+    circle, 
+    rgba(255, 248, 220, 0.7) 0%,
+    rgba(255, 235, 205, 0.5) 30%,
+    rgba(255, 239, 213, 0.3) 60%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 20px rgba(255, 235, 205, 0.7),
+    0 0 40px rgba(255, 222, 173, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.8);
+  
+  animation: 
+    float-gentle var(--float-duration, 18s) ease-in-out infinite,
+    glow-pulse 6s ease-in-out infinite,
+    drift var(--drift-duration, 20s) ease-in-out infinite;
+    
+  filter: blur(3px);
+
+  /* 初期透明度を削除し、アニメーションの開始状態を保持 */
+  /* float-gentleの0%でopacity: 0.4 が適用されるようにする */
+  opacity: 1; /* 初期値として一旦1を設定 */
+  animation-fill-mode: both; /* アニメーション開始前の遅延中も最初の状態を維持 */
+}
+
+/* ふわふわ浮遊 */
+@keyframes float-gentle {
+  0%, 100% { 
+    /* 初期透明度を反映 */
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.8;
+  }
+  25% {
+    transform: translateY(-40px) translateX(20px) scale(1.1);
     opacity: 0.6;
+  }
+  50% { 
+    transform: translateY(-70px) translateX(-15px) scale(0.9);
+    opacity: 0.7;
+  }
+  75% {
+    transform: translateY(-40px) translateX(-25px) scale(1.05);
+    opacity: 0.5;
+  }
 }
 
-/* レイヤー 2: 遠くの小さな粒子 */
-.layer-2 {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.5) 0.8px, transparent 0);
-    background-size: 20px 20px;
-    animation: gentle-fall 25s linear infinite reverse; /* 逆方向・遅めに */
-    opacity: 0.4;
+/* 光の明滅 */
+@keyframes glow-pulse {
+  0%, 100% { 
+    opacity: 0.7;
+    filter: blur(3px);
+  }
+  50% { 
+    opacity: 1.0;
+    filter: blur(4px);
+  }
 }
 
-/* 粒子が優しく落ちるアニメーション */
-@keyframes gentle-fall {
-    0% {
-        background-position: 0 0;
-    }
-    100% {
-        /* 画面の高さの 2倍分移動させ、切れ目なくアニメーション */
-        background-position: 0 200vh;
-    }
+/* ゆっくり横に流れる */
+@keyframes drift {
+  0% {
+    transform: translateX(0);
+  }
+  33% {
+    transform: translateX(40px);
+  }
+  66% {
+    transform: translateX(-20px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
