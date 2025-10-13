@@ -1,0 +1,83 @@
+<%# app/views/evaluations/new.html.erb %>
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <h1 class="text-center mb-4">大人のサンタさん通知表作成</h1>
+      <p class="text-center text-muted">日頃の感謝や良いところを伝えて、相手を褒め称えましょう！</p>
+      
+      <%# @evaluationに対してフォームを作成。データ送信先は/evaluations %>
+      <%= form_with model: @evaluation, url: evaluations_path, local: true, class: "evaluation-form" do |f| %>
+
+        <%# 評価対象の選択 %>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">送信先の選択</h5>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <%= f.label :evaluated_user_id, "お手紙を送る相手", class: "form-label" %>
+              <%# pluckで準備した [name, id] の配列を使ってドロップダウンを作成 %>
+              <%= f.select :evaluated_user_id, 
+                           options_for_select(@users), 
+                           { prompt: "相手を選んでください" }, 
+                           { class: "form-control form-select", required: true } %>
+            </div>
+          </div>
+        </div>
+
+ <%# 評価項目の選択 %>
+
+<div class="card-body p-0">
+  <%# 項目を Category でグループ化し、表示 %>
+  <% @template_items.group_by(&:category).each do |category, items_by_category| %>
+    <div class="category-group border-bottom p-3">
+      <h6 class="text-primary fw-bold mb-3"><%= category %></h6>
+      
+      <%# さらに Sub_Category でグループ化 %>
+      <% items_by_category.group_by(&:sub_category).each do |sub_category, items_by_sub_category| %>
+        <div class="sub-category-group mb-3 ms-3">
+          <h6 class="text-secondary fw-bold mb-2"><%= sub_category %></h6>
+          
+          <div class="item-list ms-3">
+            <% items_by_sub_category.each_with_index do |item, index| %>
+              <div class="form-check">
+                <%# ここでチェックボックスを作成。name属性に配列形式を使用し、複数選択を可能にする %>
+                <%# name: evaluation[item_ids][] で、どの項目にチェックが入ったかを配列で送信 %>
+                <%= check_box_tag "evaluation[item_ids][]", 
+                                  item.id, 
+                                  false, 
+                                  id: "item_#{item.id}", 
+                                  class: "form-check-input" %>
+                
+                <%= label_tag "item_#{item.id}", item.title, class: "form-check-label" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+        
+        <%# サンタさんからのお言葉（メッセージ） %>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">サンタさんからのお言葉（メッセージ）</h5>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <%= f.label :message, "相手へのメッセージ", class: "form-label" %>
+              <%= f.text_area :message, class: "form-control", rows: 5, placeholder: "例: あなたの○○なところが本当にすごいと思っています！" %>
+            </div>
+          </div>
+        </div>
+
+        <%# 送信ボタン %>
+        <div class="d-grid gap-2">
+          <%= f.submit "お手紙をそっと渡す (評価を送信)", class: "btn btn-primary btn-lg mt-3" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

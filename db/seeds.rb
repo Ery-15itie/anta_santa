@@ -1,3 +1,5 @@
+require 'digest/sha1'
+
 # 既存データをクリア（開発環境のみ）
 if Rails.env.development?
   TemplateItem.destroy_all
@@ -5,18 +7,19 @@ if Rails.env.development?
   puts "既存のテンプレートをクリアしました"
 end
 
-# システムユーザー（管理者）の作成
+# 管理者ユーザーの作成
 admin = User.find_or_create_by!(email: 'admin@anta-santa.com') do |user|
   user.password = 'password123'
   user.password_confirmation = 'password123'
   user.name = 'システム管理者'
-  user.provider = 'email'
+  user.provider = 'email' 
+  user.uid = Digest::SHA1.hexdigest(user.email) 
 end
 
 # デフォルトテンプレートの作成
 template = Template.create!(
   user: admin,
-  title: '大人のサンタさん通知表',
+  title: '大人のサンタさん通知表 - 評価シート',
   description: 'エンジニアマインドと大人の基礎力から作成した評価テンプレート',
   is_public: true
 )

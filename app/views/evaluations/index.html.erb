@@ -1,0 +1,66 @@
+<%# app/views/evaluations/index.html.erb %>
+<div class="container my-5">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="mb-4">メッセージ一覧</h1>
+      <p class="lead text-muted">あなたに届いた、仲間からの温かいメッセージを確認しましょう。</p>
+      
+      <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="received-tab" data-bs-toggle="tab" data-bs-target="#received" type="button" role="tab" aria-controls="received" aria-selected="true">
+            もらったメッセージ (<%= @evaluations.count %>)
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="given-tab" data-bs-toggle="tab" data-bs-target="#given" type="button" role="tab" aria-controls="given" aria-selected="false">
+            送ったメッセージ (<%= @evaluations_given.count %>)
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="myTabContent">
+        
+        <%# ======== もらったメッセージのタブ ======== %>
+        <div class="tab-pane fade show active" id="received" role="tabpanel" aria-labelledby="received-tab">
+          <% if @evaluations.any? %>
+            <% @evaluations.each do |evaluation| %>
+              <div class="card mb-3 shadow-sm message-card">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title mb-0">
+                      <span class="badge bg-success me-2">From</span>
+                      <%= evaluation.evaluator.display_name %>さんから
+                    </h5>
+                    <small class="text-muted"><%= time_ago_in_words(evaluation.created_at) %>前</small>
+                  </div>
+                  
+                  <%# チェックされた項目の合計数を表示 %>
+                  <% checked_count = evaluation.evaluation_scores.where(score: 1).count %>
+                  <p class="card-text text-muted">
+                    ✨ **<%= checked_count %>個** の良いところを見つけてくれました
+                  </p>
+                  
+                  <%# メッセージのプレビュー %>
+                  <p class="card-text message-preview"><%= truncate(evaluation.message, length: 100) %></p>
+                  
+                  <%= link_to "メッセージの詳細を見る →", evaluation_path(evaluation), class: "btn btn-outline-primary btn-sm" %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="alert alert-info text-center">まだメッセージが届いていません。</div>
+          <% end %>
+        </div>
+        
+        <%# ======== 送ったメッセージのタブ ======== %>
+        <div class="tab-pane fade" id="given" role="tabpanel" aria-labelledby="given-tab">
+          <div class="alert alert-warning text-center">
+            このタブには、あなたが送ったメッセージの一覧が表示されます
+          </div>
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+</div>

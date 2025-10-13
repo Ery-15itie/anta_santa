@@ -73,7 +73,7 @@
                     <%= truncate(evaluation.message, length: 100) %>
                   </p>
                   <small class="fw-bold checked-items-count">
-                    ✨ <strong><%= evaluation.evaluation_scores.where(is_checked: true).count %>個</strong> の良いところを見つけてくれました
+                   ✨ <strong><%= evaluation.evaluation_scores.where(score: 1).count %>個</strong> の良いところを見つけてくれました
                   </small>
                 </div>
                 <small class="text-muted text-nowrap ms-3 message-time">
