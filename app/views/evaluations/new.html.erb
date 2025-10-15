@@ -1,81 +1,96 @@
-<%# app/views/evaluations/new.html.erb %>
-
+<%# 評価メッセージ新規作成フォーム %>
 <div class="container my-5">
   <div class="row justify-content-center">
     <div class="col-lg-10">
-      <h1 class="text-center mb-4">大人のサンタさん通知表作成</h1>
-      <p class="text-center text-muted">日頃の感謝や良いところを伝えて、相手を褒め称えましょう！</p>
       
-      <%# @evaluationに対してフォームを作成。データ送信先は/evaluations %>
+      <div class="mb-3 text-start">
+        <%= link_to dashboard_path, class: "btn btn-outline-secondary btn-sm rounded-pill" do %>
+          <i class="fas fa-arrow-left me-1"></i> ダッシュボードに戻る
+        <% end %>
+      </div>
+      
+      <h1 class="text-center mb-4 text-primary fw-bold">大人のサンタさん通知表</h1>
+      <p class="text-center text-secondary">感謝のメッセージと、相手の優れた点をまとめてお届けしましょう!!</p>
+
       <%= form_with model: @evaluation, url: evaluations_path, local: true, class: "evaluation-form" do |f| %>
 
-        <%# 評価対象の選択 %>
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-light">
-            <h5 class="mb-0">送信先の選択</h5>
+        <%# エラーメッセージ表示ブロック %>
+        <% if @evaluation.errors.any? %>
+          <div class="alert alert-danger mb-4 rounded shadow-sm alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading fw-bold">送信に失敗しました</h4>
+            <ul class="mb-0 ps-3">
+              <% @evaluation.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
-          <div class="card-body">
-            <div class="form-group">
-              <%= f.label :evaluated_user_id, "お手紙を送る相手", class: "form-label" %>
-              <%# pluckで準備した [name, id] の配列を使ってドロップダウンを作成 %>
+        <% end %>
+
+        <%# テンプレートIDの保持 %>
+        <%= f.hidden_field :template_id, value: @template&.id %>
+
+        <div class="card shadow-lg mb-5 border-0">
+          <div class="card-body p-4 p-md-5">
+
+            <%# 評価対象の選択 %>
+            <div class="mb-4">
+              <%= f.label :evaluated_user_id, "お手紙を送る相手 (必須)", class: "form-label fw-bold" %>
               <%= f.select :evaluated_user_id, 
-                           options_for_select(@users), 
-                           { prompt: "相手を選んでください" }, 
-                           { class: "form-control form-select", required: true } %>
+                           options_for_select(@target_users, f.object.evaluated_user_id), 
+                           { prompt: "評価する相手を選択してください" }, 
+                           { class: "form-select form-select-lg shadow-sm" } %>
             </div>
-          </div>
-        </div>
 
- <%# 評価項目の選択 %>
+            <%# 評価メッセージ %>
+            <div class="mb-5">
+              <%= f.label :message, "感謝のメッセージ (必須)", class: "form-label fw-bold" %>
+              <%= f.text_area :message, 
+                              class: "form-control shadow-sm", 
+                              rows: 6, 
+                              placeholder: "感謝の言葉や、具体的なエピソードを添えてください。" %>
+            </div>
 
-<div class="card-body p-0">
-  <%# 項目を Category でグループ化し、表示 %>
-  <% @template_items.group_by(&:category).each do |category, items_by_category| %>
-    <div class="category-group border-bottom p-3">
-      <h6 class="text-primary fw-bold mb-3"><%= category %></h6>
-      
-      <%# さらに Sub_Category でグループ化 %>
-      <% items_by_category.group_by(&:sub_category).each do |sub_category, items_by_sub_category| %>
-        <div class="sub-category-group mb-3 ms-3">
-          <h6 class="text-secondary fw-bold mb-2"><%= sub_category %></h6>
-          
-          <div class="item-list ms-3">
-            <% items_by_sub_category.each_with_index do |item, index| %>
-              <div class="form-check">
-                <%# ここでチェックボックスを作成。name属性に配列形式を使用し、複数選択を可能にする %>
-                <%# name: evaluation[item_ids][] で、どの項目にチェックが入ったかを配列で送信 %>
-                <%= check_box_tag "evaluation[item_ids][]", 
-                                  item.id, 
-                                  false, 
-                                  id: "item_#{item.id}", 
-                                  class: "form-check-input" %>
-                
-                <%= label_tag "item_#{item.id}", item.title, class: "form-check-label" %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
-</div>
-        
-        <%# サンタさんからのお言葉（メッセージ） %>
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-light">
-            <h5 class="mb-0">サンタさんからのお言葉（メッセージ）</h5>
-          </div>
-          <div class="card-body">
-            <div class="form-group">
-              <%= f.label :message, "相手へのメッセージ", class: "form-label" %>
-              <%= f.text_area :message, class: "form-control", rows: 5, placeholder: "例: あなたの○○なところが本当にすごいと思っています！" %>
+            <h5 class="fw-bold mb-3 text-primary">相手の優れた点をチェックしてください (最低1つ必須)</h5>
+            <p class="text-secondary small mb-4">該当する項目にチェックを入れることで、相手にフィードバックとして伝わります!</p>
+
+            <%# 評価項目リスト %>
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+              <% @template.template_items.group_by(&:category).each do |category, items| %>
+                <div class="col">
+                  <div class="card h-100 p-3 shadow-sm border-2 <%= "border-danger" if @evaluation.errors[:base].present? %>">
+                    <h6 class="card-title fw-bold text-dark-emphasis mb-3"><%= category %></h6>
+                    <ul class="list-unstyled mb-0">
+                      <% items.each do |item| %>
+                        <li class="form-check mb-2">
+                          <%# 確実に動くように、レコードIDの渡し方を修正 %>
+                          <% score = @evaluation.evaluation_scores.find { |s| s.template_item_id == item.id } || @evaluation.evaluation_scores.build(template_item_id: item.id) %>
+                          
+                          <%# new_record?の場合はnil、既存レコードはIDを渡すことでエラーを回避 %>
+                          <%= f.fields_for :evaluation_scores, score, index: score.new_record? ? nil : score.id do |score_f| %>
+                            <%= score_f.hidden_field :template_item_id, value: item.id %>
+                            
+                            <%# チェックボックスの true_value/false_value を使用 %>
+                            <%= score_f.check_box :score, 
+                                                  { class: "form-check-input" }, 
+                                                  1,   # true_value: チェックされていたら '1' を送信
+                                                  nil  # false_value: チェックされていなかったら何も送信しない
+                            %>
+                            <%= score_f.label :score, item.title, class: "form-check-label" %>
+                          <% end %>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              <% end %>
             </div>
           </div>
         </div>
 
         <%# 送信ボタン %>
-        <div class="d-grid gap-2">
-          <%= f.submit "お手紙をそっと渡す (評価を送信)", class: "btn btn-primary btn-lg mt-3" %>
+        <div class="text-center mt-5">
+          <%= f.submit "サンタさんからのお手紙を送信する", class: "btn btn-primary btn-lg shadow-lg fw-bold px-5 py-3" %>
         </div>
       <% end %>
     </div>

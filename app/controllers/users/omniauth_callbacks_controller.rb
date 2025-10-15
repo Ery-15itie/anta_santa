@@ -1,24 +1,45 @@
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
-  # GitHub認証が成功した場合に Devise から呼び出されるメソッド
+  skip_before_action :verify_authenticity_token, only: :github
+
   def github
-    # 1. ユーザーの検索または作成
-    # User.from_omniauth メソッドは User モデルで定義が必要
-    @user = User.from_omniauth(request.env["omniauth.auth"])
+    auth = request.env['omniauth.auth']
+    @user = User.from_omniauth(auth)
 
     if @user.persisted?
-      # 2. 永続化（データベースに保存）に成功した場合、ログイン処理を行う
-      sign_in_and_redirect @user, event: :authentication # この行でログインが完了
-      set_flash_message(:notice, :success, kind: "GitHub") if is_navigational_format?
+      # GitHubプロフィール情報を保存/更新
+      create_or_update_github_profile(@user, auth)
+      
+      sign_in_and_redirect @user, event: :authentication
+      # 直接日本語メッセージを設定（set_flash_messageではなくflashに直接代入）
+      flash[:notice] = 'GitHubアカウントと連携し、ログインしました。'
     else
-      # 3. ユーザーの作成/保存に失敗した場合
-      # 例: バリデーションエラーなどで保存できなかった場合、ユーザー情報をセッションに保存してサインアップ画面にリダイレクト
-      session["devise.github_data"] = request.env["omniauth.auth"].except("extra")
-      redirect_to new_user_registration_url, alert: @user.errors.full_messages.join("\n")
+      session['devise.github_data'] = auth.except('extra')
+      redirect_to new_user_registration_url, alert: '認証に失敗しました。'
     end
+  rescue => e
+    Rails.logger.error "GitHub認証エラー: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    redirect_to root_path, alert: 'GitHub認証中にエラーが発生しました。'
   end
 
-  # 認証に失敗した場合（Callback URLの不一致など）にDeviseから呼び出される
   def failure
-    redirect_to root_path
+    redirect_to root_path, alert: 'GitHub認証に失敗しました。もう一度お試しください。'
+  end
+
+  private
+
+  def create_or_update_github_profile(user, auth)
+    github_profile = user.github_profile || user.build_github_profile
+    
+    github_profile.assign_attributes(
+      access_token: auth.credentials.token,
+      refresh_token: auth.credentials.refresh_token,
+      expires_at: auth.credentials.expires_at ? Time.at(auth.credentials.expires_at) : nil,
+      followers_count: auth.extra.raw_info.followers || 0,
+      public_repos_count: auth.extra.raw_info.public_repos || 0,
+      total_private_repos_count: auth.extra.raw_info.total_private_repos || 0
+    )
+    
+    github_profile.save
   end
 end

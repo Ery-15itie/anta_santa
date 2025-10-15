@@ -1,13 +1,35 @@
 <%= stylesheet_link_tag "dashboard", media: "all", "data-turbo-track": "reload" %>
 
 <div class="container mt-5 dashboard-container">
-  <!-- ふわふわ光の粒子 -->
   <div id="particles-container"></div>
 
   <div class="text-center mb-5">
     <h1 class="dashboard-title mb-3">ようこそ、<%= @user.display_name %>さん!</h1>
     <p class="lead subtitle">あなたに届いた温かいメッセージを見てみましょう!</p>
   </div>
+
+  <%# =====Top 3 評価項目 ===== %>
+  <% if @top_scores.any? %>
+    <div class="card shadow-sm mb-5 top-scores-card">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">あなたの最も褒められたところ Top 3</h4>
+      </div>
+      <div class="card-body p-4">
+        <ol class="list-group list-group-numbered list-group-flush">
+          <% @top_scores.each_with_index do |(title, count), index| %>
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+                <div class="fw-bold"><%= title %></div>
+                <small class="text-muted">この項目で特に貢献が認められています。</small>
+              </div>
+              <span class="badge bg-primary rounded-pill p-2"><%= count %>回</span>
+            </li>
+          <% end %>
+        </ol>
+      </div>
+    </div>
+  <% end %>
+  <%# ========== %>
 
   <div class="row mb-5 stats-section">
     <div class="col-md-4 mb-4">
@@ -34,7 +56,6 @@
       </div>
     </div>
   </div>
-
   <div class="row mb-5 action-section">
     <div class="col-md-6 mb-4">
       <div class="action-card text-center send-card">
@@ -54,7 +75,6 @@
       </div>
     </div>
   </div>
-
   <div class="card recent-messages-card">
     <div class="card-header messages-header">
       <h4 class="mb-0">最近届いたメッセージ</h4>
@@ -93,6 +113,6 @@
       <% end %>
     </div>
   </div>
-</div>
+  </div>
 
 <%= javascript_importmap_tags %>

@@ -5,7 +5,7 @@ class DashboardController < ApplicationController
     @user = current_user
     
     begin
-      # 受け取った評価
+      # 受け取った評価 (最新10件)
       @received_evaluations = @user.evaluations_received
                                     .includes(:evaluator, :evaluation_scores)
                                     .order(created_at: :desc)
@@ -20,14 +20,22 @@ class DashboardController < ApplicationController
                                   .joins(:evaluation_scores)
                                   .where(evaluation_scores: { score: 1 })
                                   .count
-      
-      # 補足: @user.evaluations_received は Evaluationモデルのhas_many :evaluations_receivedで定義されていると想定
-      #       その場合、Userモデルに以下が定義されていることを前提としています:
-      #       has_many :evaluations_received, class_name: 'Evaluation', foreign_key: 'evaluated_user_id'
-      #       has_many :evaluations_given, class_name: 'Evaluation', foreign_key: 'evaluator_id'
 
+      # 評価された項目トップ3の集計
+      @top_scores = EvaluationScore.joins(:evaluation)
+                                   .joins(:template_item)
+                                   .where(evaluations: { evaluated_user_id: @user.id })
+                                   .where(score: 1)
+                                   .group('template_items.title') # 項目タイトルでグループ化
+                                   .order('count_all DESC')       # 多い順に並び替え
+                                   .limit(3)                      # トップ3に絞る
+                                   .count
+      
+      # 最近評価してくれたユーザー
+      @recent_evaluators = @received_evaluations.map(&:evaluator).uniq.take(5)
+      
+    # indexアクション全体の rescue ブロック (例外処理)
     rescue => e
-      # エラーログ出力
       Rails.logger.error "Dashboard Error: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
       
@@ -36,6 +44,8 @@ class DashboardController < ApplicationController
       @total_received = 0
       @total_given = 0
       @total_checked_items = 0
+      @top_scores = {} # トップスコアも空のハッシュに
+      @recent_evaluators = [] # 最近の評価者も空の配列に
     end
   end
 end
