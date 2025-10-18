@@ -15,7 +15,6 @@ gem "puma", "~> 6.0"
 gem 'sprockets-rails', '~> 3.2' # Asset Pipeline
 gem "sass-rails", ">= 6" # SASS/SCSSを有効化
 gem "importmap-rails"
-gem "cssbundling-rails"
 
 # Hotwire (Turbo and Stimulus)
 gem "turbo-rails"
