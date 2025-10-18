@@ -6,6 +6,7 @@ gem "rails", "~> 7.2.2"
 
 # データベース
 gem 'mysql2', '~> 0.5.5' # MySQL/MariaDB用
+gem 'pg', '~> 1.5' # PostgreSQL用
 
 # Webサーバー
 gem "puma", "~> 6.0"
