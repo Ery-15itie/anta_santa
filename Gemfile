@@ -36,7 +36,7 @@ gem 'omniauth-github', '~> 2.0'
 gem 'omniauth-rails_csrf_protection'
 
 # GitHub API
-gem 'octokit', '~> 4.0'
+gem 'octokit', '~> 10.0'
 
 # Faraday関連 (GitHub API通信用・必須)
 gem 'faraday-retry'
