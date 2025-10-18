@@ -9,7 +9,7 @@ gem 'mysql2', '~> 0.5.5' # MySQL/MariaDB用
 gem 'pg', '~> 1.5' # PostgreSQL用
 
 # Webサーバー
-gem "puma", "~> 6.0"
+gem "puma", "~> 7.1"
 
 # JavaScriptとCSSバンドル（Docker環境では必須）
 gem 'sprockets-rails', '~> 3.2' # Asset Pipeline
