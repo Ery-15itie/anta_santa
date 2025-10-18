@@ -1,0 +1,71 @@
+ja:
+  # -----------------------------------------------------------------------------
+  # Deviseの認証関連メッセージ
+  # -----------------------------------------------------------------------------
+  devise:
+    sessions:
+      signed_in: 'ようこそ！ログインしました。'
+      signed_out: 'ログアウトしました。'
+    registrations:
+      signed_up: 'アカウントを登録しました。'
+    failure:
+      unauthenticated: 'ログインが必要です。'
+      invalid: 'メールアドレスまたはパスワードが違います。'
+      not_found_in_database: 'メールアドレスまたはパスワードが違います。'
+      timeout: 'セッションがタイムアウトしました。もう一度ログインしてください。'
+    # Omniauth (ソーシャルログイン: GitHub連携など) のメッセージ
+    omniauth_callbacks:
+      success: '%{kind} アカウントと連携し、ログインしました。'
+      failure: '%{kind} アカウントでの認証に失敗しました。'
+
+  # -----------------------------------------------------------------------------
+  # Railsのバリデーションエラーメッセージの日本語化
+  # -----------------------------------------------------------------------------
+  errors:
+    format: "%{attribute}%{message}"
+    messages:
+      accepted: "を承諾してください"
+      blank: "を入力してください"
+      too_short: "は%{count}文字以上で入力してください"
+      too_long: "は%{count}文字以内で入力してください"
+      invalid: "は無効です"
+      not_a_number: "は数値で入力してください"
+      taken: "は既に使用されています"
+      confirmation: "と%{attribute}の入力が一致しません"
+      present: "は入力しないでください"
+      empty: "を入力してください"
+      greater_than: "は%{count}より大きい値にしてください"
+      less_than: "は%{count}より小さい値にしてください"
+      other_than: "は%{count}以外の値にしてください"
+
+  # -----------------------------------------------------------------------------
+  # コントローラで使用するアクション成功時のメッセージ
+  # -----------------------------------------------------------------------------
+  notices:
+    successfully_created: "%{model}を作成しました。"
+    successfully_updated: "%{model}を更新しました。"
+    successfully_destroyed: "%{model}を削除しました。"
+
+  # -----------------------------------------------------------------------------
+  # モデル名と属性名の日本語化 (ActiveRecord)
+  # -----------------------------------------------------------------------------
+  activerecord:
+    models:
+      evaluation: '評価メッセージ'
+      user: 'ユーザー'
+      template_item: '評価項目'
+    attributes:
+      user:
+        display_name: 'ユーザー名'
+        email: 'メールアドレス'
+        password: 'パスワード'
+      evaluation:
+        message: 'メッセージ本文'
+        evaluated_user_id: 'お手紙を送る相手'
+        item_ids: '褒めたい項目'
+        created_at: '作成日時'
+        base: ''
+      template_item:
+        title: '項目名'
+        category: '大分類'
+        sub_category: '小分類'

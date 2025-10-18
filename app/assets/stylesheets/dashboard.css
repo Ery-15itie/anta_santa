@@ -1,0 +1,240 @@
+/* === テーマカラー定義 === */
+:root {
+    --primary-color: #B8860B;   /* ゴールド/真鍮色 (褒め色) */
+    --secondary-color: #4A4A4A; /* ダークグレー (落ち着き) */
+    --success-color: #38761D;   /* 落ち着いたグリーン (成功) */
+    --background-light: #FCF9F3; /* クラフト紙のような背景 */
+    --background-dark: #F8F8F8;  /* 全体背景 */
+    --text-primary: #333;
+    --text-secondary: #666;
+}
+
+/* --- 全体的な設定 --- */
+body {
+    background-color: var(--background-dark);
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+    color: var(--text-primary);
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1; /* コンテンツが手前に来るように */
+}
+
+.dashboard-title {
+    color: var(--secondary-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* --- カード共通スタイル (温かみのあるクラフト紙風) --- */
+.card, .stat-card {
+    background-color: var(--background-light);
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* 柔らかな影 */
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover, .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* --- 統計カード --- */
+.stat-card {
+    padding: 30px;
+    text-align: center;
+}
+
+.icon-img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 15px;
+}
+
+.icon-lg-img {
+    width: 80px;
+    height: 80px;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    line-height: 1.2;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-top: 5px;
+}
+
+/* --- アクションカード --- */
+.action-card {
+    padding: 30px;
+    border: 2px dashed #D3B688; /* 落ち着いた金色の破線 */
+}
+
+.action-title {
+    color: var(--secondary-color);
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.action-description {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+}
+
+/* --- ボタンのスタイル (年中使用できる色に) --- */
+.btn-primary-custom {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.btn-primary-custom:hover {
+    background-color: #A67C0A;
+    border-color: #A67C0A;
+}
+
+.btn-secondary-custom {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.btn-secondary-custom:hover {
+    background-color: #333;
+    border-color: #333;
+}
+
+/* --- 最近のメッセージカード --- */
+.recent-messages-card {
+    border-color: #E0E0E0;
+}
+
+.messages-header {
+    background-color: #F0F0F0;
+    padding: 15px 20px;
+    border-bottom: 1px solid #E0E0E0;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.message-item {
+    background-color: #FFFFFF;
+}
+
+.evaluator-name {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.checked-items-count {
+    color: var(--success-color);
+}
+
+/* 粒子コンテナ */
+#particles-container {
+  position: absolute; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* 光の粒子 - 陽だまり風 */
+.light-particle {
+  position: absolute;
+  border-radius: 50%;
+  /* 柔らかなクリーム色のグラデーション */
+  background: radial-gradient(
+    circle, 
+    rgba(255, 248, 220, 0.7) 0%,
+    rgba(255, 235, 205, 0.5) 30%,
+    rgba(255, 239, 213, 0.3) 60%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 20px rgba(255, 235, 205, 0.7),
+    0 0 40px rgba(255, 222, 173, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.8);
+  
+  animation: 
+    float-gentle var(--float-duration, 18s) ease-in-out infinite,
+    glow-pulse 6s ease-in-out infinite,
+    drift var(--drift-duration, 20s) ease-in-out infinite;
+    
+  filter: blur(3px);
+
+  /* 初期透明度を削除し、アニメーションの開始状態を保持 */
+  /* float-gentleの0%でopacity: 0.4 が適用されるようにする */
+  opacity: 1; /* 初期値として一旦1を設定 */
+  animation-fill-mode: both; /* アニメーション開始前の遅延中も最初の状態を維持 */
+}
+
+/* ふわふわ浮遊 */
+@keyframes float-gentle {
+  0%, 100% { 
+    /* 初期透明度を反映 */
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.8;
+  }
+  25% {
+    transform: translateY(-40px) translateX(20px) scale(1.1);
+    opacity: 0.6;
+  }
+  50% { 
+    transform: translateY(-70px) translateX(-15px) scale(0.9);
+    opacity: 0.7;
+  }
+  75% {
+    transform: translateY(-40px) translateX(-25px) scale(1.05);
+    opacity: 0.5;
+  }
+}
+
+/* 光の明滅 */
+@keyframes glow-pulse {
+  0%, 100% { 
+    opacity: 0.7;
+    filter: blur(3px);
+  }
+  50% { 
+    opacity: 1.0;
+    filter: blur(4px);
+  }
+}
+
+/* ゆっくり横に流れる */
+@keyframes drift {
+  0% {
+    transform: translateX(0);
+  }
+  33% {
+    transform: translateX(40px);
+  }
+  66% {
+    transform: translateX(-20px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}

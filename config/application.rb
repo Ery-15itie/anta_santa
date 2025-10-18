@@ -6,15 +6,10 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module AntaSanta
+module SantaReportApp
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.2
-
-    # Please, add to the `ignore` list any other `lib` subdirectories that do
-    # not contain `.rb` files, or that should not be reloaded or eager loaded.
-    # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets tasks])
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -22,6 +17,16 @@ module AntaSanta
     # in config/environments, which are processed later.
     #
     # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
+    
+    # autoloadingをroutes.rbの前に強制し、Deviseエラーを解決
+    # この行により、Userモデルがroutes.rbより早くロードされる
+    config.eager_load_paths << Rails.root.join("app", "models")
+
+    # config.eager_load_paths << Rails.root.join("extras") 
+
+    # 以前のbefore_configurationブロックコメントアウト
+    # config.before_configuration do
+    #   require_relative '../../app/models/user' if File.exist?(Rails.root.join('app', 'models', 'user.rb'))
+    # end
   end
 end

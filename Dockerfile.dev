@@ -3,7 +3,8 @@ FROM ruby:3.3.8-slim
 # Rails app lives here
 WORKDIR /rails
 
-# Install packages needed for development
+# Install packages needed for development, including libvips dependencies and JS tools
+# nodejsとnpm、そしてアセットコンパイルに必要な依存関係をインストール
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     build-essential \
@@ -16,10 +17,16 @@ RUN apt-get update -qq && \
     libyaml-dev \
     nodejs \
     npm \
-    pkg-config \
-    && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    pkg-config && \
+    \
+    # キャッシュを徹底的に削除
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-# Install yarn
+# Yarnのグローバルパスを$PATHに追加
+# npmでグローバルインストールされた実行ファイルを見つけられるようにする
+ENV PATH="/usr/local/npm-global/bin:$PATH"
+
+# Install yarn (npmでインストール)
 RUN npm install --global yarn
 
 # Set development environment

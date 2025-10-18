@@ -1,0 +1,107 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      
+      <div class="mb-3 text-start">
+        <%= link_to dashboard_path, class: "btn btn-outline-secondary btn-sm rounded-pill" do %>
+          <i class="fas fa-arrow-left me-1"></i> ダッシュボードに戻る
+        <% end %>
+      </div>
+      
+      <h1 class="text-center mb-4 text-primary fw-bold">大人のサンタさん通知表</h1>
+      <p class="text-center text-secondary">感謝のメッセージと、相手の優れた点をまとめてお届けしましょう!!</p>
+
+      <%= form_with model: @evaluation, url: evaluations_path, local: true, class: "evaluation-form" do |f| %>
+
+        <%# エラーメッセージ表示ブロック %>
+        <% if @evaluation.errors.any? %>
+          <div class="alert alert-danger mb-4 rounded shadow-sm alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading fw-bold">送信に失敗しました</h4>
+            <ul class="mb-0 ps-3">
+              <% @evaluation.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% end %>
+
+        <%# テンプレートIDの保持 %>
+        <%= f.hidden_field :template_id, value: @template&.id %>
+
+        <div class="card shadow-lg mb-5 border-0">
+          <div class="card-body p-4 p-md-5">
+
+            <%# 評価対象の選択 %>
+            <div class="mb-4">
+              <%= f.label :evaluated_user_id, "お手紙を送る相手 (必須)", class: "form-label fw-bold" %>
+              <%= f.select :evaluated_user_id, 
+                           options_for_select(@target_users, f.object.evaluated_user_id), 
+                           { prompt: "評価する相手を選択してください" }, 
+                           { class: "form-select form-select-lg shadow-sm" } %>
+            </div>
+
+            <%# 評価メッセージ %>
+            <div class="mb-5">
+              <%= f.label :message, "感謝のメッセージ (必須)", class: "form-label fw-bold" %>
+              <%= f.text_area :message, 
+                              class: "form-control shadow-sm", 
+                              rows: 6, 
+                              placeholder: "感謝の言葉や、具体的なエピソードを添えてください。" %>
+            </div>
+
+            <h5 class="fw-bold mb-3 text-primary">
+              相手の優れた点をチェックしてください 
+              <%# カスタムバリデーションエラー表示 %>
+              <% if @evaluation.errors[:base].present? %>
+                <span class="text-danger small">(<%= @evaluation.errors[:base].to_sentence %>)</span>
+              <% else %>
+                <span class="text-secondary small">(最低1つ必須)</span>
+              <% end %>
+            </h5>
+            <p class="text-secondary small mb-4">該当する項目にチェックを入れることで、相手にフィードバックとして伝わります!</p>
+
+            <%# 評価項目リスト %>
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+              <% @template.template_items.group_by(&:category).each do |category, items| %>
+                <div class="col">
+                  <div class="card h-100 p-3 shadow-sm border-2 <%= "border-danger" if @evaluation.errors[:base].present? %>">
+                    <h6 class="card-title fw-bold text-dark-emphasis mb-3"><%= category %></h6>
+                    <ul class="list-unstyled mb-0">
+                      <% items.each do |item| %>
+                        <li class="form-check mb-2">
+                          
+                          <%= f.fields_for :evaluation_scores, @evaluation.evaluation_scores.find_or_initialize_by(template_item_id: item.id) do |score_f| %>
+                            
+                            <%= score_f.hidden_field :id %>
+                            
+                            <%= score_f.hidden_field :template_item_id %>
+                            
+                            <%# check_boxヘルパーは自動でhidden field(false_value)を生成 %>
+                            <%= score_f.check_box :score, 
+                                                  { class: "form-check-input" }, 
+                                                  '1',    # true_value: チェック時の値
+                                                  '0'     # false_value: 未チェック時の値
+                            %>
+                            <%# labelヘルパーを使用し、item.titleをラベルテキストに %>
+                            <%= score_f.label :score, item.title, class: "form-check-label" %>
+                            
+                          <% end %>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <%# 送信ボタン %>
+        <div class="text-center mt-5">
+          <%= f.submit "サンタさんからのお手紙を送信する", class: "btn btn-primary btn-lg shadow-lg fw-bold px-5 py-3" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

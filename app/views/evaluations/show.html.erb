@@ -1,0 +1,70 @@
+<%# 評価詳細ページ %>
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      
+      <div class="mb-4 text-start">
+        <%= link_to evaluations_path, class: "btn btn-outline-secondary btn-sm rounded-pill" do %>
+          <i class="fas fa-arrow-left me-1"></i> 受信・送信一覧に戻る
+        <% end %>
+      </div>
+      
+      <h1 class="text-center mb-4 text-primary fw-bold">
+        <%= @evaluation.title %>
+      </h1>
+      <p class="text-center text-secondary mb-5">
+        <%= @evaluation.evaluator.name %>さんから <%= @evaluation.evaluated_user.name %>さんへの評価
+        <span class="small d-block mt-1">(送信日: <%= l(@evaluation.created_at, format: :long) %>)</span>
+      </p>
+
+      <%# 評価メッセージカード %>
+      <div class="card shadow-lg mb-5 border-0">
+        <div class="card-header bg-primary text-white py-3">
+          <h5 class="mb-0 fw-bold">感謝のメッセージ</h5>
+        </div>
+        <div class="card-body p-4 p-md-5 bg-light">
+          <%# メッセージを改行込みで表示（whitespace-pre-wrap） %>
+          <p class="card-text fs-5 text-dark-emphasis whitespace-pre-wrap"><%= @evaluation.message %></p>
+        </div>
+      </div>
+      
+      <%# チェックされた良いところのリスト %>
+      
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">チェックされた良いところ (<%= @scores.count %>個)</h5>
+        </div>
+        <div class="card-body p-4">
+          
+          <% if @scores.any? %>
+            <%# スコアをTemplateItemのCategoryでグループ化 %>
+            <% @scores.group_by { |score| score.template_item.category }.each do |category, scores_by_category| %>
+              <div class="mb-4">
+                <h6 class="fw-bold text-dark-emphasis border-bottom pb-1 mb-2"><%= category %></h6>
+                <ul class="list-unstyled">
+                  <% scores_by_category.each do |score| %>
+                    <li class="d-flex align-items-start mb-2">
+                      <i class="fas fa-check-circle text-success me-2 mt-1 flex-shrink-0"></i>
+                      <p class="mb-0 text-muted"><%= score.template_item.title %></p>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="alert alert-info text-center" role="alert">
+              <i class="fas fa-info-circle me-2"></i> チェックされた項目はありませんでした。
+            </div>
+          <% end %>
+
+        </div>
+      </div>
+      
+      <%# フッター情報 %>
+      <div class="text-center text-muted small mt-5">
+        <p class="mb-0">評価ID: <%= @evaluation.id %></p>
+      </div>
+
+    </div>
+  </div>
+</div>
