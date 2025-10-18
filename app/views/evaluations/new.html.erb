@@ -1,4 +1,3 @@
-<%# 評価メッセージ新規作成フォーム %>
 <div class="container my-5">
   <div class="row justify-content-center">
     <div class="col-lg-10">
@@ -51,7 +50,15 @@
                               placeholder: "感謝の言葉や、具体的なエピソードを添えてください。" %>
             </div>
 
-            <h5 class="fw-bold mb-3 text-primary">相手の優れた点をチェックしてください (最低1つ必須)</h5>
+            <h5 class="fw-bold mb-3 text-primary">
+              相手の優れた点をチェックしてください 
+              <%# カスタムバリデーションエラー表示 %>
+              <% if @evaluation.errors[:base].present? %>
+                <span class="text-danger small">(<%= @evaluation.errors[:base].to_sentence %>)</span>
+              <% else %>
+                <span class="text-secondary small">(最低1つ必須)</span>
+              <% end %>
+            </h5>
             <p class="text-secondary small mb-4">該当する項目にチェックを入れることで、相手にフィードバックとして伝わります!</p>
 
             <%# 評価項目リスト %>
@@ -63,20 +70,22 @@
                     <ul class="list-unstyled mb-0">
                       <% items.each do |item| %>
                         <li class="form-check mb-2">
-                          <%# 確実に動くように、レコードIDの渡し方を修正 %>
-                          <% score = @evaluation.evaluation_scores.find { |s| s.template_item_id == item.id } || @evaluation.evaluation_scores.build(template_item_id: item.id) %>
                           
-                          <%# new_record?の場合はnil、既存レコードはIDを渡すことでエラーを回避 %>
-                          <%= f.fields_for :evaluation_scores, score, index: score.new_record? ? nil : score.id do |score_f| %>
-                            <%= score_f.hidden_field :template_item_id, value: item.id %>
+                          <%= f.fields_for :evaluation_scores, @evaluation.evaluation_scores.find_or_initialize_by(template_item_id: item.id) do |score_f| %>
                             
-                            <%# チェックボックスの true_value/false_value を使用 %>
+                            <%= score_f.hidden_field :id %>
+                            
+                            <%= score_f.hidden_field :template_item_id %>
+                            
+                            <%# check_boxヘルパーは自動でhidden field(false_value)を生成 %>
                             <%= score_f.check_box :score, 
                                                   { class: "form-check-input" }, 
-                                                  1,   # true_value: チェックされていたら '1' を送信
-                                                  nil  # false_value: チェックされていなかったら何も送信しない
+                                                  '1',    # true_value: チェック時の値
+                                                  '0'     # false_value: 未チェック時の値
                             %>
+                            <%# labelヘルパーを使用し、item.titleをラベルテキストに %>
                             <%= score_f.label :score, item.title, class: "form-check-label" %>
+                            
                           <% end %>
                         </li>
                       <% end %>

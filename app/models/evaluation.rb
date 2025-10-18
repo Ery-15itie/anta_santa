@@ -16,14 +16,13 @@ class Evaluation < ApplicationRecord
   # ネストされた属性の許可
   accepts_nested_attributes_for :evaluation_scores,
                                  allow_destroy: true,
-                                 # template_item_idとscoreの両方が空なら破棄
                                  reject_if: proc { |attributes| attributes['score'].blank? && attributes['template_item_id'].blank? }
 
   # 基本的なバリデーション
   validates :evaluator_id, presence: true
   validates :evaluated_user_id, presence: true
   validates :template_id, presence: true
-  validates :message, presence: true # ja.yml の日本語メッセージを使用
+  validates :message, presence: true 
 
   # カスタムバリデーション
   validate :cannot_evaluate_self
@@ -38,12 +37,12 @@ class Evaluation < ApplicationRecord
 
   # 評価スコア（チェックボックス）が最低1つ存在するかチェック
   def must_have_at_least_one_score
-    # scoreが '1' (チェックされたもの) のレコードをカウント
+    # scoreが 1 のレコードを、to_iで確実にカウント
     checked_scores = evaluation_scores.reject(&:marked_for_destruction?)
                                       .count { |score| score.score.to_i == 1 }
 
     if checked_scores < 1
-      errors.add(:base, '優れた点を一つ以上チェックしてください')
+      errors.add(:base, '1つ以上チェックしてください') 
     end
   end
 end
