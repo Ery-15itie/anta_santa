@@ -1,122 +1,68 @@
 class EvaluationsController < ApplicationController
-  before_action :authenticate_user! # 認証済みのユーザーのみアクセス可能とする
-
+  before_action :authenticate_user!
+  before_action :set_recipient, only: [:new, :create]
+  before_action :check_follow_relationship, only: [:new, :create]
+  
   # 評価一覧
   def index
     # 自分が受け取った公開済みの評価一覧
-    @evaluations_received = current_user.evaluations_received.published.recent
+    @evaluations_received = current_user.recipient_evaluations.recent
     # 自分が送った評価一覧
-    @evaluations_given = current_user.evaluations_given.recent
+    @evaluations_given = current_user.sender_evaluations.recent
   end
 
-  # 評価詳細
-  def show
-    # includesで関連モデルをプリロード (N+1問題対策)
-    @evaluation = Evaluation.includes(
-      :evaluator, 
-      :evaluated_user, 
-      evaluation_scores: :template_item
-    ).find(params[:id])
-
-    # 閲覧権限のチェック
-    # 評価者(evaluator)か評価対象者(evaluated_user)のどちらかであれば閲覧可能
-    unless @evaluation.evaluated_user == current_user || @evaluation.evaluator == current_user
-      redirect_to evaluations_path, alert: "アクセス権限がありません。"
-      return
-    end
-
-    # ビューでチェックされた項目数とリストを表示するために、scoreが1の項目を抽出
-    @scores = @evaluation.evaluation_scores.select { |es| es.score.to_s == '1' }
-    
-    # 抽出後のデバッグログ（開発環境でのみ有効）
-    Rails.logger.debug "=== チェックされたスコア数: #{@scores.count} ==="
-  end
-
-  # 新規作成フォーム
+  # 評価作成フォーム
   def new
-    @evaluation = current_user.evaluations_given.build
-    prepare_new_form_data
+    @evaluation = @recipient.recipient_evaluations.build(sender: current_user)
   end
 
-  # 評価作成
+  # 評価作成処理
   def create
-    # === デバッグログ開始 ===
-    Rails.logger.debug "=== 受信パラメータ ==="
-    Rails.logger.debug params.inspect
-    Rails.logger.debug "=== evaluation_params ==="
-    Rails.logger.debug evaluation_params.inspect
-    # === デバッグログ終了 ===
-    
-    @evaluation = current_user.evaluations_given.build(evaluation_params)
-    
-    # titleカラムのNOT NULL制約を満たすため、titleを自動設定
-    @evaluation.title = generate_evaluation_title(@evaluation)
-    
-    # === デバッグログ (バリデーション前) ===
-    Rails.logger.debug "=== バリデーション前の evaluation_scores ==="
-    @evaluation.evaluation_scores.each_with_index do |score, index|
-      Rails.logger.debug "Score #{index}: template_item_id=#{score.template_item_id}, score=#{score.score.inspect}"
-    end
-    # === デバッグログ終了 ===
+    @evaluation = @recipient.recipient_evaluations.build(evaluation_params.merge(sender: current_user))
     
     if @evaluation.save
-      redirect_to evaluations_path, notice: '評価を送信しました!'
+      redirect_to dashboard_index_path, notice: "評価（メッセージ）を#{User.model_name.human}（#{@recipient.username}）に送信しました！"
     else
-      # === デバッグログ (バリデーションエラー) ===
-      Rails.logger.debug "=== バリデーションエラー ==="
-      Rails.logger.debug @evaluation.errors.full_messages
-      # === デバッグログ終了 ===
-      
-      # エラー時は再度フォームを表示するためにデータを準備し、render :new を実行
-      prepare_new_form_data
+      # 失敗時はnewテンプレートを再描画
+      flash.now[:alert] = "評価の送信に失敗しました。入力内容を確認してください。"
       render :new, status: :unprocessable_entity
+    end
+  end
+
+  # 評価の削除（任意）
+  def destroy
+    # 自分が送った評価のみ削除可能
+    @evaluation = current_user.sender_evaluations.find(params[:id])
+    
+    if @evaluation.destroy
+      redirect_to evaluations_path, notice: '評価を削除しました。'
+    else
+      redirect_to evaluations_path, alert: '評価の削除に失敗しました。'
     end
   end
 
   private
 
-  # フォームに必要なデータを準備する
-  def prepare_new_form_data
-    # 評価対象ユーザーのリスト（自分自身を除く）
-    @target_users = User.where.not(id: current_user.id).pluck(:name, :id)
-    # 使用するテンプレートを取得
-    @template = Template.find_by(title: '大人のサンタさん通知表 - 評価シート')
+  def evaluation_params
+    params.require(:evaluation).permit(:score, :comment, :is_public)
+  end
 
-    # テンプレートがない場合はエラー処理（実運用では必須）
-    unless @template
-      redirect_to dashboard_path, alert: "評価テンプレートが見つかりませんでした。"
+  # 評価対象ユーザー（recipient）を取得
+  def set_recipient
+    @recipient = User.find_by(id: params[:recipient_id])
+  end
+
+  # 評価条件の確認（自分自身への評価禁止、フォロー関係の確認）
+  def check_follow_relationship
+    # ユーザーが存在しない、または自分自身を評価しようとした場合はエラー
+    if @recipient.nil? || @recipient == current_user
+      redirect_to dashboard_index_path, alert: "評価対象ユーザーが無効です。"
       return
     end
-    
-    # find_or_initialize_by を使用してスコアを初期化
-    @template.template_items.each do |item|
-      @evaluation.evaluation_scores.find_or_initialize_by(template_item_id: item.id) do |score|
-        score.score ||= 0
-      end
-    end
-  end
 
-  # titleを自動生成するメソッド
-  def generate_evaluation_title(evaluation)
-    # find_by を使用して、レコードが存在しない場合でもエラーにならないようにする
-    template = Template.find_by(id: evaluation.template_id)
-    evaluated_user = User.find_by(id: evaluation.evaluated_user_id)
-    
-    if template && evaluated_user
-      "#{template.title} - #{evaluated_user.name}への評価 (#{Date.current.strftime('%Y/%m/%d')})"
-    else
-      # 関連レコードが見つからない場合は、フォールバックのタイトルを設定
-      "評価タイトル (未定義)"
+    # フォローしていないユーザーには評価を送信できない
+    unless current_user.following?(@recipient)
+      redirect_to user_path(@recipient), alert: "#{@recipient.username}さんをフォローしていません。フォロー後に評価を送信できます。"
     end
-  end
-  
-  def evaluation_params
-    params.require(:evaluation).permit(
-      :evaluated_user_id,
-      :template_id,
-      :message,
-      :title,
-      evaluation_scores_attributes: [:id, :template_item_id, :score, :_destroy]
-    )
   end
 end

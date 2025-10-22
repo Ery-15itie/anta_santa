@@ -1,77 +1,29 @@
 Rails.application.routes.draw do
-  # Devise (GitHub OmniAuth) のルーティング
+  # Deviseによるユーザー認証ルート
   devise_for :users, controllers: {
-    omniauth_callbacks: 'users/omniauth_callbacks',
-    registrations: 'users/registrations',
-    sessions: 'users/sessions'
+    sessions: 'users/sessions',
+    registrations: 'users/registrations'
   }
 
-  # ログイン後のリダイレクト先
+  # プロフィール表示とユーザー一覧 (index)
+  # indexを追加することで、dashboardで必要とされる users_path が有効になる
+  resources :users, only: [:index, :show] 
+  
+  # フォロー/アンフォロー
+  resources :relationships, only: [:create, :destroy]
+
+  # 評価（サンタ通知）
+  resources :evaluations, only: [:index, :show, :new, :create]
+
+  # --- ダッシュボード周りのルーティング ---
+  # GET /dashboard を dashboard#index に割り当てる
+  get '/dashboard', to: 'dashboard#index', as: 'dashboard'
+
+  # 認証済みユーザー向けのルート（ログイン後のトップページ）
   authenticated :user do
     root 'dashboard#index', as: :authenticated_root
   end
 
-  # トップページ (未認証ユーザー)
-  root 'home#index'
-
-  # ダッシュボード
-  get 'dashboard', to: 'dashboard#index'
-
-  # ユーザープロフィール
-  resources :users, only: [:show, :edit, :update] do
-    member do
-      get :followers
-      get :following
-    end
-  end
-
-  # フォロー機能
-  resources :relationships, only: [:create, :destroy]
-
-  # テンプレート管理
-  resources :templates do
-    member do
-      post :duplicate
-    end
-    resources :template_items, only: [:create, :update, :destroy]
-  end
-
-  # 評価機能
-  resources :evaluations do
-    member do
-      patch :submit
-      patch :publish
-    end
-    resources :evaluation_scores, only: [:create, :update]
-  end
-
-  # レポート
-  resources :reports, only: [:index, :show]
-
-  # グループ
-  resources :groups do
-    member do
-      post :join
-      delete :leave
-    end
-    resources :group_memberships, only: [:create, :destroy]
-  end
-
-  # GitHub連携
-  namespace :github do
-    get 'connect', to: 'integration#connect'
-    delete 'disconnect', to: 'integration#disconnect'
-    post 'sync', to: 'integration#sync'
-  end
-
-  # Health Check
-  get "up" => "rails/health#show", as: :rails_health_check
-
-  # API (将来的な拡張用)
-  namespace :api do
-    namespace :v1 do
-      resources :evaluations, only: [:index, :show]
-      resources :github_stats, only: [:index]
-    end
-  end
+  # 未認証ユーザー向けのルート（ログイン画面）
+  root to: redirect('/users/sign_in')
 end

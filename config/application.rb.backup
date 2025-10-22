@@ -22,9 +22,6 @@ module SantaReportApp
     # この行により、Userモデルがroutes.rbより早くロードされる
     config.eager_load_paths << Rails.root.join("app", "models")
 
-    # セッション設定（CSRF対策）
-    config.session_store :cookie_store, key: "_santa_report_session", expire_after: 1.day
-
     # config.eager_load_paths << Rails.root.join("extras") 
 
     # 以前のbefore_configurationブロックコメントアウト

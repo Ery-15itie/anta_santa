@@ -1,63 +1,60 @@
 class User < ApplicationRecord
-  # Devise modules
+  # Include default devise modules. Others available are:
+  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  # GitHub認証を一時的に無効化するため、:omniauthable は外してる
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
-         :omniauthable, omniauth_providers: [:github]
+         :trackable
 
-  # Associations
-  has_one :github_profile, dependent: :destroy
+  # GitHub認証のコードは残しておき、後で簡単に復帰できるように！
+  # def self.from_omniauth(auth)
+  #   where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
+  #     user.email = auth.info.email
+  #     user.password = Devise.friendly_token[0, 20]
+  #     user.username = auth.info.nickname || auth.info.name
+  #     # ユーザーのプロフィール画像なども設定可能
+  #   end
+  # end
+
+  # ユーザー名（username）は必須、一意
+  validates :username, presence: true, uniqueness: true, length: { maximum: 50 }
+
+  # ==================================
+  # 評価（Evaluation）関連アソシエーション
+  # ==================================
+  # 自分が送った評価（sender_evaluations）
+  # 外部キー: sender_id
+  has_many :sender_evaluations, class_name: 'Evaluation', foreign_key: 'sender_id', dependent: :destroy
   
-  # フォロー機能
-  has_many :active_relationships, class_name: 'Relationship',
-                                   foreign_key: 'follower_id',
-                                   dependent: :destroy
-  has_many :passive_relationships, class_name: 'Relationship',
-                                    foreign_key: 'followed_id',
-                                    dependent: :destroy
+  # 自分が受け取った評価（recipient_evaluations）
+  # 外部キー: recipient_id
+  has_many :recipient_evaluations, class_name: 'Evaluation', foreign_key: 'recipient_id', dependent: :destroy
+
+  # ==================================
+  # フォロー（Follow）関連アソシエーション
+  # ==================================
+  # 自分がフォローしている人たち (Following)
+  has_many :active_relationships, class_name: 'Relationship', foreign_key: 'follower_id', dependent: :destroy
   has_many :following, through: :active_relationships, source: :followed
+  
+  # 自分をフォローしている人たち (Followers)
+  has_many :passive_relationships, class_name: 'Relationship', foreign_key: 'followed_id', dependent: :destroy
   has_many :followers, through: :passive_relationships, source: :follower
-  
-  # テンプレート
-  has_many :templates, dependent: :destroy
-  
-  # 評価
-  has_many :evaluations_given, class_name: 'Evaluation',
-                                foreign_key: 'evaluator_id',
-                                dependent: :destroy
-  has_many :evaluations_received, class_name: 'Evaluation',
-                                   foreign_key: 'evaluated_user_id',
-                                   dependent: :destroy
 
-  # Validations
-  validates :name, presence: true, length: { maximum: 50 }
-  validates :provider, presence: true, if: :uid?
-  validates :uid, presence: true, if: :provider?
-  validates :uid, uniqueness: { scope: :provider }, allow_nil: true
-
-  # OmniAuth callback用クラスメソッド
-  def self.from_omniauth(auth)
-    where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
-      user.email = auth.info.email
-      user.password = Devise.friendly_token[0, 20]
-      user.name = auth.info.name || auth.info.nickname
-      user.image_url = auth.info.image
-      user.github_username = auth.info.nickname
-    end
-  end
-
-  # Instance methods
-  def display_name
-    name.presence || github_username.presence || email.split('@').first
-  end
-
+  # ==================================
+  # フォロー関連のカスタムメソッド
+  # ==================================
+  # 特定のユーザーをフォローする
   def follow(other_user)
     following << other_user unless self == other_user
   end
 
+  # 特定のユーザーのフォローを解除する
   def unfollow(other_user)
     following.delete(other_user)
   end
 
+  # 特定のユーザーをフォローしているかどうかを返す
   def following?(other_user)
     following.include?(other_user)
   end
