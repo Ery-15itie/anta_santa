@@ -1,106 +1,90 @@
-<%# 評価一覧ページ %>
 <div class="container my-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-10">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">メッセージ一覧</h1>
+    <%= link_to "← ダッシュボードに戻る", dashboard_path, class: "btn btn-outline-secondary" %>
+  </div>
 
-      <%# ダッシュボードに戻るボタンを追加 %>
-      <div class="mb-4 text-start">
-        <%= link_to dashboard_path, class: "btn btn-outline-secondary btn-sm rounded-pill" do %>
-          <i class="fas fa-arrow-left me-1"></i> ダッシュボードに戻る
-        <% end %>
-      </div>
+  <ul class="nav nav-tabs" id="evaluationTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="received-tab" data-bs-toggle="tab" data-bs-target="#received" type="button" role="tab" aria-controls="received" aria-selected="true">
+        もらったメッセージ (<%= @evaluations_received.count %>)
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="given-tab" data-bs-toggle="tab" data-bs-target="#given" type="button" role="tab" aria-controls="given" aria-selected="false">
+        送ったメッセージ (<%= @evaluations_given.count %>)
+      </button>
+    </li>
+  </ul>
 
-      <h1 class="text-center mb-4 text-primary fw-bold">メッセージ一覧</h1>
-      <p class="text-center text-muted mb-5">あなたに届いた、仲間からの温かいメッセージを確認しましょう。</p>
-
-      <div class="mb-4 text-end">
-        <%= link_to new_evaluation_path, class: "btn btn-lg btn-success rounded-pill shadow-lg" do %>
-          <i class="fas fa-paper-plane me-2"></i> 新しいメッセージを送る
-        <% end %>
-      </div>
-
-      <%# タブナビゲーション %>
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="received-tab" data-bs-toggle="tab" data-bs-target="#received-messages" type="button" role="tab" aria-controls="received-messages" aria-selected="true">
-            もらったメッセージ (<%= @evaluations_received.count %>)
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent-messages" type="button" role="tab" aria-controls="sent-messages" aria-selected="false">
-            送ったメッセージ (<%= @evaluations_given.count %>)
-          </button>
-        </li>
-      </ul>
-
-      <%# タブコンテンツ %>
-      <div class="tab-content border border-top-0 p-4 bg-white shadow-sm">
-        
-        <%# === 1. もらったメッセージ (Evaluations Received) === %>
-        <div class="tab-pane fade show active" id="received-messages" role="tabpanel" aria-labelledby="received-tab">
-          <% if @evaluations_received.any? %>
-            <table class="table table-hover table-striped">
-              <thead class="table-light">
-                <tr>
-                  <th>タイトル</th>
-                  <th>送信者</th>
-                  <th>日付</th>
-                  <th class="text-center">詳細</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% @evaluations_received.each do |evaluation| %>
-                  <tr>
-                    <td><%= evaluation.title %></td>
-                    <td><%= evaluation.evaluator.name %></td>
-                    <td><%= l(evaluation.created_at, format: :short) %></td>
-                    <td class="text-center">
-                      <%= link_to "詳細を見る", evaluation_path(evaluation), class: "btn btn-sm btn-info text-white" %>
-                    </td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          <% else %>
-            <div class="alert alert-info text-center" role="alert">
-              まだメッセージが届いていません。仲間からの評価を待ちましょう！
+  <div class="tab-content mt-3" id="evaluationTabsContent">
+    <%# ===== もらったメッセージタブ ===== %>
+    <div class="tab-pane fade show active" id="received" role="tabpanel" aria-labelledby="received-tab">
+      <% if @evaluations_received.any? %>
+        <div class="list-group">
+          <% @evaluations_received.each do |evaluation| %>
+            <div class="list-group-item list-group-item-action py-3 mb-2 rounded shadow-sm">
+              <div class="d-flex w-100 justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h5 class="mb-1">
+                    <i class="bi bi-gift-fill me-2 text-success"></i>
+                    <%= evaluation.evaluator.display_name %>さんからの温かいメッセージ
+                  </h5>
+                  <p class="mb-1 text-muted message-preview">
+                    <%= truncate(evaluation.message, length: 80) %>
+                  </p>
+                  <small class="text-secondary">
+                    ✨ <strong><%= evaluation.evaluation_scores.where(score: 1).count %>個</strong> の良いところを見つけてくれました
+                  </small>
+                </div>
+                <div class="text-end ms-3">
+                  <small class="text-muted d-block"><%= time_ago_in_words(evaluation.created_at) %>前</small>
+                  <%= link_to "詳細を見る →", evaluation_path(evaluation), class: "btn btn-sm btn-outline-primary mt-2" %>
+                </div>
+              </div>
             </div>
           <% end %>
         </div>
+      <% else %>
+        <div class="alert alert-info text-center mt-4" role="alert">
+          まだあなた宛のメッセージは届いていません。
+        </div>
+      <% end %>
+    </div>
 
-        <%# === 2. 送ったメッセージ (Evaluations Given) === %>
-        <div class="tab-pane fade" id="sent-messages" role="tabpanel" aria-labelledby="sent-tab">
-          <% if @evaluations_given.any? %>
-            <table class="table table-hover table-striped">
-              <thead class="table-light">
-                <tr>
-                  <th>タイトル</th>
-                  <th>評価対象者</th>
-                  <th>日付</th>
-                  <th class="text-center">詳細</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% @evaluations_given.each do |evaluation| %>
-                  <tr>
-                    <td><%= evaluation.title %></td>
-                    <td><%= evaluation.evaluated_user.name %></td>
-                    <td><%= l(evaluation.created_at, format: :short) %></td>
-                    <td class="text-center">
-                      <%= link_to "詳細を見る", evaluation_path(evaluation), class: "btn btn-sm btn-info text-white" %>
-                    </td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          <% else %>
-            <div class="alert alert-info text-center" role="alert">
-              このタブには、あなたが送ったメッセージの一覧が表示されます。
+    <%# ===== 送ったメッセージタブ ===== %>
+    <div class="tab-pane fade" id="given" role="tabpanel" aria-labelledby="given-tab">
+      <% if @evaluations_given.any? %>
+        <div class="list-group">
+          <% @evaluations_given.each do |evaluation| %>
+            <div class="list-group-item list-group-item-action py-3 mb-2 rounded shadow-sm">
+              <div class="d-flex w-100 justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h5 class="mb-1">
+                    <i class="bi bi-send-fill me-2 text-danger"></i>
+                    <%= evaluation.evaluated_user.display_name %>さんに送ったメッセージ
+                  </h5>
+                  <p class="mb-1 text-muted message-preview">
+                    <%= truncate(evaluation.message, length: 80) %>
+                  </p>
+                  <small class="text-secondary">
+                    ✨ <strong><%= evaluation.evaluation_scores.where(score: 1).count %>個</strong> の良いところを伝えました
+                  </small>
+                </div>
+                <div class="text-end ms-3">
+                  <small class="text-muted d-block"><%= time_ago_in_words(evaluation.created_at) %>前</small>
+                  <%# 送ったメッセージの詳細も同じビューで表示 %>
+                  <%= link_to "詳細を見る →", evaluation_path(evaluation), class: "btn btn-sm btn-outline-success mt-2" %>
+                </div>
+              </div>
             </div>
           <% end %>
         </div>
-        
-      </div>
+      <% else %>
+        <div class="alert alert-warning text-center mt-4" role="alert">
+          まだ誰にもメッセージを送っていません。早速誰かを褒めてみましょう！
+        </div>
+      <% end %>
     </div>
   </div>
 </div>

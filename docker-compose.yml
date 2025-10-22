@@ -34,12 +34,8 @@ services:
       BUNDLE_GEMFILE: /rails/Gemfile
       
       # GitHub連携用の環境変数
-      GITHUB_KEY: "Ov23linzaYIPzdhEJDBO" 
-      GITHUB_SECRET: "d79d5742f9d751d7bdcd462250f25eeaf9b282d0"
-    
-    tty: true
-    stdin_open: true
-
+      GITHUB_CLIENT_ID: "Ov23liKG1aGFbepG6r1P"
+      GITHUB_CLIENT_SECRET: "df922fbd96b764ff29fe3a246430fa22c405cd5d" 
 volumes:
   mysql_data:
   bundle_cache:

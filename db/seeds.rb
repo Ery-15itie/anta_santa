@@ -1,22 +1,45 @@
-require 'digest/sha1'
+require 'digest/sha1' 
 
-# 既存データをクリア（開発環境のみ）
+# ----------------------------------------------------
+# 開発環境での既存データクリア
+# ----------------------------------------------------
 if Rails.env.development?
-  TemplateItem.destroy_all
-  Template.destroy_all
-  puts "既存のテンプレートをクリアしました"
+  if defined?(TemplateItem)
+    TemplateItem.destroy_all 
+    puts "TemplateItem データをクリアしました。"
+  end
+  if defined?(Template)
+    Template.destroy_all 
+    puts "Template データをクリアしました。"
+  end
+  # ユーザーデータもクリア
+  User.destroy_all
+  
+  puts "既存のユーザーとテンプレートデータをクリアしました。"
 end
 
-# 管理者ユーザーの作成
+
+# ----------------------------------------------------
+# 管理者ユーザーの作成 (usernameを使用)
+# ----------------------------------------------------
+puts "管理者ユーザーの作成を開始..."
+
 admin = User.find_or_create_by!(email: 'admin@anta-santa.com') do |user|
   user.password = 'password123'
   user.password_confirmation = 'password123'
-  user.name = 'システム管理者'
+  user.username = 'システム管理者' 
   user.provider = 'email' 
   user.uid = Digest::SHA1.hexdigest(user.email) 
 end
+puts "管理者ユーザー (email: admin@anta-santa.com) を作成しました。"
 
-# デフォルトテンプレートの作成
+
+# ----------------------------------------------------
+# デフォルトテンプレートの作成 (モデル名: Templateを使用)
+# ----------------------------------------------------
+puts "デフォルト評価テンプレートの作成を開始..."
+
+# Template モデルを使用
 template = Template.create!(
   user: admin,
   title: '大人のサンタさん通知表 - 評価シート',
@@ -225,6 +248,7 @@ position = 0
 
 (basic_skills + engineer_skills).each do |skill_group|
   skill_group[:items].each do |item_title|
+    # TemplateItem モデルを使用
     template.template_items.create!(
       title: item_title,
       category: skill_group[:category],
@@ -238,3 +262,23 @@ position = 0
 end
 
 puts "デフォルトテンプレートを作成しました（#{template.template_items.count}項目）"
+
+# ----------------------------------------------------
+# 4. テストユーザーとデータの作成（動作確認用）
+# ----------------------------------------------------
+if User.count <= 1 # 管理者以外のユーザーがいない場合
+  User.find_or_create_by!(email: 'tester1@example.com') do |user|
+      user.username = 'テストユーザー1'
+      user.password = 'password'
+      user.password_confirmation = 'password'
+  end
+  
+  User.find_or_create_by!(email: 'tester2@example.com') do |user|
+      user.username = 'テストユーザー2'
+      user.password = 'password'
+      user.password_confirmation = 'password'
+  end
+  puts "テストユーザー2名を追加しました。"
+end
+
+puts "シードデータの投入が完了しました！"

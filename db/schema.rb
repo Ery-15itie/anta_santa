@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_07_223432) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_22_130748) do
   create_table "evaluation_scores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "evaluation_id", null: false
     t.bigint "template_item_id", null: false
@@ -18,6 +18,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_07_223432) do
     t.text "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_checked", default: false, null: false
     t.index ["evaluation_id"], name: "index_evaluation_scores_on_evaluation_id"
     t.index ["template_item_id"], name: "index_evaluation_scores_on_template_item_id"
   end
@@ -98,9 +99,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_07_223432) do
     t.string "github_username"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "username"
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string "current_sign_in_ip"
+    t.string "last_sign_in_ip"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
   add_foreign_key "evaluation_scores", "evaluations"

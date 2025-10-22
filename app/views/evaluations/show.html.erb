@@ -1,70 +1,79 @@
-<%# 評価詳細ページ %>
-<div class="container my-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-10">
-      
-      <div class="mb-4 text-start">
-        <%= link_to evaluations_path, class: "btn btn-outline-secondary btn-sm rounded-pill" do %>
-          <i class="fas fa-arrow-left me-1"></i> 受信・送信一覧に戻る
-        <% end %>
-      </div>
-      
-      <h1 class="text-center mb-4 text-primary fw-bold">
+<div class="container mx-auto p-4 sm:p-6 lg:p-8 min-h-screen bg-amber-50 dark:bg-gray-900">
+  <div class="max-w-4xl mx-auto">
+    
+    <%# 戻るボタン %>
+    <div class="mb-6 text-left">
+      <%= link_to evaluations_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        受信・送信一覧に戻る
+      <% end %>
+    </div>
+    
+    <%# ヘッダーエリア %>
+    <div class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 md:p-8 mb-6">
+      <h1 class="text-3xl sm:text-4xl text-center mb-2 text-red-600 font-extrabold tracking-tight">
         <%= @evaluation.title %>
       </h1>
-      <p class="text-center text-secondary mb-5">
-        <%= @evaluation.evaluator.name %>さんから <%= @evaluation.evaluated_user.name %>さんへの評価
-        <span class="small d-block mt-1">(送信日: <%= l(@evaluation.created_at, format: :long) %>)</span>
+      <p class="text-center text-gray-500 dark:text-gray-400 text-sm sm:text-base">
+        <%= @evaluation.evaluator.display_name %>さんから <%= @evaluation.recipient.display_name %>さんへの評価
+        <span class="block mt-1 text-xs sm:text-sm text-gray-400">(送信日: <%= l(@evaluation.created_at, format: :long) %>)</span>
       </p>
-
-      <%# 評価メッセージカード %>
-      <div class="card shadow-lg mb-5 border-0">
-        <div class="card-header bg-primary text-white py-3">
-          <h5 class="mb-0 fw-bold">感謝のメッセージ</h5>
-        </div>
-        <div class="card-body p-4 p-md-5 bg-light">
-          <%# メッセージを改行込みで表示（whitespace-pre-wrap） %>
-          <p class="card-text fs-5 text-dark-emphasis whitespace-pre-wrap"><%= @evaluation.message %></p>
-        </div>
-      </div>
-      
-      <%# チェックされた良いところのリスト %>
-      
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">チェックされた良いところ (<%= @scores.count %>個)</h5>
-        </div>
-        <div class="card-body p-4">
-          
-          <% if @scores.any? %>
-            <%# スコアをTemplateItemのCategoryでグループ化 %>
-            <% @scores.group_by { |score| score.template_item.category }.each do |category, scores_by_category| %>
-              <div class="mb-4">
-                <h6 class="fw-bold text-dark-emphasis border-bottom pb-1 mb-2"><%= category %></h6>
-                <ul class="list-unstyled">
-                  <% scores_by_category.each do |score| %>
-                    <li class="d-flex align-items-start mb-2">
-                      <i class="fas fa-check-circle text-success me-2 mt-1 flex-shrink-0"></i>
-                      <p class="mb-0 text-muted"><%= score.template_item.title %></p>
-                    </li>
-                  <% end %>
-                </ul>
-              </div>
-            <% end %>
-          <% else %>
-            <div class="alert alert-info text-center" role="alert">
-              <i class="fas fa-info-circle me-2"></i> チェックされた項目はありませんでした。
-            </div>
-          <% end %>
-
-        </div>
-      </div>
-      
-      <%# フッター情報 %>
-      <div class="text-center text-muted small mt-5">
-        <p class="mb-0">評価ID: <%= @evaluation.id %></p>
-      </div>
-
     </div>
+
+    <%# 評価メッセージカード %>
+    <div class="mb-8">
+      <div class="bg-red-50 dark:bg-gray-700 rounded-xl shadow-lg border border-red-200">
+        <div class="p-4 rounded-t-xl bg-red-500/80 text-white">
+          <h2 class="text-xl font-bold">感謝のメッセージ</h2>
+        </div>
+        <div class="p-5 bg-white rounded-b-xl dark:bg-gray-800">
+          <%# メッセージを改行込みで表示（whitespace-pre-wrap） %>
+          <p class="text-gray-800 dark:text-gray-200 text-lg whitespace-pre-wrap"><%= @evaluation.message %></p>
+        </div>
+      </div>
+    </div>
+    
+    <%# チェックされた良いところのリスト %>
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-5 border border-gray-100 dark:border-gray-700">
+      <div class="flex items-center justify-between border-b pb-3 mb-4">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+          チェックされた良いところ (<%= @scores.count %>個)
+        </h2>
+        <span class="text-red-500 font-semibold text-2xl"><%= @scores.count %></span>
+      </div>
+
+      <% if @scores.any? %>
+        <%# スコアをTemplateItemのCategoryでグループ化 %>
+        <% @scores.group_by { |score| score.template_item.category }.each do |category, scores_by_category| %>
+          <div class="mb-4 last:mb-0">
+            <h3 class="font-bold text-red-500 border-b border-red-100 pb-1 mb-2 text-md">
+              <span class="inline-block px-2 py-0.5 rounded-md bg-red-100"><%= category %></span>
+            </h3>
+            <ul class="space-y-2 pl-4 list-none">
+              <% scores_by_category.each do |score| %>
+                <li class="flex items-start text-gray-700 dark:text-gray-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 flex-shrink-0 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  <%= score.template_item.title %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="p-4 text-center bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+          <p class="text-gray-600 dark:text-gray-400">チェックされた項目はありませんでした。</p>
+        </div>
+      <% end %>
+    </div>
+    
+    <%# フッター情報 %>
+    <div class="text-center text-gray-400 small mt-6">
+      <p class="mb-0">評価ID: <%= @evaluation.id %></p>
+    </div>
+
   </div>
 </div>
