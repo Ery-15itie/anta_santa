@@ -20,15 +20,19 @@ class User < ApplicationRecord
   validates :username, presence: true, uniqueness: true, length: { maximum: 50 }
 
   # ==================================
-  # 評価（Evaluation）関連アソシエーション
+  # 評価（Evaluation）関連アソシエーション -　命名の統一チェック
   # ==================================
-  # 自分が送った評価（sender_evaluations）
-  # 外部キー: sender_id
-  has_many :sender_evaluations, class_name: 'Evaluation', foreign_key: 'sender_id', dependent: :destroy
+  # 自分が送った評価 (Evaluation モデルの :evaluator に対応)
+  has_many :evaluator_evaluations, 
+           class_name: 'Evaluation', 
+           foreign_key: 'evaluator_id', 
+           dependent: :destroy
   
-  # 自分が受け取った評価（recipient_evaluations）
-  # 外部キー: recipient_id
-  has_many :recipient_evaluations, class_name: 'Evaluation', foreign_key: 'recipient_id', dependent: :destroy
+  # 自分が受け取った評価 (Evaluation モデルの :evaluated_user に対応)
+  has_many :evaluated_user_evaluations, 
+           class_name: 'Evaluation', 
+           foreign_key: 'evaluated_user_id', 
+           dependent: :destroy
 
   # ==================================
   # フォロー（Follow）関連アソシエーション

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_22_130748) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
   create_table "evaluation_scores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "evaluation_id", null: false
     t.bigint "template_item_id", null: false
@@ -27,7 +27,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_22_130748) do
     t.bigint "evaluator_id", null: false
     t.bigint "evaluated_user_id", null: false
     t.bigint "template_id", null: false
-    t.string "title", null: false
     t.integer "status", default: 0
     t.integer "total_score", default: 0
     t.datetime "created_at", null: false

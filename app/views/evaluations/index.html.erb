@@ -28,7 +28,7 @@
                 <div class="flex-grow-1">
                   <h5 class="mb-1">
                     <i class="bi bi-gift-fill me-2 text-success"></i>
-                    <%= evaluation.evaluator.display_name %>さんからの温かいメッセージ
+                    <%= evaluation.evaluator.username %>さんからの温かいメッセージ
                   </h5>
                   <p class="mb-1 text-muted message-preview">
                     <%= truncate(evaluation.message, length: 80) %>
@@ -62,7 +62,8 @@
                 <div class="flex-grow-1">
                   <h5 class="mb-1">
                     <i class="bi bi-send-fill me-2 text-danger"></i>
-                    <%= evaluation.evaluated_user.display_name %>さんに送ったメッセージ
+                    <%# ★ 修正: evaluated_user.display_name -> evaluated_user.username ★ %>
+                    <%= evaluation.evaluated_user.username %>さんに送ったメッセージ
                   </h5>
                   <p class="mb-1 text-muted message-preview">
                     <%= truncate(evaluation.message, length: 80) %>
