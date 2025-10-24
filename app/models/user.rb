@@ -1,3 +1,4 @@
+# app/models/user.rb
 class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -17,7 +18,14 @@ class User < ApplicationRecord
   # end
 
   # ユーザー名（username）は必須、一意
-  validates :username, presence: true, uniqueness: true, length: { maximum: 50 }
+  # ★修正: uniquenessを大文字小文字を区別しない設定に変更し、ロバスト化
+  validates :username, 
+            presence: true, 
+            uniqueness: { case_sensitive: false }, 
+            length: { maximum: 50 }
+            
+  # ★追加: バリデーション前に、ユーザー名の前後の空白を除去するコールバックを追加
+  before_validation :strip_whitespace 
 
   # ==================================
   # 評価（Evaluation）関連アソシエーション -　命名の統一チェック
@@ -61,5 +69,16 @@ class User < ApplicationRecord
   # 特定のユーザーをフォローしているかどうかを返す
   def following?(other_user)
     following.include?(other_user)
+  end
+
+  # ==================================
+  # バリデーション用プライベートメソッド
+  # ==================================
+  private
+  
+  # 前後の空白を除去するメソッド
+  def strip_whitespace
+    # self.username が存在する場合のみ、前後の空白を除去
+    self.username = self.username.strip if self.username.present?
   end
 end
