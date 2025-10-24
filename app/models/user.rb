@@ -18,13 +18,13 @@ class User < ApplicationRecord
   # end
 
   # ユーザー名（username）は必須、一意
-  # ★修正: uniquenessを大文字小文字を区別しない設定に変更し、ロバスト化
+  # ★uniquenessを大文字小文字を区別しない設定に変更し、ロバスト化
   validates :username, 
             presence: true, 
             uniqueness: { case_sensitive: false }, 
             length: { maximum: 50 }
             
-  # ★追加: バリデーション前に、ユーザー名の前後の空白を除去するコールバックを追加
+  # ★バリデーション前に、ユーザー名の前後の空白を除去するコールバックを追加
   before_validation :strip_whitespace 
 
   # ==================================

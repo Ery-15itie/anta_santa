@@ -14,12 +14,12 @@
         <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-6" }) do |f| %>
           <%= render "devise/shared/error_messages", resource: resource %>
 
-          <%# ユーザー名（:name を使用） %>
+          <%# ユーザー名（:username ） %>
           <div>
-            <%= f.label :name, "ユーザー名", class: "block text-sm font-medium text-gray-700 mb-1" %>
-            <%= f.text_field :name, 
+            <%= f.label :username, "ユーザー名", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.text_field :username, 
                 autofocus: true, 
-                autocomplete: "name", 
+                autocomplete: "username", 
                 placeholder: "サンタ太郎",
                 class: "appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 transition duration-150 ease-in-out sm:text-sm" %>
           </div>
