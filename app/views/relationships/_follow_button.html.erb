@@ -1,0 +1,19 @@
+<%# ユーザーのフォロー状態に応じてボタンを切り替えるパーシャル %>
+
+<% if current_user.following?(@user) %>
+  <%# フォロー中の場合: アンフォローボタンを表示 %>
+  <%= button_to relationship_path(current_user.active_relationships.find_by(followed_id: @user.id)), 
+              method: :delete, 
+              data: { turbo_stream: true }, 
+              class: "btn btn-outline-danger fw-bold rounded-pill shadow-sm" do %>
+    <i class="fas fa-user-minus me-1"></i> フォロー中
+  <% end %>
+<% else %>
+  <%# 未フォローの場合: フォローボタンを表示 %>
+  <%= button_to relationships_path(followed_id: @user.id), 
+              method: :post, 
+              data: { turbo_stream: true }, 
+              class: "btn btn-success fw-bold rounded-pill shadow-sm" do %>
+    <i class="fas fa-user-plus me-1"></i> フォローする
+  <% end %>
+<% end %>

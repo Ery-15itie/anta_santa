@@ -1,0 +1,47 @@
+<div class="container mx-auto px-4 py-12 max-w-4xl">
+  <h1 class="text-3xl font-extrabold text-gray-800 mb-2 text-center">
+    フォロー中のフレンド一覧
+  </h1>
+  <p class="text-center text-gray-500 mb-10">
+    あなたが日頃感謝を届けたいと思っている大切な仲間たちです!
+  </p>
+
+  <%# ユーザー一覧に戻るボタン %>
+  <div class="text-center mb-8">
+    <%= link_to users_path, class: "inline-flex items-center px-4 py-2 bg-indigo-500 text-white font-semibold rounded-full shadow-md hover:bg-indigo-600 transition duration-150" do %>
+      <i class="fas fa-arrow-left mr-2"></i> ユーザー一覧に戻る
+    <% end %>
+  </div>
+
+  <div class="space-y-4">
+    <% if @users.empty? %>
+      <div class="text-center py-12 bg-white rounded-xl shadow-lg border border-gray-100">
+        <i class="fas fa-frown fa-3x text-gray-400 mx-auto mb-4"></i>
+        <p class="text-lg font-semibold text-gray-500">
+          まだ誰もフォローしていません
+        </p>
+        <p class="text-sm text-gray-400 mt-1">
+          ユーザー一覧から仲間を見つけてフォローしましょう！
+        </p>
+      </div>
+    <% else %>
+      <% @users.each do |user| %>
+        <div class="flex items-center justify-between p-4 bg-white rounded-xl shadow-md transition duration-300 hover:shadow-lg">
+          <div class="flex items-center">
+            <!-- ユーザーアイコンのプレースホルダー -->
+            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-lg font-semibold mr-4">
+              <%= user.username.to_s[0].upcase %>
+            </div>
+            <div>
+              <%# ユーザー名をクリックでプロフィールへ遷移 %>
+              <%= link_to user.username, user_path(user), class: "text-xl font-bold text-gray-800 hover:text-indigo-600 transition" %>
+            </div>
+          </div>
+          <!-- 評価送信ボタン -->
+          <%= link_to 'お手紙を送る', new_evaluation_path(receiver_id: user.id), 
+              class: 'px-4 py-2 bg-yellow-500 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition duration-300' %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
