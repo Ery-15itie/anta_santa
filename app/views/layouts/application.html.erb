@@ -64,13 +64,16 @@
             <div class="hidden md:block">
               <div class="ml-10 flex items-baseline space-x-4">
                 <%= link_to 'ダッシュボード', dashboard_path, class: "text-gray-500 dark:text-gray-300 hover:bg-red-50 hover:text-red-700 px-3 py-2 rounded-md text-sm font-medium transition" %>
+
+                <%= link_to 'フレンド一覧', following_users_path, class: "text-gray-500 dark:text-gray-300 hover:bg-red-50 hover:text-red-700 px-3 py-2 rounded-md text-sm font-medium transition" %>
+
                 <%= link_to 'ユーザー一覧', users_path, class: "text-gray-500 dark:text-gray-300 hover:bg-red-50 hover:text-red-700 px-3 py-2 rounded-md text-sm font-medium transition" %>
                 <div class="relative">
                   <%= link_to evaluations_path, class: "text-gray-500 dark:text-gray-300 hover:bg-red-50 hover:text-red-700 px-3 py-2 rounded-md text-sm font-medium transition" do %>
                     <span>お手紙ボックス</span>
                   <% end %>
                 </div>
-                <%# ★★★ 修正: link_to を button_to に変更し、確実にDELETEリクエストを送信 ★★★ %>
+                <%# ログアウトボタン %>
                 <%= button_to 'ログアウト', destroy_user_session_path, method: :delete, form: { class: 'inline' }, class: "text-white bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-sm font-medium transition" %>
               </div>
             </div>
