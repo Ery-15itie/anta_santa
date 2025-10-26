@@ -1,4 +1,4 @@
-name: CI
+Name: CI
 
 on:
   pull_request:
@@ -12,15 +12,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # 【修正1】チェックアウト先をサブディレクトリに指定
+          path: anta_santa
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
+          # 【修正2】bundler-cacheの作業ディレクトリを指定
+          working-directory: anta_santa
 
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
+        # 【修正3】コマンドの実行ディレクトリを指定
+        working-directory: anta_santa
 
   scan_js:
     runs-on: ubuntu-latest
@@ -28,30 +35,44 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # 【修正1】チェックアウト先をサブディレクトリに指定
+          path: anta_santa
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
+          # 【修正2】bundler-cacheの作業ディレクトリを指定
+          working-directory: anta_santa
 
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
+        # 【修正3】コマンドの実行ディレクトリを指定
+        working-directory: anta_santa
 
   lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # 【修正1】チェックアウト先をサブディレクトリに指定
+          path: anta_santa
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
+          # 【修正2】bundler-cacheの作業ディレクトリを指定
+          working-directory: anta_santa
 
       - name: Lint code for consistent style
         run: bin/rubocop -f github
+        # 【修正3】コマンドの実行ディレクトリを指定
+        working-directory: anta_santa
 
   test:
     runs-on: ubuntu-latest
@@ -77,12 +98,17 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # 【修正1】チェックアウト先をサブディレクトリに指定
+          path: anta_santa
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
+          # 【修正2】bundler-cacheの作業ディレクトリを指定
+          working-directory: anta_santa
 
       - name: Run tests
         env:
@@ -90,11 +116,14 @@ jobs:
           DATABASE_URL: mysql2://127.0.0.1:3306
           # REDIS_URL: redis://localhost:6379/0
         run: bin/rails db:test:prepare test test:system
+        # 【修正3】コマンドの実行ディレクトリを指定
+        working-directory: anta_santa
 
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
+          # 【修正4】パスにサブディレクトリを追加
+          path: anta_santa/tmp/screenshots 
           if-no-files-found: ignore
