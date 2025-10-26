@@ -1,19 +1,17 @@
-<%# ユーザーのフォロー状態に応じてボタンを切り替えるパーシャル %>
+<%# ユーザーのフォロー/アンフォローボタン %>
 
-<% if current_user.following?(@user) %>
-  <%# フォロー中の場合: アンフォローボタンを表示 %>
-  <%= button_to relationship_path(current_user.active_relationships.find_by(followed_id: @user.id)), 
-              method: :delete, 
-              data: { turbo_stream: true }, 
-              class: "btn btn-outline-danger fw-bold rounded-pill shadow-sm" do %>
-    <i class="fas fa-user-minus me-1"></i> フォロー中
+<%# follow_button パーシャルは user: が渡される前提 %>
+<%# current_user.following?(user) が定義されていることを前提とする %>
+<% is_following = current_user && current_user.following?(user) %>
+
+<% if is_following %>
+  <%# フォロー中の場合: 緑色のプライマリボタン %>
+  <%= button_to relationship_path(user.id), method: :delete, class: "w-full flex items-center justify-center px-4 py-3 border border-transparent text-lg font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 transition duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500", data: { turbo_frame: "follow_button_#{user.id}" } do %>
+    <i class="fas fa-check mr-2"></i> フォロー中
   <% end %>
 <% else %>
-  <%# 未フォローの場合: フォローボタンを表示 %>
-  <%= button_to relationships_path(followed_id: @user.id), 
-              method: :post, 
-              data: { turbo_stream: true }, 
-              class: "btn btn-success fw-bold rounded-pill shadow-sm" do %>
-    <i class="fas fa-user-plus me-1"></i> フォローする
+  <%# フォローしていない場合: 赤色のプライマリボタン %>
+  <%= button_to relationships_path(followed_id: user.id), method: :post, class: "w-full flex items-center justify-center px-4 py-3 border border-transparent text-lg font-medium rounded-lg shadow-sm text-white bg-red-600 hover:bg-red-700 transition duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500", data: { turbo_frame: "follow_button_#{user.id}" } do %>
+    <i class="fas fa-user-plus mr-2"></i> フォローする
   <% end %>
 <% end %>
