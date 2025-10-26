@@ -1,91 +1,93 @@
-<div class="container my-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">メッセージ一覧</h1>
-    <%= link_to "← ダッシュボードに戻る", dashboard_path, class: "btn btn-outline-secondary" %>
-  </div>
+<div class="container mx-auto px-4 py-12 max-w-4xl">
+<%# 評価メッセージのタブ切り替え %>
+<div class="flex justify-center mb-8">
+<div class="flex bg-gray-100 rounded-xl p-1 shadow-inner">
+<button id="received-tab"
+class="tab-button px-6 py-2 text-sm font-semibold rounded-lg transition duration-150 ease-in-out <%= 'bg-white text-indigo-600 shadow' if params[:tab].blank? || params[:tab] == 'received' %>"
+onclick="window.location.href = '<%= evaluations_path(tab: 'received') %>'">
+もらったお手紙
+(<%= @received_evaluations.count %>)
+</button>
+<button id="sent-tab"
+class="tab-button px-6 py-2 text-sm font-semibold rounded-lg transition duration-150 ease-in-out <%= 'bg-white text-indigo-600 shadow' if params[:tab] == 'sent' %>"
+onclick="window.location.href = '<%= evaluations_path(tab: 'sent') %>'">
+送ったお手紙
+(<%= @sent_evaluations.count %>)
+</button>
+</div>
+</div>
+<%# メッセージリスト %>
+<div class="space-y-4">
+<%
+is_received = params[:tab].blank? || params[:tab] == 'received'
+evaluations_to_display = is_received ? @received_evaluations : @sent_evaluations
+title = is_received ? 'もらったお手紙' : '送ったお手紙'
+%>
+<h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-6">
+  <%= title %>
+</h2>
 
-  <ul class="nav nav-tabs" id="evaluationTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="received-tab" data-bs-toggle="tab" data-bs-target="#received" type="button" role="tab" aria-controls="received" aria-selected="true">
-        もらったメッセージ (<%= @evaluations_received.count %>)
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="given-tab" data-bs-toggle="tab" data-bs-target="#given" type="button" role="tab" aria-controls="given" aria-selected="false">
-        送ったメッセージ (<%= @evaluations_given.count %>)
-      </button>
-    </li>
-  </ul>
+<% if evaluations_to_display.any? %>
+  <% evaluations_to_display.each do |evaluation| %>
+    <%
+      # 関連するローカル変数を全てここで定義
+      # カードの背景色を決定
+      card_bg_color = is_received ? 'bg-red-50' : 'bg-green-50'
+      
+      # モデルのアソシエーション名（evaluator/evaluated_user）を使用
+      target_user = is_received ? evaluation.evaluator : evaluation.evaluated_user
+      label_text = is_received ? '送信者' : '受信者'
 
-  <div class="tab-content mt-3" id="evaluationTabsContent">
-    <%# ===== もらったメッセージタブ ===== %>
-    <div class="tab-pane fade show active" id="received" role="tabpanel" aria-labelledby="received-tab">
-      <% if @evaluations_received.any? %>
-        <div class="list-group">
-          <% @evaluations_received.each do |evaluation| %>
-            <div class="list-group-item list-group-item-action py-3 mb-2 rounded shadow-sm">
-              <div class="d-flex w-100 justify-content-between align-items-start">
-                <div class="flex-grow-1">
-                  <h5 class="mb-1">
-                    <i class="bi bi-gift-fill me-2 text-success"></i>
-                    <%= evaluation.evaluator.username %>さんからの温かいメッセージ
-                  </h5>
-                  <p class="mb-1 text-muted message-preview">
-                    <%= truncate(evaluation.message, length: 80) %>
-                  </p>
-                  <small class="text-secondary">
-                    ✨ <strong><%= evaluation.evaluation_scores.where(score: 1).count %>個</strong> の良いところを見つけてくれました
-                  </small>
-                </div>
-                <div class="text-end ms-3">
-                  <small class="text-muted d-block"><%= time_ago_in_words(evaluation.created_at) %>前</small>
-                  <%= link_to "詳細を見る →", evaluation_path(evaluation), class: "btn btn-sm btn-outline-primary mt-2" %>
-                </div>
-              </div>
-            </div>
-          <% end %>
+      # usernameの取得とnilガードを分離し、ローカル変数に格納
+      target_username = target_user&.username || '不明なユーザー'
+    %>
+
+    <div class="p-5 <%= card_bg_color %> rounded-xl shadow-md transition duration-300 hover:shadow-lg border border-gray-200">
+      <div class="flex justify-between items-start mb-2">
+        
+        <%# メッセージタイトルと相手の名前 - 文字色を黒に固定 %>
+        <div>
+          <h3 class="text-lg font-bold text-gray-900 mb-1">
+            <%= is_received ? 'あなたへのお手紙' : '送信済みのお手紙' %>
+          </h3>
+          <p class="text-sm text-gray-700">
+            <%= label_text %>: 
+            <span class="font-semibold text-gray-900">
+              <%# 定義したローカル変数 target_username を使用 %>
+              <%= target_username %>
+            </span>
+          </p>
         </div>
-      <% else %>
-        <div class="alert alert-info text-center mt-4" role="alert">
-          まだあなた宛のメッセージは届いていません。
+        
+        <%# 日付 %>
+        <div class="text-right flex-shrink-0">
+          <p class="text-xs text-gray-500">
+            <%= l evaluation.created_at, format: :short %>
+          </p>
         </div>
-      <% end %>
+      </div>
+      
+      <p class="text-gray-700 mb-3 line-clamp-2">
+        <%= evaluation.message.presence || "メッセージ本文がありません" %>
+      </p>
+      
+      <%# 詳細ボタン %>
+      <div class="text-right">
+        <%= link_to '詳細を見る', evaluation_path(evaluation), 
+            class: 'inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition duration-150' %>
+      </div>
     </div>
-
-    <%# ===== 送ったメッセージタブ ===== %>
-    <div class="tab-pane fade" id="given" role="tabpanel" aria-labelledby="given-tab">
-      <% if @evaluations_given.any? %>
-        <div class="list-group">
-          <% @evaluations_given.each do |evaluation| %>
-            <div class="list-group-item list-group-item-action py-3 mb-2 rounded shadow-sm">
-              <div class="d-flex w-100 justify-content-between align-items-start">
-                <div class="flex-grow-1">
-                  <h5 class="mb-1">
-                    <i class="bi bi-send-fill me-2 text-danger"></i>
-                    <%# ★ 修正: evaluated_user.display_name -> evaluated_user.username ★ %>
-                    <%= evaluation.evaluated_user.username %>さんに送ったメッセージ
-                  </h5>
-                  <p class="mb-1 text-muted message-preview">
-                    <%= truncate(evaluation.message, length: 80) %>
-                  </p>
-                  <small class="text-secondary">
-                    ✨ <strong><%= evaluation.evaluation_scores.where(score: 1).count %>個</strong> の良いところを伝えました
-                  </small>
-                </div>
-                <div class="text-end ms-3">
-                  <small class="text-muted d-block"><%= time_ago_in_words(evaluation.created_at) %>前</small>
-                  <%# 送ったメッセージの詳細も同じビューで表示 %>
-                  <%= link_to "詳細を見る →", evaluation_path(evaluation), class: "btn btn-sm btn-outline-success mt-2" %>
-                </div>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      <% else %>
-        <div class="alert alert-warning text-center mt-4" role="alert">
-          まだ誰にもメッセージを送っていません。早速誰かを褒めてみましょう！
-        </div>
-      <% end %>
-    </div>
+  <% end %>
+<% else %>
+  <div class="text-center py-12 bg-white rounded-xl shadow-lg border border-gray-100">
+    <p class="text-lg font-semibold text-gray-500">
+      まだ<%= title %>はありません。
+    </p>
+    <p class="text-sm text-gray-400 mt-1">
+      お手紙を送って、フィードバックを交換しましょう。
+    </p>
   </div>
+<% end %>
+
+</div>
 </div>

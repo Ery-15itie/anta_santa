@@ -1,113 +1,84 @@
 class EvaluationsController < ApplicationController
-  before_action :authenticate_user!
-  
-  # user index から送られる :receiver_id またはフォームからの :evaluated_user_id を受け取る
-  before_action :set_evaluated_user, only: [:new, :create] 
-  
-  before_action :set_evaluation, only: [:show, :destroy] 
+  before_action :authenticate_user! # サインインしているユーザーのみアクセス可能
 
-  # 評価一覧
   def index
-    @evaluations_received = current_user.evaluated_user_evaluations.recent
-    @evaluations_given = current_user.evaluator_evaluations.recent
+    if current_user
+      # received_evaluations は evaluated_user が current_user である評価
+      @received_evaluations = current_user.received_evaluations.includes(:evaluator).order(created_at: :desc)
+      
+      # sent_evaluations は evaluator が current_user である評価
+      @sent_evaluations = current_user.sent_evaluations.includes(:evaluated_user).order(created_at: :desc)
+    else
+      @received_evaluations = Evaluation.none
+      @sent_evaluations = Evaluation.none
+    end
+    
+    if params[:tab].blank? || params[:tab] == 'received'
+      @evaluations = @received_evaluations
+    else
+      @evaluations = @sent_evaluations
+    end
   end
 
-  # 評価作成フォーム
+  def show
+    @evaluation = Evaluation.find(params[:id])
+    
+    unless @evaluation.evaluated_user == current_user || @evaluation.evaluator == current_user
+      redirect_to evaluations_path, alert: "そのお手紙を閲覧する権限がありません。"
+    end
+  end
+
   def new
-    @evaluation = current_user.evaluator_evaluations.build
-    
-    @template = Template.first 
-    
-    unless @template
-      redirect_to dashboard_path, alert: "評価テンプレートが設定されていません。"
+    # 送信相手のIDが必須
+    unless params[:receiver_id]
+      redirect_to users_path, alert: "お手紙を送る相手を選択してください。"
       return
     end
+    
+    @receiver = User.find(params[:receiver_id])
+    # 評価に使用するテンプレートをロード
+    @template = Template.first 
 
-    # EvaluationScore オブジェクトを初期化（fields_for のために必須）
+    # テンプレートが存在しない場合はエラーを出す（システム設定の問題）
+    unless @template
+      redirect_to users_path, alert: "評価テンプレートが設定されていません。管理者にお問い合わせください。"
+      return
+    end
+    
+    @evaluation = current_user.sent_evaluations.build(evaluated_user_id: @receiver.id, template_id: @template.id)
+    
+    # 自身へのお手紙送信は禁止
+    if @receiver == current_user
+      redirect_to users_path, alert: "自分自身にお手紙は送れません。"
+    end
+    
+    # フォーム用に evaluation_scores をビルド
     @template.template_items.each do |item|
-      @evaluation.evaluation_scores.build(template_item_id: item.id, score: 0)
-    end
-    
-    # フォローしているユーザーリストを取得
-    @target_users = current_user.following.order(:username)
-
-    if @evaluated_user
-      @evaluation.evaluated_user_id = @evaluated_user.id
+      @evaluation.evaluation_scores.build(template_item_id: item.id)
     end
   end
 
-  # 評価作成処理
   def create
-    @evaluation = current_user.evaluator_evaluations.build(evaluation_params)
+    @evaluation = current_user.sent_evaluations.build(evaluation_params)
     
-    @template = Template.find_by(id: params[:evaluation][:template_id])
-
     if @evaluation.save
-      redirect_to dashboard_path, notice: "評価（メッセージ）を#{@evaluation.evaluated_user.username}さんに送信しました！"
+      redirect_to evaluations_path(tab: :sent), notice: "お手紙を「#{@evaluation.evaluated_user.username}」さんに送りました。"
     else
-      @evaluated_user = @evaluation.evaluated_user 
-      
-      # エラー再描画時もフォローしているユーザーリストを再取得
-      @target_users = current_user.following.order(:username)
-      
-      if @evaluation.evaluation_scores.none?
-         @template.template_items.each do |item|
-            @evaluation.evaluation_scores.build(template_item_id: item.id, score: 0)
-         end
-      end
-
-      flash.now[:alert] = "評価の送信に失敗しました。入力内容を確認してください。"
+      # エラー時に @receiver と @template を再ロード
+      @receiver = User.find(evaluation_params[:evaluated_user_id])
+      @template = Template.find(evaluation_params[:template_id]) 
+      # バリデーションエラー時は scores の再ビルドは不要（フォームに値が残っているため）
       render :new, status: :unprocessable_entity
-    end
-  end
-
-  # 評価詳細
-  def show
-    # @evaluation は set_evaluation で設定済み
-  end
-
-  # 評価の削除（任意）
-  def destroy
-    if @evaluation.destroy
-      redirect_to evaluations_path, notice: '評価を削除しました。'
-    else
-      redirect_to evaluations_path, alert: '評価の削除に失敗しました。'
     end
   end
 
   private
 
   def evaluation_params
-    params.require(:evaluation).permit(
-      :message, 
-      :is_public,
-      :template_id, 
-      :evaluated_user_id, 
-      evaluation_scores_attributes: [:id, :template_item_id, :score] 
-    )
-  end
-
-  # 評価対象ユーザー（evaluated_user）を取得
-  def set_evaluated_user
-    id = params[:receiver_id] || params[:evaluation] && params[:evaluation][:evaluated_user_id]
-    
-    return if id.blank?
-
-    @evaluated_user = User.find_by(id: id)
-
-    if @evaluated_user.nil?
-      redirect_to dashboard_path, alert: "評価対象ユーザーが見つかりませんでした。"
-      return
-    end
-  end
-  
-  # IDから評価を取得し、権限チェックを行う
-  def set_evaluation
-    @evaluation = Evaluation.find_by(id: params[:id], evaluator: current_user) || 
-                  Evaluation.find_by(id: params[:id], evaluated_user: current_user)
-    
-    unless @evaluation
-      redirect_to evaluations_path, alert: "権限のない評価、または見つからない評価です。"
-    end
+    # template_id と evaluation_scores_attributes を許可リストに追加
+    params.require(:evaluation).permit(:evaluated_user_id, 
+                                       :template_id, 
+                                       :message,
+                                       evaluation_scores_attributes: [:id, :template_item_id, :score, :_destroy])
   end
 end

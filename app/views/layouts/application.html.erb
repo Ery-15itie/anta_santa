@@ -22,7 +22,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# フラッシュメッセージ固定表示用のCSSと背景色をTailwind準拠で再定義 %>
+    <%# フラッシュメッセージ固定表示用のCSS %>
     <style>
       .flash-container {
         position: fixed;
@@ -42,14 +42,12 @@
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
         border-radius: 0.5rem;
       }
-      /* 淡い暖色系の背景を適用 (Tailwindの色に近い値に設定) */
-      body {
-        background-color: #fef3c7; /* Tailwind amber-100に近い色 */
-      }
+      /* 背景色はbodyタグのクラスで制御 */
     </style>
   </head>
 
-  <body>
+  <%# content_for(:body_class) が設定されていなければ、デフォルトで黄色を適用 %>
+  <body class="<%= content_for(:body_class) %> <%= content_for(:body_class).blank? ? 'bg-amber-100' : '' %>">
 
     <%# ナビゲーションバー %>
     <% if user_signed_in? %>

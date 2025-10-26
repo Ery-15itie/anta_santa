@@ -1,84 +1,66 @@
-# app/models/user.rb
 class User < ApplicationRecord
+  # Devise modules
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  # GitHub認証を一時的に無効化するため、:omniauthable は外してる
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable,
-         :trackable
+         :recoverable, :rememberable, :validatable
 
-  # GitHub認証のコードは残しておき、後で簡単に復帰できるように！
-  # def self.from_omniauth(auth)
-  #   where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
-  #     user.email = auth.info.email
-  #     user.password = Devise.friendly_token[0, 20]
-  #     user.username = auth.info.nickname || auth.info.name
-  #     # ユーザーのプロフィール画像なども設定可能
-  #   end
-  # end
+  # -------------------------------------------------------------------------
+  # フォロー機能のための関連付け
+  # -------------------------------------------------------------------------
 
-  # ユーザー名（username）は必須、一意
-  # ★uniquenessを大文字小文字を区別しない設定に変更し、ロバスト化
-  validates :username, 
-            presence: true, 
-            uniqueness: { case_sensitive: false }, 
-            length: { maximum: 50 }
-            
-  # ★バリデーション前に、ユーザー名の前後の空白を除去するコールバックを追加
-  before_validation :strip_whitespace 
-
-  # ==================================
-  # 評価（Evaluation）関連アソシエーション -　命名の統一チェック
-  # ==================================
-  # 自分が送った評価 (Evaluation モデルの :evaluator に対応)
-  has_many :evaluator_evaluations, 
-           class_name: 'Evaluation', 
-           foreign_key: 'evaluator_id', 
-           dependent: :destroy
-  
-  # 自分が受け取った評価 (Evaluation モデルの :evaluated_user に対応)
-  has_many :evaluated_user_evaluations, 
-           class_name: 'Evaluation', 
-           foreign_key: 'evaluated_user_id', 
-           dependent: :destroy
-
-  # ==================================
-  # フォロー（Follow）関連アソシエーション
-  # ==================================
-  # 自分がフォローしている人たち (Following)
-  has_many :active_relationships, class_name: 'Relationship', foreign_key: 'follower_id', dependent: :destroy
+  # フォロー（自分がフォローしている関係）
+  # relationship.follower が自分
+  has_many :active_relationships, class_name:  "Relationship",
+                                  foreign_key: "follower_id",
+                                  dependent:   :destroy
+  # followed は自分がフォローしているユーザー（Relationship経由）
   has_many :following, through: :active_relationships, source: :followed
-  
-  # 自分をフォローしている人たち (Followers)
-  has_many :passive_relationships, class_name: 'Relationship', foreign_key: 'followed_id', dependent: :destroy
+
+  # フォロワー（自分をフォローしている関係）
+  # relationship.followed が自分
+  has_many :passive_relationships, class_name:  "Relationship",
+                                   foreign_key: "followed_id",
+                                   dependent:   :destroy
+  # followers は自分をフォローしているユーザー（Relationship経由）
   has_many :followers, through: :passive_relationships, source: :follower
 
-  # ==================================
-  # フォロー関連のカスタムメソッド
-  # ==================================
-  # 特定のユーザーをフォローする
+
+  # フォロー機能のヘルパーメソッド
+  # ユーザーをフォローする
   def follow(other_user)
     following << other_user unless self == other_user
   end
 
-  # 特定のユーザーのフォローを解除する
+  # ユーザーのフォローを解除する
   def unfollow(other_user)
-    following.delete(other_user)
+    active_relationships.find_by(followed_id: other_user.id)&.destroy
   end
 
-  # 特定のユーザーをフォローしているかどうかを返す
+  # 現在のユーザーが他のユーザーをフォローしていれば true を返す
   def following?(other_user)
     following.include?(other_user)
   end
 
-  # ==================================
-  # バリデーション用プライベートメソッド
-  # ==================================
-  private
-  
-  # 前後の空白を除去するメソッド
-  def strip_whitespace
-    # self.username が存在する場合のみ、前後の空白を除去
-    self.username = self.username.strip if self.username.present?
-  end
+  # -------------------------------------------------------------------------
+  # 評価（お手紙）機能のための関連付け
+  # Evaluationモデルのフィールド名に合わせる
+  # -------------------------------------------------------------------------
+
+  # もらったお手紙（自分が evaluated_user 側）
+  has_many :received_evaluations, class_name: "Evaluation",
+                                  foreign_key: "evaluated_user_id", # ターゲットの外部キー
+                                  dependent: :destroy
+
+  # 送ったお手紙（自分が evaluator 側）
+  has_many :sent_evaluations, class_name: "Evaluation",
+                              foreign_key: "evaluator_id", # ターゲットの外部キー
+                              dependent: :destroy
+
+
+  # -------------------------------------------------------------------------
+  # バリデーションなど
+  # -------------------------------------------------------------------------
+
+  validates :username, presence: true, uniqueness: true, length: { maximum: 50 }
 end

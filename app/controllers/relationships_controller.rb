@@ -1,31 +1,42 @@
 class RelationshipsController < ApplicationController
-  # フォロー/アンフォローは認証済みユーザーのみ実行可能
+  # ユーザーがサインインしていることを確認
   before_action :authenticate_user!
 
-  # POST /relationships (フォロー実行)
+  # フォロー作成 (POST)
   def create
-    # followed_id (フォローされるユーザーID) をパラメータから取得
+    # フォローする相手（followed_id）を取得
     user = User.find(params[:followed_id])
-    
-    # current_user のフォローメソッドを実行
-    current_user.follow(user)
-    
-    # フォロー後、対象ユーザーのプロフィールページに戻る
-    flash[:notice] = "#{user.username} さんをフォローしました。"
-    redirect_to user
+
+    # 既にフォローしている場合は何もしない
+    unless current_user.following?(user)
+      # フォローを実行
+      current_user.follow(user)
+    end
+
+    # Turbo Stream を使ってボタン部分のみを更新
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to user }
+    end
   end
 
-  # DELETE /relationships/:id (アンフォロー実行)
+  # フォロー解除 (DELETE)
   def destroy
-    # ビューからRelationshipレコードのIDを受け取り、それを元にリレーションを取得
-    relationship = current_user.active_relationships.find(params[:id])
-    user = relationship.followed
+    # params[:id] には "followed_id" が入っているため、それを使ってリレーションシップを検索する
+    # current_userのactive_relationshipsから、followed_idが一致するリレーションを取得
+    relationship = current_user.active_relationships.find_by(followed_id: params[:id])
+
+    # リレーションが存在すれば削除
+    if relationship
+      user = relationship.followed
+      relationship.destroy
+    end
     
-    # フォロー解除を実行
-    relationship.destroy
-    
-    # アンフォロー後、対象ユーザーのプロフィールページに戻る
-    flash[:notice] = "#{user.username} さんのフォローを解除しました。"
-    redirect_to user
+    # Turbo Stream を使ってボタン部分のみを更新
+    # ユーザー詳細画面での使用を想定
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to user }
+    end
   end
 end
