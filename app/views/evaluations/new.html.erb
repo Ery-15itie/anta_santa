@@ -35,8 +35,10 @@
             <%# 評価対象の選択 %>
             <div class="mb-4">
               <%= f.label :evaluated_user_id, "お手紙を送る相手 (必須)", class: "form-label fw-bold" %>
+              
+              <%# @target_usersがUserオブジェクトのコレクションになったため、mapを使う形式 %>
               <%= f.select :evaluated_user_id, 
-                           options_for_select(@target_users, f.object.evaluated_user_id), 
+                           options_for_select(@target_users.map { |u| [u.username, u.id] }, f.object.evaluated_user_id), 
                            { prompt: "評価する相手を選択してください" }, 
                            { class: "form-select form-select-lg shadow-sm" } %>
             </div>
@@ -61,7 +63,7 @@
             </h5>
             <p class="text-secondary small mb-4">該当する項目にチェックを入れることで、相手にフィードバックとして伝わります!</p>
 
-            <%# 評価項目リスト %>
+            <%# 評価項目リスト - 2段組 %>
             <div class="row row-cols-1 row-cols-md-2 g-4">
               <% @template.template_items.group_by(&:category).each do |category, items| %>
                 <div class="col">
@@ -71,6 +73,7 @@
                       <% items.each do |item| %>
                         <li class="form-check mb-2">
                           
+                          <%# fields_forを使用してネストされたEvaluationScoreを扱う %>
                           <%= f.fields_for :evaluation_scores, @evaluation.evaluation_scores.find_or_initialize_by(template_item_id: item.id) do |score_f| %>
                             
                             <%= score_f.hidden_field :id %>

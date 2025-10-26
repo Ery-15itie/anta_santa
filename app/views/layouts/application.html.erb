@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "An'ta Santa" %></title>
+    <title><%= content_for(:title) || "Anta-Santa" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -58,7 +58,7 @@
           <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <span class="text-2xl font-extrabold text-red-600 dark:text-red-400">An'ta Santa</span>
+                <span class="text-2xl font-extrabold text-red-600 dark:text-red-400">Anta-Santa</span>
               </div>
             </div>
             <div class="hidden md:block">
@@ -67,7 +67,7 @@
                 <%= link_to 'ユーザー一覧', users_path, class: "text-gray-500 dark:text-gray-300 hover:bg-red-50 hover:text-red-700 px-3 py-2 rounded-md text-sm font-medium transition" %>
                 <div class="relative">
                   <%= link_to evaluations_path, class: "text-gray-500 dark:text-gray-300 hover:bg-red-50 hover:text-red-700 px-3 py-2 rounded-md text-sm font-medium transition" do %>
-                    <span>評価BOX</span>
+                    <span>お手紙ボックス</span>
                   <% end %>
                 </div>
                 <%# ★★★ 修正: link_to を button_to に変更し、確実にDELETEリクエストを送信 ★★★ %>
