@@ -65,6 +65,9 @@ group :development, :test do
   gem 'faker', '~> 3.2'
   gem 'pry-rails' # デバッグ用
   gem 'pry-byebug' # ブレークポイント
+  
+  # 開発中にブラウザでメールを確認するためのgem (パスワードリセットに必須)
+  gem "letter_opener" 
 end
 
 group :development do

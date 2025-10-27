@@ -36,9 +36,16 @@ Rails.application.configure do
 
   # Make template changes take effect immediately.
   config.action_mailer.perform_caching = false
+  
+  # --- Devise/Action Mailer の重要設定（letter_opener を強制的に有効化） ---
+  
+  # メール送信方法を letter_opener に設定 (ブラウザでメールを確認)
+  config.action_mailer.delivery_method = :letter_opener
 
-  # Set localhost to be used by links generated in mailer templates.
+  # Deviseのホスト設定（メールリンクの生成に必須）
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+  
+  # --------------------------------------------------------------------------
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
