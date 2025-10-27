@@ -1,4 +1,4 @@
-<%# ログイン後のダッシュボード  %>
+<%# ログイン後のダッシュボード %>
 <div class="container mx-auto p-4 sm:p-6 lg:p-8 min-h-screen bg-amber-50 font-serif">
   <div class="max-w-4xl mx-auto">
     
@@ -12,13 +12,17 @@
       </p>
     </header>
 
-    <%# --- 2. 褒められた項目トップ3の表示 --- %>
+    <%# --- 2. 褒められた項目トップ3の表示 (個人統計) --- %>
     <div class="p-6 bg-white rounded-xl shadow-lg border border-gray-200 mb-12">
-      <h2 class="text-xl font-semibold text-gray-700 mb-5 border-b pb-2">あなたのトップスキル (褒められた回数)</h2>
+      <h2 class="text-xl font-semibold text-gray-700 mb-5 border-b pb-2">
+        あなたのトップスキル (褒められた回数)
+        <span class="text-sm font-normal text-gray-500 block mt-1">カテゴリーも確認できます。</span>
+      </h2>
       
+      <%# コントローラーの @top_scores は配列 of Hash: [{title: "...", category: "...", count: X}, ...] の形式 %>
       <% if @top_scores.present? %>
         <ol class="space-y-3">
-          <% @top_scores.each.with_index(1) do |(title, count), index| %>
+          <% @top_scores.each.with_index(1) do |score_data, index| %>
             <li class="flex items-center justify-between p-3 rounded-lg <%= index == 1 ? 'bg-amber-100 border-amber-300' : 'bg-gray-50 border-gray-200' %> border">
               <span class="flex items-center">
                 <%# 順位アイコン %>
@@ -26,9 +30,14 @@
                   <%= index == 1 ? 'bg-amber-600' : (index == 2 ? 'bg-gray-500' : 'bg-red-500') %>">
                   <%= index %>
                 </span>
-                <span class="text-md font-medium text-gray-800"><%= title %></span>
+                
+                <%# スキルタイトルとカテゴリー %>
+                <div>
+                  <span class="text-md font-bold text-gray-800"><%= score_data[:title] %></span>
+                  <span class="text-xs font-normal text-gray-500 block"> (<%= score_data[:category] %>)</span>
+                </div>
               </span>
-              <span class="text-xl font-extrabold text-red-600"><%= count %> 回</span>
+              <span class="text-xl font-extrabold text-red-600"><%= score_data[:count] %> 回</span>
             </li>
           <% end %>
         </ol>
@@ -37,10 +46,10 @@
       <% end %>
     </div>
     
-    <%# --- 3. 統計情報カード --- %>
+    <%# --- 3. 統計情報カード (個人統計) --- %>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
       
-      <%# もらったメッセージ (gift.png) %>
+      <%# もらったメッセージ %>
       <div class="stat-card bg-white p-6 rounded-xl shadow-md border border-gray-200 text-center transition duration-300 hover:shadow-lg">
         <div class="mb-3">
           <%= image_tag "icons/gift.png", alt: "もらったメッセージ", class: "h-12 w-12 mx-auto" %>
@@ -49,7 +58,7 @@
         <p class="text-sm font-medium text-gray-500">もらったメッセージ</p>
       </div>
 
-      <%# 褒められたポイント (star.png) %>
+      <%# 褒められたポイント %>
       <div class="stat-card bg-white p-6 rounded-xl shadow-md border border-gray-200 text-center transition duration-300 hover:shadow-lg">
         <div class="mb-3">
           <%= image_tag "icons/star.png", alt: "褒められたポイント", class: "h-12 w-12 mx-auto" %>
@@ -58,7 +67,7 @@
         <p class="text-sm font-medium text-gray-500">褒められたポイント</p>
       </div>
 
-      <%#  送ったメッセージ (message.png) %>
+      <%#  送ったメッセージ %>
       <div class="stat-card bg-white p-6 rounded-xl shadow-md border border-gray-200 text-center transition duration-300 hover:shadow-lg">
         <div class="mb-3">
           <%= image_tag "icons/message.png", alt: "送ったメッセージ", class: "h-12 w-12 mx-auto" %>
@@ -71,7 +80,7 @@
     <%# --- 4. アクションセクション --- %>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
       
-      <%# 誰かを褒めてみよう (send.png) %>
+      <%# 誰かを褒めてみよう %>
       <div class="p-8 bg-white rounded-xl shadow-lg border border-gray-200 text-center transition duration-300 hover:shadow-xl hover:border-amber-300">
         <%= image_tag "icons/send.png", alt: "サンタアイコン (褒める)", class: "mx-auto mb-4 w-16 h-16 object-contain" %>
         <h2 class="text-xl font-semibold text-gray-800 mb-2">誰かを褒めてみよう!</h2>
@@ -80,7 +89,7 @@
                     class: "inline-block px-8 py-3 bg-red-400 hover:bg-red-500 text-white font-bold rounded-full shadow-md transition duration-300 text-center" %>
       </div>
 
-      <%# もらったメッセージを見る (list.png) %>
+      <%# もらったメッセージを見る %>
       <div class="p-8 bg-white rounded-xl shadow-lg border border-gray-200 text-center transition duration-300 hover:shadow-xl hover:border-red-300">
         <%= image_tag "icons/list.png", alt: "メモ帳アイコン (メッセージ一覧)", class: "mx-auto mb-4 w-16 h-16 object-contain" %>
         <h2 class="text-xl font-semibold text-gray-800 mb-2">もらったメッセージを見る</h2>
@@ -89,7 +98,7 @@
                     class: "inline-block px-8 py-3 bg-amber-400 hover:bg-amber-500 text-white font-bold rounded-full shadow-md transition duration-300 text-center" %>
       </div>
     </div>
-    
+
     <%# --- 5. 最近受け取ったメッセージ --- %>
     <div class="mb-10 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
       <h2 class="text-xl font-semibold text-gray-700 mb-5 border-b pb-2">最近受け取ったメッセージ</h2>
@@ -99,7 +108,9 @@
           <% @recent_received_evaluations.each do |evaluation| %>
             <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 transition duration-300 hover:bg-amber-100">
               <h3 class="text-md font-bold text-gray-800 truncate mb-1">
-                <%= link_to evaluation.title, evaluation_path(evaluation), class: "text-red-600 hover:text-red-800" %>
+                <%# evaluation.titleがないため、messageの冒頭を表示 %>
+                <% message_preview = evaluation.message.to_s.truncate(40, separator: '...') %>
+                <%= link_to message_preview, evaluation_path(evaluation), class: "text-red-600 hover:text-red-800" %>
               </h3>
               <p class="text-xs text-gray-500">
                 From: <%= evaluation.evaluator.username %>さん | <%= l(evaluation.created_at, format: :short) %>
@@ -122,9 +133,8 @@
       <% if @recent_evaluators.any? %>
         <div class="flex flex-wrap gap-4 justify-center">
           <% @recent_evaluators.each do |evaluator| %>
-            <%= link_to user_path(evaluator), class: "text-center hover:opacity-75 transition duration-300" do %>
-              <%= image_tag "icons/empty.png", alt: evaluator.username, class: "w-12 h-12 rounded-full border-2 border-amber-300 mx-auto mb-1" %>
-              <span class="text-xs text-gray-700 block"><%= evaluator.username %></span>
+            <%= link_to user_path(evaluator), class: "text-center hover:opacity-75 transition duration-300 p-2 rounded-lg bg-gray-50 border border-gray-200" do %>
+              <span class="text-sm text-gray-700 block font-medium"><%= evaluator.username %></span>
             <% end %>
           <% end %>
         </div>
@@ -132,6 +142,8 @@
         <p class="text-gray-500 text-center py-4">まだ褒めてくれた人はいません。</p>
       <% end %>
     </div>
-    
+
+    <%# --- グローバル統計のセクション 予定 --- %>
+
   </div>
 </div>
