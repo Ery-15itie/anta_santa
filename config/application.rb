@@ -15,8 +15,16 @@ module SantaReportApp
     #
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
+    
+    # タイムゾーンを日本時間に設定
+    config.time_zone = "Tokyo"
+    # データベースから読み出す時刻も東京時間に合わせる
+    config.active_record.default_timezone = :local
+
+    # アプリケーションのデフォルト言語を日本語に設定
+    config.i18n.default_locale = :ja
+    # config/locales配下のYAMLファイルをすべて読み込む
+    config.i18n.load_path += Dir[Rails.root.join('config', 'locales', '**', '*.{rb,yml}').to_s]
     
     # autoloadingをroutes.rbの前に強制し、Deviseエラーを解決
     # この行により、Userモデルがroutes.rbより早くロードされる
