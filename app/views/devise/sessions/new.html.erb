@@ -1,13 +1,23 @@
-<%# Devise ログイン画面 -  横長デザイン %>
-<div class="flex flex-col items-center justify-center min-h-screen bg-amber-50 dark:bg-gray-900 p-4">
-  <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+<%#
+  [Devise View] app/views/devise/sessions/new.html.erb
+  目的: Tailwind CSSデザインを適用し、アプリの世界観を伝えるランディングページとして機能させる。
+  デザイン: ページ全体を温かい緑系のトーン (bg-green-50) に統一。フォームとメッセージパネルの左右分割。
+%>
+
+<%# --- ページ全体のコンテナと背景色 (Tailwind) --- %>
+<%# bg-green-50 で背景を統一 %>
+<div class="flex flex-col items-center min-h-screen bg-green-50 dark:bg-gray-900 p-4">
+
+  <%# --- 1. ログインボックスエリア (画面上部に固定配置) --- %>
+  <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden mt-10 mb-12">
     
     <%# コンテナ: PCでは横並び (grid-cols-2), モバイルでは縦並び (flex-col) %>
-    <div class="grid grid-cols-1 md:grid-cols-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 h-full min-h-full">
 
       <%# 左側: メッセージエリア (PCのみ表示) - 暖色系のグラデーション %>
+      <%# items-center と justify-center で上下左右中央揃えを実現 %>
       <div class="hidden md:flex flex-col items-center justify-center p-10 lg:p-16 
-                  bg-gradient-to-br from-amber-400 to-red-400 text-white">
+                  bg-gradient-to-br from-red-400 to-amber-400 text-white h-full min-h-full text-center">
         <h1 class="text-4xl font-extrabold mb-4 text-shadow-lg">
           おかえりなさい！
         </h1>
@@ -20,13 +30,13 @@
       </div>
 
       <%# 右側: フォームエリア %>
-      <div class="p-6 sm:p-10 lg:p-16 flex flex-col justify-center">
+      <div class="p-6 sm:p-10 lg:p-16 flex flex-col justify-center h-full min-h-full">
         <h2 class="text-3xl font-extrabold text-gray-800 text-center mb-8 md:mb-10">
           ログイン
         </h2>
 
         <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-6" }) do |f| %>
-
+          
           <%# メールアドレス %>
           <div>
             <%= f.label :email, "メールアドレス", class: "block text-sm font-medium text-gray-700 mb-1" %>
@@ -46,21 +56,21 @@
                 class: "appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 transition duration-150 ease-in-out sm:text-sm" %>
           </div>
 
-          <%# パスワードを記憶する & 忘れましたリンク %>
+          <%# 記憶する + パスワードを忘れた場合 %>
           <div class="flex items-center justify-between">
             <% if devise_mapping.rememberable? %>
               <div class="flex items-center">
-                <%= f.check_box :remember_me, class: "h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded" %>
+                <%= f.check_box :remember_me, class: "h-4 w-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500" %>
                 <%= f.label :remember_me, "記憶する", class: "ml-2 block text-sm text-gray-900" %>
               </div>
             <% end %>
             <div class="text-sm">
-              <%= link_to "パスワードを忘れた場合", new_password_path(resource_name), class: "font-medium text-gray-500 hover:text-gray-700" %>
+              <%= link_to "パスワードを忘れた場合", new_password_path(resource_name), class: "font-medium text-pink-600 hover:text-pink-500" %>
             </div>
           </div>
 
           <%# ログインボタン (グラデーション) %>
-          <div class="pt-2">
+          <div class="pt-4">
             <%= f.submit "ログイン", 
                 class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white cursor-pointer 
                         bg-gradient-to-r from-orange-500 to-pink-600 hover:from-orange-600 hover:to-pink-700 
@@ -70,12 +80,69 @@
 
         <%# モバイル用の新規登録リンク %>
         <div class="mt-6 text-center text-sm md:hidden">
-          <p class="mb-2">
-            <%= link_to "新規登録はこちら", new_registration_path(resource_name), class: "font-medium text-amber-600 hover:text-amber-500" %>
-          </p>
+          <%= link_to "新規登録はこちら", new_registration_path(resource_name), class: "font-medium text-pink-600 hover:text-pink-500" %>
         </div>
+
       </div>
       
+    </div>
+  </div>
+
+  <%# 2. 開発ストーリーとアプリ紹介エリア (下にスクロールして表示) - mx-autoで左右中央配置 %>
+  <div class="w-full max-w-5xl bg-white p-6 sm:p-10 lg:p-16 rounded-3xl shadow-xl border border-green-200 mb-10 mx-auto">
+    <h2 class="text-3xl font-extrabold text-center mb-6 text-green-700">どんな「あんた」でも感謝を贈る「サンタ」になれる場所</h2>
+
+    <%# 開発ストーリー %>
+    <div class="border-b pb-4 mb-4">
+      <h3 class="text-xl font-bold mb-3 text-red-600">開発ストーリー〜大人にとってのサンタさん〜</h3>
+      <p class="text-gray-700 mb-3 text-base leading-relaxed">
+        子供の頃の私たちは毎年12月になると「今年は良い子だったかな？」と自分を振り返り、サンタさんからの評価を心待ちにしていました。あの頃のサンタさんは私たちの行いをすべて見ていて、公平に評価してくれる特別な存在でした。
+      </p>
+      <p class="text-gray-700 mb-3 text-base leading-relaxed">
+        でも大人になるとサンタさんはプレゼントを持っては訪れてはくれません。じゃあ誰が私たちを評価してくれるでしょうか？実は、私たちの周りにいるすべての人が「サンタさん」なのです。
+      </p>
+      <p class="text-gray-700 mb-3 text-base leading-relaxed">
+        同僚があなたの仕事ぶりに感謝し、友人があなたの優しさに救われ、家族があなたの存在に安心する。私たちは誰かにとっての「サンタさん」であり、同時に誰かから贈り物のような評価をもらう存在なのです。
+      </p>
+      <p class="text-gray-700 mb-3 text-base leading-relaxed">
+        特にプログラミング学習コミュニティでは、日々の学習努力や挫折を乗り越える姿勢、仲間との支え合いを評価していくことてコミュニティが成長すると考えています。しかし、GitHubの草や学習時間は見えても、そこに込められた苦労や成長・仲間への励ましは簡単に可視化できません。
+      </p>
+      <blockquote class="p-4 my-4 bg-green-100 border-l-4 border-green-500 italic text-sm text-gray-800 rounded-md">
+        <ul class="list-disc list-inside space-y-1">
+          <li>「質問に丁寧に答えてくれて、学習のモチベーションが上がった」</li>
+          <li>「一緒に勉強していて、諦めずに続ける姿に刺激を受けた」</li>
+          <li>「エラーで困っていた時、親身になって話をきいてくれた」</li>
+          <li>「初心者の気持ちを理解して、共感してくれた」</li>
+        </ul>
+      </blockquote>
+      <p class="text-gray-700 text-base leading-relaxed font-semibold">
+        このシステムは、みんなが誰かのサンタさんになれる場所を作ります。クリスマスが一年中続く、温かい居場所の実現を目指しています。
+      </p>
+    </div>
+    
+    <%# このアプリでできること %>
+    <div class="pt-4">
+      <h3 class="text-xl font-bold mb-3 text-green-600">🎁 このアプリでできること</h3>
+      <ul class="space-y-3 text-base text-gray-700">
+        <li class="flex items-start">
+          <span class="text-green-500 mr-3 mt-1">&#10003;</span>
+          <div>
+            <strong class="font-semibold">感謝を届ける</strong>：チームメンバーに対し、「サンタ通知（評価）」を贈れます。
+          </div>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-3 mt-1">&#10003;</span>
+          <div>
+            <strong class="font-semibold">貢献の可視化</strong>：人間的な価値や努力が評価カードとして蓄積されます。
+          </div>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-3 mt-1">&#10003;</span>
+          <div>
+            <strong class="font-semibold">モチベーション向上</strong>：自分の活動履歴と他者からの感謝をいつでも確認できます。
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
 </div>
