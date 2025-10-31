@@ -13,14 +13,16 @@
                          placeholder: "ユーザー名で検索...", 
                          class: "flex-grow px-4 py-3 border border-gray-300 rounded-xl shadow-inner focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" %>
       <%# 検索ボタン: 白背景、枠線、テキスト付き %>
-      <%= button_tag type: 'submit', class: "flex items-center px-4 py-3 bg-white text-gray-700 font-semibold rounded-xl shadow-lg border border-gray-300 hover:bg-gray-50 transition duration-150" do %>
-        <i class="fas fa-search mr-2 text-lg"></i>検索
+      <%# justify-center を追加し、ボタンの中の文字を中央寄せにする %>
+      <%= button_tag type: 'submit', class: "flex items-center justify-center px-4 py-3 bg-white text-gray-700 font-semibold rounded-xl shadow-lg border border-gray-300 hover:bg-gray-50 transition duration-150" do %>
+        <i class="fas fa-search  text-lg"></i>検索
       <% end %>
     <% end %>
   </div>
 
   <%# フレンド一覧へのリンク %>
   <div class="text-center mb-8">
+    <%# following_users_path は /users/following に対応 %>
     <%= link_to following_users_path, class: "inline-flex items-center px-4 py-2 bg-green-500 text-white font-semibold rounded-full shadow-md hover:bg-green-600 transition duration-150" do %>
       <i class="fas fa-users mr-2"></i> フォロー中のフレンド一覧を見る
     <% end %>
@@ -40,9 +42,21 @@
               <%= link_to user.username, user_path(user), class: "text-xl font-bold text-gray-800 hover:text-indigo-600 transition duration-150" %>
             </div>
           </div>
-          <!-- 評価送信ボタン -->
-          <%= link_to 'お手紙を送る', new_evaluation_path(receiver_id: user.id), 
-              class: 'px-4 py-2 bg-yellow-500 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition duration-300' %>
+          
+          <%# --- ボタンエリア --- %>
+          <%# flex-1 を使ってボタンを横並びかつ均等幅にする %>
+          <div class="flex space-x-2 w-64 ml-4">
+            
+            <%# 1. フォローボタン (パーシャル呼び出し) %>
+            <div class="flex-1">
+              <%= render 'users/follow_form', user: user %>
+            </div>
+            
+            <%# 2. お手紙を送るボタン %>
+            <%= link_to 'お手紙を送る', new_evaluation_path(receiver_id: user.id), 
+                class: 'flex-1 text-center px-4 py-2 bg-yellow-500 text-white text-sm font-semibold rounded-xl shadow-md hover:bg-yellow-600 transition duration-300' %>
+          </div>
+          
         </div>
       <% end %>
     <% else %>

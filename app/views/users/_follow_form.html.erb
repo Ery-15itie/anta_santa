@@ -1,0 +1,35 @@
+<%# app/views/users/_follow_form.html.erb - フォローボタンのパーシャル %>
+<%# 呼び出し元で local: { user: 相手のユーザーオブジェクト } のように渡すことを想定 %>
+
+<%# ログインしている場合のみボタンを表示 %>
+<% if current_user %>
+
+  <%# ログインユーザー自身ではない場合にのみ表示 %>
+  <% if current_user != user %>
+    
+    <%# 既にフォローしているかどうかの判定 %>
+    <% if current_user.following?(user) %>
+      
+      <%# --- フォロー解除ボタン (緑色) --- %>
+      <%= button_to "解除", 
+          # relationship_path にフォロー対象ユーザーのIDを渡す
+          # これにより、コントローラ側で find_by(followed_id: user.id) が実行可能
+          relationship_path(user.id), 
+          method: :delete, 
+          data: { turbo_confirm: "#{user.username} さんのフォローを解除しますか？" },
+          # ボタンのスタイル: 緑、文字は小さく
+          class: "w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-4 rounded-xl shadow-md transition duration-150" %>
+    <% else %>
+      
+      <%# --- フォローボタン (赤色) --- %>
+      <%= button_to "フォロー", 
+          # followed_idをパラメータとして渡す
+          relationships_path(followed_id: user.id), 
+          method: :post, 
+          # ボタンのスタイル: 赤、文字は小さく
+          class: "w-full bg-red-500 hover:bg-red-600 text-white text-sm font-semibold py-2 px-4 rounded-xl shadow-md transition duration-150" %>
+    <% end %>
+
+  <% end %>
+
+<% end %>
