@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: 'users/sessions',
     registrations: 'users/registrations'
+    # パスワードリセット機能はDevise標準コントローラーが適用
   }
 
   # ----------------------------------------------------
@@ -28,6 +29,14 @@ Rails.application.routes.draw do
 
   # --- ダッシュボード周りのルーティング ---
   get 'dashboard', to: 'dashboard#index', as: 'dashboard'
+
+  # ----------------------------------------------------
+  # 開発環境向けメール確認UIの追加
+  # ----------------------------------------------------
+  # Letter Opener Webを開発環境でのみ有効化し、本番環境へのアクセスを防止
+  if Rails.env.development?
+    mount LetterOpenerWeb::Engine, at: "/letter_opener"
+  end
 
   # ----------------------------------------------------
   # トップページ（Root Path）の定義

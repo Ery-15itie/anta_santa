@@ -3,33 +3,30 @@ FROM ruby:3.3.8-slim
 # Rails app lives here
 WORKDIR /rails
 
-# Install packages needed for development, including libvips dependencies and JS tools
-# nodejsとnpm、そしてアセットコンパイルに必要な依存関係をインストール
+# Install packages needed for development
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     build-essential \
-    curl \
-    default-mysql-client \
-    default-libmysqlclient-dev \
     git \
     libjemalloc2 \
     libvips \
     libyaml-dev \
     nodejs \
+    # PostgreSQL用のライブラリ
+    libpq-dev \
+    postgresql-client \
     npm \
-    pkg-config && \
-    \
-    # キャッシュを徹底的に削除
+    pkg-config \
+    curl && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Yarnのグローバルパスを$PATHに追加
-# npmでグローバルインストールされた実行ファイルを見つけられるようにする
 ENV PATH="/usr/local/npm-global/bin:$PATH"
 
-# Install yarn (npmでインストール)
+# Install yarn
 RUN npm install --global yarn
 
-# Set development environment
+# Set environment variables
 ENV RAILS_ENV="development"
 ENV BUNDLE_PATH="/usr/local/bundle"
 

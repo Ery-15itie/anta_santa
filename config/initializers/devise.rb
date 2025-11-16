@@ -4,7 +4,7 @@ require 'devise/orm/active_record'
 
 Devise.setup do |config|
   # メーラー設定
-  config.mailer_sender = 'noreply@anta-santa.com'
+  config.mailer_sender = 'admin@antasantaapp.com'
 
   # OmniAuth GitHub設定
   config.omniauth :github,
@@ -41,7 +41,7 @@ Devise.setup do |config|
 
   # パスワードリセット設定
   # パスワードリセットトークンの有効期限
-  config.reset_password_within = 6.hours
+  config.reset_password_within = 30.minutes
 
   # パスワード変更後に自動ログイン
   config.sign_in_after_reset_password = true

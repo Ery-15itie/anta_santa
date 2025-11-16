@@ -53,21 +53,34 @@ Rails.application.configure do
   # config.active_job.queue_adapter = :solid_queue
   # config.solid_queue.connects_to = { database: { writing: :queue } }
 
-  # Ignore bad email addresses and do not raise email delivery errors.
-  # Set this to true and configure the email server for immediate delivery to raise delivery errors.
-  # config.action_mailer.raise_delivery_errors = false
+  # --------------------------------------------------------------------------
+  #  Action Mailer 設定（本番環境用 Gmail SMTP）
+  # --------------------------------------------------------------------------
+  
+  # メール配信を有効化
+  config.action_mailer.perform_deliveries = true
+  
+  # メール配信エラーを表示
+  config.action_mailer.raise_delivery_errors = true
+  
+  # メール内のリンク生成用ホスト設定（環境変数から読み込み）
+  config.action_mailer.default_url_options = { host: ENV['APP_HOST'], protocol: 'https' }
+  
+  # メール送信方法を SMTP に設定
+  config.action_mailer.delivery_method = :smtp
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
-
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  # Gmail SMTP サーバー設定（環境変数から認証情報を読み込む）
+  config.action_mailer.smtp_settings = {
+    address:              'smtp.gmail.com',
+    port:                 587,
+    domain:               'antasantaapp.com',
+    user_name:            ENV['GMAIL_USERNAME'],
+    password:             ENV['GMAIL_PASSWORD'],
+    authentication:       :plain,
+    enable_starttls_auto: true
+  }
+  
+  # --------------------------------------------------------------------------
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
@@ -79,12 +92,12 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
-  # Enable DNS rebinding protection and other `Host` header attacks.
+  # Enable DNS rebinding protection and other Host header attacks.
   # config.hosts = [
   #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
+  #   /.*\.example\.com/ # Allow requests from subdomains like www.example.com
   # ]
   #
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } } }
 end

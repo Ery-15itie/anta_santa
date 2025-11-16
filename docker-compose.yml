@@ -1,23 +1,24 @@
 services:
   db:
-    image: mysql:8.0
+    image: postgres:15
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: santa_report_app_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: santa_report_app_development
     ports:
-      - "3307:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
       
   web:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    # 作業ディレクトリを明示的に指定
     working_dir: /rails
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
     ports:
@@ -30,12 +31,13 @@ services:
         condition: service_healthy
     environment:
       RAILS_ENV: development
-      DATABASE_URL: mysql2://root:password@db:3306/santa_report_app_development
+      DATABASE_URL: postgresql://postgres:password@db:5432/santa_report_app_development
       BUNDLE_GEMFILE: /rails/Gemfile
       
-      # GitHub連携用の環境変数
-      GITHUB_CLIENT_ID: "Ov23liKG1aGFbepG6r1P"
-      GITHUB_CLIENT_SECRET: "df922fbd96b764ff29fe3a246430fa22c405cd5d" 
+      # 環境変数を.envから読み込み
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      
 volumes:
-  mysql_data:
+  postgres_data:
   bundle_cache:

@@ -5,7 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gem "rails", "~> 7.2.2" 
 
 # データベース
-gem 'mysql2', '~> 0.5.5' # MySQL/MariaDB用
+# gem 'mysql2', '~> 0.5.5' # MySQL/MariaDB用 
 gem 'pg', '~> 1.5' # PostgreSQL用
 
 # Webサーバー
@@ -66,8 +66,8 @@ group :development, :test do
   gem 'pry-rails' # デバッグ用
   gem 'pry-byebug' # ブレークポイント
   
-  # 開発中にブラウザでメールを確認するためのgem (パスワードリセットに必須)
-  gem "letter_opener" 
+  # letter_opener_webを:developmentグループに移動
+  gem 'letter_opener' 
 end
 
 group :development do
@@ -77,6 +77,7 @@ group :development do
   gem 'spring-watcher-listen', '~> 2.0.0'
   gem 'annotate' # モデルにスキーマ情報を自動記載
   gem 'bullet' # N+1クエリ検出
+  gem 'letter_opener_web' 
 end
 
 group :test do

@@ -80,12 +80,15 @@
       </header>
     <% end %>
 
-    <%# フラッシュメッセージ表示エリア (Tailwindスタイル) %>
+    <%# フラッシュメッセージ表示エリア (Tailwindスタイル) - 修正済み %>
     <div class="flash-container">
-      <% flash.each do |type, msg| %>
-        <div class="flash-message mt-2 px-6 py-3 text-sm font-medium <%= flash_class(type) %> transition-all duration-300 transform translate-y-0" role="alert">
-          <%= msg %>
-        </div>
+      <% flash.each do |key, msg| %>
+        <%# Deviseの標準キーである :notice と :alert を確実に処理する %>
+        <% if key.to_sym == :notice || key.to_sym == :alert %>
+          <div class="flash-message mt-2 px-6 py-3 text-sm font-medium <%= flash_class(key) %> transition-all duration-300 transform translate-y-0" role="alert">
+            <%= msg %>
+          </div>
+        <% end %>
       <% end %>
     </div>
 
@@ -117,8 +120,8 @@
 <%# 汎用的なFlashクラスを返すヘルパー関数 (Tailwindクラスを使用) %>
 <% def flash_class(type)
      case type.to_sym
-     when :notice then "bg-green-500 text-white" # notice (成功)
-     when :alert  then "bg-red-500 text-white"   # alert (エラー/警告)
+     when :notice then "bg-green-500 text-white" # Devise notice (成功)
+     when :alert  then "bg-red-500 text-white"   # Devise alert (エラー/警告)
      when :error  then "bg-red-500 text-white"   # error
      when :success then "bg-green-500 text-white" # success
      when :warning then "bg-yellow-500 text-gray-800" # warning

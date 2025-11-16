@@ -23,6 +23,7 @@
             </h2>
 
             <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+              <%# フォーム上部にDeviseのエラーメッセージを表示 %>
               <%= render "devise/shared/error_messages", resource: resource %>
 
               <div class="mb-3">
@@ -37,9 +38,14 @@
               </div>
             <% end %>
 
+            <%# ---------------------------------------------------- %>
+            <%# Login/Signupリンクを「ログインに戻る」に統合 %>
+            <%# ---------------------------------------------------- %>
             <div class="mt-4 text-center">
-              <%= render "devise/shared/links" %>
+              <%= link_to "ログインに戻る", new_session_path(resource_name), class: "small text-decoration-none text-muted" %>
             </div>
+            <%# ---------------------------------------------------- %>
+
           </div>
         </div>
       </div>
