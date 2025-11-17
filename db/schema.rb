@@ -11,7 +11,10 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
-  create_table "evaluation_scores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  create_table "evaluation_scores", force: :cascade do |t|
     t.bigint "evaluation_id", null: false
     t.bigint "template_item_id", null: false
     t.integer "score"
@@ -23,7 +26,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
     t.index ["template_item_id"], name: "index_evaluation_scores_on_template_item_id"
   end
 
-  create_table "evaluations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "evaluations", force: :cascade do |t|
     t.bigint "evaluator_id", null: false
     t.bigint "evaluated_user_id", null: false
     t.bigint "template_id", null: false
@@ -38,7 +41,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
     t.index ["template_id"], name: "index_evaluations_on_template_id"
   end
 
-  create_table "github_profiles", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "github_profiles", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "access_token", null: false
     t.string "refresh_token"
@@ -51,7 +54,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
     t.index ["user_id"], name: "index_github_profiles_on_user_id", unique: true
   end
 
-  create_table "relationships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "relationships", force: :cascade do |t|
     t.bigint "follower_id", null: false
     t.bigint "followed_id", null: false
     t.datetime "created_at", null: false
@@ -61,7 +64,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
     t.index ["follower_id"], name: "index_relationships_on_follower_id"
   end
 
-  create_table "template_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "template_items", force: :cascade do |t|
     t.bigint "template_id", null: false
     t.string "title"
     t.text "description"
@@ -75,7 +78,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
     t.index ["template_id"], name: "index_template_items_on_template_id"
   end
 
-  create_table "templates", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "templates", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "title"
     t.text "description"
@@ -85,7 +88,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
     t.index ["user_id"], name: "index_templates_on_user_id"
   end
 
-  create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
