@@ -43,7 +43,7 @@ gem 'faraday-retry'
 
 # バックグラウンドジョブ
 gem 'sidekiq'
-gem 'redis', '~> 4.0'
+gem 'redis', '~> 5.4'
 
 # 国際化
 gem 'rails-i18n'
