@@ -10,9 +10,12 @@
           <div class="col-md-6 d-flex align-items-center justify-content-center p-5 text-white text-center" style="background: linear-gradient(to bottom right, #ffc107, #dc3545);">
             <div>
               <h2 class="h3 fw-bold mb-3">パスワードをお忘れですか？</h2>
-              <p class="small opacity-90">
-                ご登録のメールアドレスを入力してください。パスワードリセット用のリンクをお送りします。
+              <p class="small opacity-90 mb-4">
+                ご登録のメールアドレスを入力してください。<br>パスワードリセット用のリンクをお送りします。
               </p>
+              <div class="alert alert-light bg-white bg-opacity-25 border-0 text-white small">
+                <i class="bi bi-clock"></i> リセットリンクの有効期限は<strong>30分</strong>です
+              </div>
             </div>
           </div>
 
@@ -26,25 +29,32 @@
               <%# フォーム上部にDeviseのエラーメッセージを表示 %>
               <%= render "devise/shared/error_messages", resource: resource %>
 
-              <div class="mb-3">
+              <div class="mb-4">
                 <%= f.label :email, "メールアドレス", class: "form-label fw-bold" %>
                 <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true,
-                                  class: "form-control rounded-pill", placeholder: "メールアドレスを入力" %>
+                                  class: "form-control form-control-lg", 
+                                  placeholder: "example@antasantaapp.com",
+                                  style: "background-color: white; border: 2px solid #dee2e6;" %>
               </div>
 
               <div class="d-grid gap-2 mt-4">
                 <%= f.submit "リセットリンクを送信",
-                             class: "btn btn-danger btn-lg rounded-pill fw-bold" %>
+                             class: "btn btn-lg fw-bold text-white shadow reset-btn",
+                             style: "background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); border: none; padding: 15px; font-size: 1.1rem;" %>
               </div>
             <% end %>
 
-            <%# ---------------------------------------------------- %>
-            <%# Login/Signupリンクを「ログインに戻る」に統合 %>
-            <%# ---------------------------------------------------- %>
-            <div class="mt-4 text-center">
-              <%= link_to "ログインに戻る", new_session_path(resource_name), class: "small text-decoration-none text-muted" %>
+            <%# 区切り線 %>
+            <hr class="my-4">
+
+            <%# ログインに戻るボタン %>
+            <div class="d-grid">
+              <%= link_to new_session_path(resource_name), 
+                  class: "btn btn-outline-secondary btn-lg",
+                  style: "border: 2px solid #6c757d; padding: 12px;" do %>
+                <i class="bi bi-arrow-left-circle me-2"></i>ログインに戻る
+              <% end %>
             </div>
-            <%# ---------------------------------------------------- %>
 
           </div>
         </div>
@@ -52,3 +62,53 @@
     </div>
   </div>
 </div>
+
+<style>
+  /* 入力欄のスタイル */
+  .form-control {
+    background-color: white !important;
+  }
+
+  .form-control:focus {
+    background-color: white !important;
+    border-color: #ffc107 !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
+  }
+
+  /* リセット送信ボタンのホバーエフェクト */
+  .reset-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 193, 7, 0.5) !important;
+    background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%) !important;
+    transition: all 0.3s ease;
+  }
+
+  .reset-btn:active {
+    transform: translateY(-1px);
+  }
+
+  /* ログインに戻るボタンのホバーエフェクト */
+  .btn-outline-secondary:hover {
+    transform: translateY(-2px);
+    background-color: #6c757d !important;
+    color: white !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+  }
+
+  /* カードアニメーション */
+  .card {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

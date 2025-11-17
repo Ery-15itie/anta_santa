@@ -1,25 +1,102 @@
-<h2>Change your password</h2>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg border-0">
+        <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">
+          <h4 class="mb-0 fw-bold">パスワードの変更</h4>
+        </div>
+        <div class="card-body p-5" style="background-color: #f8f9fa;">
+          <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
+            <%= render "devise/shared/error_messages", resource: resource %>
+            <%= f.hidden_field :reset_password_token %>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
-  <%= f.hidden_field :reset_password_token %>
+            <div class="mb-4">
+              <%= f.label :password, "新しいパスワード", class: "form-label fw-bold text-dark" %>
+              <% if @minimum_password_length %>
+                <small class="text-muted d-block mb-2">
+                  (<%= @minimum_password_length %>文字以上)
+                </small>
+              <% end %>
+              <%= f.password_field :password, autofocus: true, autocomplete: "new-password", 
+                  class: "form-control form-control-lg", 
+                  placeholder: "新しいパスワードを入力",
+                  style: "background-color: white; border: 2px solid #dee2e6;" %>
+            </div>
 
-  <div class="field">
-    <%= f.label :password, "New password" %><br />
-    <% if @minimum_password_length %>
-      <em>(<%= @minimum_password_length %> characters minimum)</em><br />
-    <% end %>
-    <%= f.password_field :password, autofocus: true, autocomplete: "new-password" %>
+            <div class="mb-4">
+              <%= f.label :password_confirmation, "パスワード確認", class: "form-label fw-bold text-dark" %>
+              <%= f.password_field :password_confirmation, autocomplete: "new-password", 
+                  class: "form-control form-control-lg", 
+                  placeholder: "もう一度入力してください",
+                  style: "background-color: white; border: 2px solid #dee2e6;" %>
+            </div>
+
+            <div class="d-grid gap-2 mb-4">
+              <%= f.submit "パスワードを変更する", 
+                  class: "btn btn-lg fw-bold text-white shadow-sm password-change-btn",
+                  style: "background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border: none; padding: 15px;" %>
+            </div>
+          <% end %>
+
+          <hr class="my-4">
+
+          <div class="text-center">
+            <%= link_to "ログインに戻る", new_session_path(resource_name), 
+                class: "btn btn-outline-secondary btn-lg w-100",
+                style: "border: 2px solid #6c757d;" %>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 
-  <div class="field">
-    <%= f.label :password_confirmation, "Confirm new password" %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
+<style>
+  /* 入力欄のフォーカス時のスタイル */
+  .form-control:focus {
+    background-color: white !important;
+    border-color: #ff6b6b !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.25) !important;
+  }
 
-  <div class="actions">
-    <%= f.submit "Change my password" %>
-  </div>
-<% end %>
+  /* パスワード変更ボタンのホバーエフェクト */
+  .password-change-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(255, 107, 107, 0.5) !important;
+    background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%) !important;
+    transition: all 0.3s ease;
+  }
 
-<%= render "devise/shared/links" %>
+  .password-change-btn:active {
+    transform: translateY(-1px);
+  }
+
+  /* ログインに戻るボタンのホバーエフェクト */
+  .btn-outline-secondary:hover {
+    transform: translateY(-2px);
+    background-color: #6c757d;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  /* カード全体のアニメーション */
+  .card {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* 入力欄の白い背景を確実に */
+  .form-control {
+    background-color: white !important;
+  }
+</style>
