@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_23_114529) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "emotion_logs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.text "body"
+    t.integer "intensity"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "emotion", default: 8, null: false
+    t.index ["user_id"], name: "index_emotion_logs_on_user_id"
+  end
 
   create_table "evaluation_scores", force: :cascade do |t|
     t.bigint "evaluation_id", null: false
@@ -52,6 +62,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_github_profiles_on_user_id", unique: true
+  end
+
+  create_table "jwt_denylists", force: :cascade do |t|
+    t.string "jti", null: false
+    t.datetime "exp", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["jti"], name: "index_jwt_denylists_on_jti"
   end
 
   create_table "relationships", force: :cascade do |t|
@@ -113,6 +131,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_23_114526) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "emotion_logs", "users"
   add_foreign_key "evaluation_scores", "evaluations"
   add_foreign_key "evaluation_scores", "template_items"
   add_foreign_key "evaluations", "templates"

@@ -1,9 +1,12 @@
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  # =========================================================
+  # 認証機能 (Devise & JWT)
+  # =========================================================
+  # DeviseのJWT認証を有効化し、失効戦略として JwtDenylist クラスを指定
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
-
+         :recoverable, :rememberable, :validatable,
+         :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist 
+  
   # =========================================================
   # 評価（お手紙）機能の関連 
   # =========================================================
@@ -16,7 +19,7 @@ class User < ApplicationRecord
   # 受け取った評価 (EvaluatedUserとして)
   has_many :received_evaluations, 
            class_name: 'Evaluation', 
-           foreign_key: 'evaluated_user_id', 
+           foreign_key: 'evaluated_id', 
            dependent: :destroy
 
   # =========================================================
@@ -35,6 +38,12 @@ class User < ApplicationRecord
            foreign_key: "followed_id", 
            dependent:   :destroy
   has_many :followers, through: :passive_relationships, source: :follower
+
+  # =========================================================
+  # Heartory Home 機能
+  # =========================================================
+  # 感情ログ (EmotionLog) の関連付け
+  has_many :emotion_logs, dependent: :destroy
   
   # =========================================================
   # バリデーションとヘルパーメソッド

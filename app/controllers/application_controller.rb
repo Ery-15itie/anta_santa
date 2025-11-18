@@ -1,24 +1,16 @@
-class ApplicationController < ActionController::Base
-  # Deviseコントローラーで利用するためにカスタムセッションロジックを追加
-  before_action :configure_permitted_parameters, if: :devise_controller?
-
-  protected
-
-  # Deviseのパラメーターを許可する（usernameの追加を許可）
-  def configure_permitted_parameters
-    # sign_up 時に username, image_url を許可
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:username, :image_url])
-    # account_update 時に username, image_url を許可
-    devise_parameter_sanitizer.permit(:account_update, keys: [:username, :image_url])
-  end
-              
-  # ログイン後のリダイレクト先をダッシュボードに変更
-  def after_sign_in_path_for(resource)
-    dashboard_path # 新しいルーティングヘルパーを使用
-  end
-
-  # ログアウト後のリダイレクト先をトップページ（ログイン画面）に変更
-  def after_sign_out_path_for(resource_or_scope)
-    root_path
+class ApplicationController < ActionController::API
+  # Deviseのヘルパーメソッド（current_user, user_signed_in? など）をAPIコントローラでも利用可能にするために必要
+  include ActionController::Helpers
+  
+  # JWT認証が失敗した場合の共通エラー処理
+  # 認証されていない場合 (JWTトークンがない、または無効) に実行される
+  def authenticate_user!(options = {})
+    unless user_signed_in?
+      # 認証エラーの場合、401 Unauthorized ステータスとエラーメッセージを返す
+      render json: { 
+        status: 401, 
+        message: '認証が必要です。ログインしてからアクセスしてください。' 
+      }, status: :unauthorized
+    end
   end
 end
