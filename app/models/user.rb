@@ -19,7 +19,7 @@ class User < ApplicationRecord
   # 受け取った評価 (EvaluatedUserとして)
   has_many :received_evaluations, 
            class_name: 'Evaluation', 
-           foreign_key: 'evaluated_id', 
+           foreign_key: 'evaluated_user_id', 
            dependent: :destroy
 
   # =========================================================
