@@ -48,7 +48,7 @@
                style="clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);">
             <span class="relative z-10 flex items-center gap-2">
               <span class="<%= active_tab == 'received' ? 'text-[#cba36b]' : '' %>">📥</span> 
-              RECEIVED
+              受け取った手紙
               <span class="ml-2 bg-[#2c1e1b] text-[#cba36b] text-xs px-2 py-0.5 rounded-full shadow-inner"><%= @received_evaluations.count %></span>
             </span>
             <div class="absolute inset-0 bg-gradient-to-b from-[#ffffff10] to-transparent pointer-events-none"></div>
@@ -63,7 +63,7 @@
                style="clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);">
             <span class="relative z-10 flex items-center gap-2">
               <span class="<%= active_tab == 'sent' ? 'text-[#cba36b]' : '' %>">📤</span>
-              SENT
+              送った手紙
               <span class="ml-2 bg-[#2c1e1b] text-[#cba36b] text-xs px-2 py-0.5 rounded-full shadow-inner"><%= @sent_evaluations.count %></span>
             </span>
             <div class="absolute inset-0 bg-gradient-to-b from-[#ffffff10] to-transparent pointer-events-none"></div>
@@ -147,14 +147,25 @@
             <% end %>
           </div>
 
-        <% else %>
-          <%# 空の状態 (埃をかぶった棚) %>
-          <div class="h-full flex flex-col items-center justify-center py-28 text-center opacity-40 relative z-10">
-            <div class="text-7xl mb-4 text-[#3e2723] drop-shadow-lg">📭</div>
-            <p class="text-2xl font-black text-[#3e2723] mb-2 uppercase tracking-widest">Cabinet is Empty</p>
-            <p class="text-lg text-[#5d4037] font-medium italic">
+                <% else %>
+          <%# 空の状態 (アイコンなし、真鍮プレートの文字のみ) %>
+          <div class="h-full flex flex-col items-center justify-center py-32 text-center relative z-10 bg-[#3e2723] bg-opacity-30 rounded-lg shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] border-2 border-[#5d4037] border-opacity-50 mx-4 my-8 overflow-hidden">
+            
+            <%# 真鍮プレート風の枠装飾 %>
+            <div class="absolute inset-0 m-4 border-4 border-[#cba36b] border-double opacity-40 rounded-sm pointer-events-none"></div>
+
+            <%# メインテキスト (巨大な真鍮刻印) %>
+            <p class="text-4xl sm:text-5xl font-black text-[#cba36b] mb-6 uppercase tracking-[0.2em] drop-shadow-[2px_4px_6px_rgba(0,0,0,0.8)] relative z-10 px-4 py-2" style="font-family: 'Georgia', serif; border-bottom: 2px solid #cba36b50; border-top: 2px solid #cba36b50;">
+              Cabinet is Empty
+            </p>
+            
+            <%# サブテキスト (明るいベージュ) %>
+            <p class="text-2xl text-[#ffecb3] font-medium italic drop-shadow-[1px_2px_3px_rgba(0,0,0,0.9)] opacity-90 relative z-10">
               <%= active_tab == 'received' ? 'まだ手紙は届いていません。' : 'まだ手紙を送っていません。' %>
             </p>
+            
+            <%# 装飾：キャビネット奥の微かな光 %>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#cba36b10] via-transparent to-transparent pointer-events-none"></div>
           </div>
         <% end %>
         
