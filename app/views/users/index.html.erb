@@ -8,7 +8,21 @@
   </div>
 
   <div class="container mx-auto px-4 py-8 max-w-4xl relative z-10">
-    
+
+     <%# ホームに戻るボタン追加 %>
+    <div class="mb-2 text-left relative z-20">
+       <%= link_to root_path, class: "inline-block group relative" do %>
+         <%# 鎖 %>
+         <div class="absolute -top-12 left-6 w-0.5 h-16 bg-[#8d6e63]"></div>
+         
+         <%# 看板本体 %>
+         <div class="bg-[#5d4037] border-2 border-[#3e2723] px-4 py-2 rounded shadow-lg transform group-hover:-translate-y-1 transition duration-300 flex items-center gap-2">
+           <span class="text-[#ffecb3] text-lg">🏠</span>
+           <span class="text-[#ffecb3] font-bold text-sm tracking-widest">HOMEへ戻る</span>
+         </div>
+       <% end %>
+    </div>
+ 
     <%# --- 1. ヘッダー (木の看板風) --- %>
     <div class="text-center mb-10">
       <div class="inline-block relative">
