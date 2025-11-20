@@ -1,16 +1,24 @@
-class ApplicationController < ActionController::API
-  # Deviseのヘルパーメソッド（current_user, user_signed_in? など）をAPIコントローラでも利用可能にするために必要
-  include ActionController::Helpers
-  
-  # JWT認証が失敗した場合の共通エラー処理
-  # 認証されていない場合 (JWTトークンがない、または無効) に実行される
-  def authenticate_user!(options = {})
-    unless user_signed_in?
-      # 認証エラーの場合、401 Unauthorized ステータスとエラーメッセージを返す
-      render json: { 
-        status: 401, 
-        message: '認証が必要です。ログインしてからアクセスしてください。' 
-      }, status: :unauthorized
-    end
+class ApplicationController < ActionController::Base
+  # Deviseコントローラーで利用するためにカスタムセッションロジックを追加
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
+  protected
+
+  # Deviseのパラメーターを許可する（username, image_urlの追加を許可）
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:username, :image_url])
+    devise_parameter_sanitizer.permit(:account_update, keys: [:username, :image_url])
+  end
+              
+  # ログイン後のリダイレクト先
+  # 新しいダッシュボード（HomesController#index）は root_path に設定されているため、ここを root_path にすることで、ログイン後すぐに10部屋の画面に行ける
+  def after_sign_in_path_for(resource)
+    root_path
+  end
+
+  # ログアウト後のリダイレクト先
+  # ログイン画面（new_user_session_path）に戻します
+  def after_sign_out_path_for(resource_or_scope)
+    new_user_session_path
   end
 end

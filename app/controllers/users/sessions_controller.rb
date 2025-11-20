@@ -1,7 +1,7 @@
 class Users::SessionsController < Devise::SessionsController
-  # JWT認証を行うAPIエンドポイントでは、CSRFトークン検証をスキップ
-  # これにより、ReactやモバイルアプリからのAPIログインを許可
-  skip_before_action :verify_authenticity_token, only: [:create, :destroy]
+  # 末尾に , raise: false を追加
+  # これにより、親クラスでCSRF対策が定義されていなくてもエラーにならない
+  skip_before_action :verify_authenticity_token, only: [:create, :destroy], raise: false
 
   # POST /resource/sign_in (ログイン)
   def create

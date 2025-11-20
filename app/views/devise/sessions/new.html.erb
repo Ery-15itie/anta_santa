@@ -1,7 +1,7 @@
 <%#
-  [Devise View] app/views/devise/sessions/new.html.erb
-  目的: Tailwind CSSデザインを適用し、アプリの世界観を伝えるランディングページとして機能させる。
-  デザイン: ページ全体を温かい緑系のトーン (bg-green-50) に統一。フォームとメッセージパネルの左右分割。
+  [Devise View] 
+  目的: Tailwind CSSデザインを適用し、アプリの世界観を伝えるランディングページとして機能
+  デザイン: ページ全体を温かい緑系のトーン フォームとメッセージパネルの左右分割。
 %>
 
 <%# --- ページ全体のコンテナと背景色 (Tailwind) --- %>
@@ -35,7 +35,8 @@
           ログイン
         </h2>
 
-        <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-6" }) do |f| %>
+        <%# "data-turbo" => "false" を追加.ログインボタンを反応させる %>
+        <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-6", "data-turbo" => "false" }) do |f| %>
           
           <%# メールアドレス %>
           <div>
