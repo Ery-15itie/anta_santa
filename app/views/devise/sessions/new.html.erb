@@ -1,149 +1,96 @@
-<%#
-  [Devise View] 
-  目的: Tailwind CSSデザインを適用し、アプリの世界観を伝えるランディングページとして機能
-  デザイン: ページ全体を温かい緑系のトーン フォームとメッセージパネルの左右分割。
-%>
+<%# ログイン画面: 暖かな家への帰宅 (Welcome Back Style) + 村ガイド %>
 
-<%# --- ページ全体のコンテナと背景色 (Tailwind) --- %>
-<%# bg-green-50 で背景を統一 %>
-<div class="flex flex-col items-center min-h-screen bg-green-50 dark:bg-gray-900 p-4">
+<div class="min-h-screen bg-[#271c19] font-serif pb-20 relative overflow-x-hidden text-[#3e2723]">
+  
+  <%# 背景: 夜の森 %>
+  <div class="fixed inset-0 opacity-60 pointer-events-none" 
+       style="background-image: radial-gradient(circle at 50% 30%, #4e342e 0%, #271c19 70%);">
+  </div>
+  <%# 雪のエフェクト %>
+  <div class="fixed inset-0 opacity-20 pointer-events-none"
+       style="background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCI+CjxjaXJjbGUgY3g9IjUiIGN5PSI1IiByPSIxIiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuNSIvPgo8L3N2Zz4='); background-size: 100px 100px;">
+  </div>
 
-  <%# --- 1. ログインボックスエリア (画面上部に固定配置) --- %>
-  <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden mt-10 mb-12">
+  <div class="container mx-auto px-4 py-12 max-w-5xl relative z-10 flex flex-col items-center justify-center">
     
-    <%# コンテナ: PCでは横並び (grid-cols-2), モバイルでは縦並び (flex-col) %>
-    <div class="grid grid-cols-1 md:grid-cols-2 h-full min-h-full">
-
-      <%# 左側: メッセージエリア (PCのみ表示) - 暖色系のグラデーション %>
-      <%# items-center と justify-center で上下左右中央揃えを実現 %>
-      <div class="hidden md:flex flex-col items-center justify-center p-10 lg:p-16 
-                  bg-gradient-to-br from-red-400 to-amber-400 text-white h-full min-h-full text-center">
-        <h1 class="text-4xl font-extrabold mb-4 text-shadow-lg">
-          おかえりなさい！
-        </h1>
-        <p class="text-xl font-light text-center">
-          温かいメッセージをチェックして、<br>また誰かの心を温めましょう。
-        </p>
-        <div class="mt-8 text-sm">
-          <%= link_to "新規登録はこちら", new_registration_path(resource_name), class: "font-bold text-white/90 hover:text-white underline" %>
+    <%# --- 1. ログインフォーム (このページ固有) --- %>
+    <div class="w-full bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mb-16 flex flex-col md:flex-row min-h-[550px] border-4 border-[#3e2723]">
+      
+      <%# 左側: 入力フォーム %>
+      <div class="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-center bg-[#fff8e1] relative">
+        
+        <div class="text-center mb-8">
+          <h2 class="text-3xl font-black text-[#3e2723] tracking-widest mb-2" style="font-family: 'Courier New', Courier, monospace;">
+            Log In
+          </h2>
+          <p class="text-sm text-[#8d6e63] font-bold uppercase tracking-wider">おかえりなさい、サンタさん</p>
         </div>
-      </div>
 
-      <%# 右側: フォームエリア %>
-      <div class="p-6 sm:p-10 lg:p-16 flex flex-col justify-center h-full min-h-full">
-        <h2 class="text-3xl font-extrabold text-gray-800 text-center mb-8 md:mb-10">
-          ログイン
-        </h2>
-
-        <%# "data-turbo" => "false" を追加.ログインボタンを反応させる %>
-        <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-6", "data-turbo" => "false" }) do |f| %>
+        <%# Turbo無効化 %>
+        <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-6", data: { turbo: false } }) do |f| %>
           
-          <%# メールアドレス %>
           <div>
-            <%= f.label :email, "メールアドレス", class: "block text-sm font-medium text-gray-700 mb-1" %>
-            <%= f.email_field :email, 
-                autofocus: true, 
-                autocomplete: "email", 
-                placeholder: "antasanta@example.com",
-                class: "appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 transition duration-150 ease-in-out sm:text-sm" %>
+            <%= f.label :email, "メールアドレス", class: "block text-xs font-bold text-[#ef6c00] mb-1" %>
+            <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "santa@example.com",
+                class: "w-full bg-white border border-orange-200 text-gray-700 px-4 py-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition" %>
           </div>
 
-          <%# パスワード %>
           <div>
-            <%= f.label :password, "パスワード", class: "block text-sm font-medium text-gray-700 mb-1" %>
-            <%= f.password_field :password, 
-                autocomplete: "current-password",
-                placeholder: "••••••••",
-                class: "appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 transition duration-150 ease-in-out sm:text-sm" %>
+            <%= f.label :password, "パスワード", class: "block text-xs font-bold text-[#ef6c00] mb-1" %>
+            <%= f.password_field :password, autocomplete: "current-password", placeholder: "••••••••",
+                class: "w-full bg-white border border-orange-200 text-gray-700 px-4 py-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition" %>
           </div>
 
-          <%# 記憶する + パスワードを忘れた場合 %>
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between text-sm">
             <% if devise_mapping.rememberable? %>
               <div class="flex items-center">
-                <%= f.check_box :remember_me, class: "h-4 w-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500" %>
-                <%= f.label :remember_me, "記憶する", class: "ml-2 block text-sm text-gray-900" %>
+                <%= f.check_box :remember_me, class: "h-4 w-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" %>
+                <%= f.label :remember_me, "ログインしたままにする", class: "ml-2 text-gray-700 font-medium" %>
               </div>
             <% end %>
-            <div class="text-sm">
-              <%= link_to "パスワードを忘れた場合", new_password_path(resource_name), class: "font-medium text-pink-600 hover:text-pink-500" %>
-            </div>
+            
+            <%= link_to "パスワードを忘れた方", new_password_path(resource_name), class: "text-[#8d6e63] hover:text-[#ef6c00] underline transition-colors" %>
           </div>
 
-          <%# ログインボタン (グラデーション) %>
           <div class="pt-4">
-            <%= f.submit "ログイン", 
-                class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white cursor-pointer 
-                        bg-gradient-to-r from-orange-500 to-pink-600 hover:from-orange-600 hover:to-pink-700 
-                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition duration-150 ease-in-out" %>
+            <%= f.submit "扉を開ける (ログイン)", 
+                class: "w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-full shadow-lg hover:from-orange-600 hover:to-red-600 hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer" %>
           </div>
         <% end %>
 
-        <%# モバイル用の新規登録リンク %>
-        <div class="mt-6 text-center text-sm md:hidden">
-          <%= link_to "新規登録はこちら", new_registration_path(resource_name), class: "font-medium text-pink-600 hover:text-pink-500" %>
+        <div class="mt-8 text-center pt-6 border-t border-orange-100">
+          <p class="text-xs text-gray-500 mb-2">まだアカウントをお持ちでないですか？</p>
+          <%= link_to new_registration_path(resource_name), class: "text-orange-600 font-bold hover:text-orange-800 hover:underline inline-flex items-center gap-1" do %>
+            <span>新規登録はこちら</span>
+            <span>&rarr;</span>
+          <% end %>
         </div>
-
       </div>
-      
-    </div>
-  </div>
 
-  <%# 2. 開発ストーリーとアプリ紹介エリア (下にスクロールして表示) - mx-autoで左右中央配置 %>
-  <div class="w-full max-w-5xl bg-white p-6 sm:p-10 lg:p-16 rounded-3xl shadow-xl border border-green-200 mb-10 mx-auto">
-    <h2 class="text-3xl font-extrabold text-center mb-6 text-green-700">どんな「あんた」でも感謝を贈る「サンタ」になれる場所</h2>
+      <%# 右側: ウェルカムビジュアル (家の明かり) %>
+      <div class="w-full md:w-1/2 p-10 lg:p-16 flex flex-col justify-center items-center text-center relative overflow-hidden text-white"
+           style="background: linear-gradient(135deg, #bf360c 0%, #d84315 50%, #e64a19 100%);">
+        <div class="absolute top-0 left-0 w-full h-full bg-black opacity-20 mix-blend-overlay"></div>
+        <div class="relative z-10">
+          <div class="w-24 h-24 bg-[#ffecb3] rounded-full mx-auto mb-6 shadow-[0_0_30px_rgba(255,236,179,0.6)] flex items-center justify-center text-5xl border-4 border-[#ffca28]">
+            🏠
+          </div>
+          <h1 class="text-3xl lg:text-4xl font-black mb-4 drop-shadow-md font-serif">
+            Welcome Back
+          </h1>
+          <p class="text-lg font-medium opacity-90 leading-relaxed">
+            おかえりなさい。<br>
+            あなたの帰りを待っていました。<br>
+            <span class="text-sm mt-2 block opacity-80">さあ、温かい家の中へ。</span>
+          </p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-12 bg-white opacity-20 rounded-t-[50%] filter blur-xl"></div>
+      </div>
+    </div>
 
-    <%# 開発ストーリー %>
-    <div class="border-b pb-4 mb-4">
-      <h3 class="text-xl font-bold mb-3 text-red-600">開発ストーリー〜大人にとってのサンタさん〜</h3>
-      <p class="text-gray-700 mb-3 text-base leading-relaxed">
-        子供の頃の私たちは毎年12月になると「今年は良い子だったかな？」と自分を振り返り、サンタさんからの評価を心待ちにしていました。あの頃のサンタさんは私たちの行いをすべて見ていて、公平に評価してくれる特別な存在でした。
-      </p>
-      <p class="text-gray-700 mb-3 text-base leading-relaxed">
-        でも大人になるとサンタさんはプレゼントを持っては訪れてはくれません。じゃあ誰が私たちを評価してくれるでしょうか？実は、私たちの周りにいるすべての人が「サンタさん」なのです。
-      </p>
-      <p class="text-gray-700 mb-3 text-base leading-relaxed">
-        同僚があなたの仕事ぶりに感謝し、友人があなたの優しさに救われ、家族があなたの存在に安心する。私たちは誰かにとっての「サンタさん」であり、同時に誰かから贈り物のような評価をもらう存在なのです。
-      </p>
-      <p class="text-gray-700 mb-3 text-base leading-relaxed">
-        特にプログラミング学習コミュニティーでは、日々の学習努力や挫折を乗り越える姿勢、仲間との支え合いを評価していくことでコミュニティーが成長すると考えています。しかし、GitHubの草や学習時間は見えても、そこに込められた苦労や成長・仲間への励ましは簡単に可視化できません。
-      </p>
-      <blockquote class="p-4 my-4 bg-green-100 border-l-4 border-green-500 italic text-sm text-gray-800 rounded-md">
-        <ul class="list-disc list-inside space-y-1">
-          <li>「質問に丁寧に答えてくれて、学習のモチベーションが上がった」</li>
-          <li>「一緒に勉強していて、諦めずに続ける姿に刺激を受けた」</li>
-          <li>「エラーで困っていた時、親身になって話をきいてくれた」</li>
-          <li>「初心者の気持ちを理解して、共感してくれた」</li>
-        </ul>
-      </blockquote>
-      <p class="text-gray-700 text-base leading-relaxed font-semibold">
-        このシステムは、みんなが誰かのサンタさんになれる場所を作ります。クリスマスが一年中続く、温かい居場所の実現を目指しています。
-      </p>
-    </div>
-    
-    <%# このアプリでできること %>
-    <div class="pt-4">
-      <h3 class="text-xl font-bold mb-3 text-green-600">🎁 このアプリでできること</h3>
-      <ul class="space-y-3 text-base text-gray-700">
-        <li class="flex items-start">
-          <span class="text-green-500 mr-3 mt-1">&#10003;</span>
-          <div>
-            <strong class="font-semibold">感謝を届ける</strong>：チームメンバーに対し、「サンタ通知（評価）」を贈れます。
-          </div>
-        </li>
-        <li class="flex items-start">
-          <span class="text-green-500 mr-3 mt-1">&#10003;</span>
-          <div>
-            <strong class="font-semibold">貢献の可視化</strong>：人間的な価値や努力が評価カードとして蓄積されます。
-          </div>
-        </li>
-        <li class="flex items-start">
-          <span class="text-green-500 mr-3 mt-1">&#10003;</span>
-          <div>
-            <strong class="font-semibold">モチベーション向上</strong>：自分の活動履歴と他者からの感謝をいつでも確認できます。
-          </div>
-        </li>
-      </ul>
-    </div>
+    <%# --- 2. 共通コンテンツ (パーシャル読み込み) --- %>
+    <%#  _village_guide.html.erb を呼び出し %>
+    <%= render "devise/shared/village_guide" %>
+
   </div>
 </div>

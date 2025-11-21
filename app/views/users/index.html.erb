@@ -1,36 +1,31 @@
-<%# ユーザー一覧: 郵便局の住所録 (Address Book) デザイン %>
+<%# ユーザー一覧: 郵便局の住所録風%>
 
 <div class="min-h-screen bg-[#3e2723] font-serif pb-20 relative overflow-x-hidden text-[#3e2723]">
   
-  <%# 背景テクスチャ（木目） %>
+  <%# 背景テクスチャ %>
   <div class="fixed inset-0 opacity-20 pointer-events-none" 
        style="background-image: repeating-linear-gradient(45deg, #3e2723 25%, #4e342e 25%, #4e342e 50%, #3e2723 50%, #3e2723 75%, #4e342e 75%, #4e342e 100%); background-size: 20px 20px;">
   </div>
 
   <div class="container mx-auto px-4 py-8 max-w-4xl relative z-10">
-
-     <%# ホームに戻るボタン追加 %>
+    
+    <%# --- ホームに戻るボタン --- %>
     <div class="mb-2 text-left relative z-20">
        <%= link_to root_path, class: "inline-block group relative" do %>
-         <%# 鎖 %>
          <div class="absolute -top-12 left-6 w-0.5 h-16 bg-[#8d6e63]"></div>
-         
-         <%# 看板本体 %>
          <div class="bg-[#5d4037] border-2 border-[#3e2723] px-4 py-2 rounded shadow-lg transform group-hover:-translate-y-1 transition duration-300 flex items-center gap-2">
            <span class="text-[#ffecb3] text-lg">🏠</span>
-           <span class="text-[#ffecb3] font-bold text-sm tracking-widest">HOMEへ戻る</span>
+           <span class="text-[#ffecb3] font-bold text-sm tracking-widest">HOME</span>
          </div>
        <% end %>
     </div>
- 
-    <%# --- 1. ヘッダー (木の看板風) --- %>
-    <div class="text-center mb-10">
+
+    <%# --- 1. ヘッダー --- %>
+    <div class="text-center mb-10 relative z-10">
       <div class="inline-block relative">
-        <%# 看板の吊り下げ紐 %>
         <div class="absolute -top-16 left-1/4 w-1 h-20 bg-[#8d6e63] z-0"></div>
         <div class="absolute -top-16 right-1/4 w-1 h-20 bg-[#8d6e63] z-0"></div>
         
-        <%# 看板本体 %>
         <div class="relative bg-[#5d4037] border-4 border-[#3e2723] px-10 py-4 rounded shadow-xl transform rotate-1">
           <h1 class="text-3xl font-black text-[#ffecb3] tracking-widest uppercase drop-shadow-md" style="font-family: 'Courier New', Courier, monospace;">
             Address Book
@@ -43,12 +38,10 @@
       </p>
     </div>
 
-        <%# --- 2. 検索フォーム & フレンドリンク (デスクの上のメモ帳風) --- %>
+    <%# --- 2. 検索フォーム --- %>
     <div class="bg-[#fdf6e3] p-6 rounded shadow-lg border-4 border-[#8d6e63] mb-10 relative">
-      <%# クリップ装飾 %>
       <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-stone-400 rounded-full border-4 border-[#5d4037]"></div>
 
-      <%# htmlオプションの中に data: { turbo: false } を追加%>
       <%= form_with url: users_path, method: :get, local: true, html: { class: "flex flex-col sm:flex-row gap-3 mb-6", data: { turbo: false } } do |f| %>
         <div class="flex-grow relative">
           <%= text_field_tag :search, params[:search], 
@@ -61,7 +54,6 @@
         <% end %>
       <% end %>
 
-      <%# フレンド一覧へのリンク %>
       <div class="text-center border-t border-dashed border-[#8d6e63] pt-4">
         <%= link_to following_users_path, class: "inline-flex items-center text-[#d32f2f] font-bold hover:text-[#b71c1c] transition group" do %>
           <span class="border-b border-[#d32f2f] group-hover:border-[#b71c1c] pb-0.5">
@@ -70,44 +62,49 @@
         <% end %>
       </div>
     </div>
-
     
-    <%# --- 3. ユーザーリスト (インデックスカード風) --- %>
+    <%# --- 3. ユーザーリスト (横並び修正版) --- %>
     <div class="grid grid-cols-1 gap-4">
       <% if @users.any? %>
         <% @users.each do |user| %>
-          <div class="flex flex-col sm:flex-row items-center p-5 bg-[#fff8e1] rounded shadow-md border-l-8 border-[#8d6e63] hover:border-[#d32f2f] transition duration-300 group relative">
+          
+          <%# flex-col sm:flex-row で横並び（スマホは縦）に変更 %>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-[#fff8e1] rounded shadow-md border-l-8 border-[#8d6e63] hover:border-[#d32f2f] transition duration-300 group relative gap-4 sm:gap-0">
             
             <%# 紙の質感 %>
             <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: linear-gradient(#000 1px, transparent 1px); background-size: 100% 2em;"></div>
 
-            <div class="flex items-center flex-grow w-full sm:w-auto mb-4 sm:mb-0 z-10">
-              <div class="w-14 h-14 rounded-full bg-[#efebe9] border-2 border-dashed border-[#8d6e63] flex items-center justify-center text-[#5d4037] text-xl font-bold mr-4 shadow-inner">
+            <%# 左側: ユーザー情報 %>
+            <div class="flex items-center z-10 min-w-0">
+              <div class="w-14 h-14 rounded-full bg-[#efebe9] border-2 border-dashed border-[#8d6e63] flex items-center justify-center text-[#5d4037] text-xl font-bold mr-4 shadow-inner shrink-0">
                 <%= user.username.to_s[0].upcase %>
               </div>
-              <div>
-                <%= link_to user.username, user_path(user), class: "text-xl font-bold text-[#3e2723] hover:text-[#d32f2f] transition font-serif border-b border-transparent hover:border-[#d32f2f]" %>
+              <div class="overflow-hidden">
+                <%= link_to user.username, user_path(user), class: "text-xl font-bold text-[#3e2723] hover:text-[#d32f2f] transition font-serif border-b border-transparent hover:border-[#d32f2f] truncate block" %>
                 <p class="text-xs text-[#8d6e63] font-mono mt-1">ID: <%= user.id %></p>
               </div>
             </div>
             
-            <%# --- ボタンエリア --- %>
-            <div class="flex items-center gap-3 w-full sm:w-auto z-10">
+            <%# 右側: ボタンエリア %>
+            <%# スマホでは点線あり(pt-3)、PCでは点線なし(sm:border-none sm:pt-0) %>
+            <div class="flex items-center justify-end gap-3 z-10 border-t border-dashed border-[#d7ccc8] pt-3 sm:border-none sm:pt-0 flex-shrink-0">
               
-              <%# 1. フォローボタン (パーシャル) %>
-              <div class="flex-shrink-0">
+              <%# 1. フォローボタン %>
+              <div>
                 <%= render 'users/follow_form', user: user %>
               </div>
               
               <%# 2. お手紙を送るボタン %>
-              <%# data: { turbo: false } を追加して動作するように修正 %>
               <%= link_to new_evaluation_path(receiver_id: user.id), 
                   class: 'flex items-center gap-2 px-4 py-2 bg-[#3e2723] text-[#ffecb3] text-sm font-bold rounded shadow hover:bg-[#271c19] transition border border-[#5d4037]',
                   data: { turbo: false } do %>
                   <span>お手紙を送る</span>
               <% end %>
+            </div>
             
           </div>
+          <%# ▲ カード終了 ▲ %>
+
         <% end %>
       <% else %>
         <%# ユーザーが見つからない場合 %>
