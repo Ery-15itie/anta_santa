@@ -20,7 +20,10 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     working_dir: /rails
-    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
+    
+    # Railsだけでなく、JavaScriptのビルド(esbuild)も一緒に動かす
+    command: bash -c "rm -f tmp/pids/server.pid && ./bin/dev"
+    
     ports:
       - "3000:3000"
     volumes:

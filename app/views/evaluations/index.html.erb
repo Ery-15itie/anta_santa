@@ -1,93 +1,174 @@
-<div class="container mx-auto px-4 py-12 max-w-4xl">
-<%# 評価メッセージのタブ切り替え %>
-<div class="flex justify-center mb-8">
-<div class="flex bg-gray-100 rounded-xl p-1 shadow-inner">
-<button id="received-tab"
-class="tab-button px-6 py-2 text-sm font-semibold rounded-lg transition duration-150 ease-in-out <%= 'bg-white text-indigo-600 shadow' if params[:tab].blank? || params[:tab] == 'received' %>"
-onclick="window.location.href = '<%= evaluations_path(tab: 'received') %>'">
-もらったお手紙
-(<%= @received_evaluations.count %>)
-</button>
-<button id="sent-tab"
-class="tab-button px-6 py-2 text-sm font-semibold rounded-lg transition duration-150 ease-in-out <%= 'bg-white text-indigo-600 shadow' if params[:tab] == 'sent' %>"
-onclick="window.location.href = '<%= evaluations_path(tab: 'sent') %>'">
-送ったお手紙
-(<%= @sent_evaluations.count %>)
-</button>
-</div>
-</div>
-<%# メッセージリスト %>
-<div class="space-y-4">
-<%
-is_received = params[:tab].blank? || params[:tab] == 'received'
-evaluations_to_display = is_received ? @received_evaluations : @sent_evaluations
-title = is_received ? 'もらったお手紙' : '送ったお手紙'
-%>
-<h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-6">
-  <%= title %>
-</h2>
+<%# メッセージ一覧: アンティークな木の私書箱風 %>
 
-<% if evaluations_to_display.any? %>
-  <% evaluations_to_display.each do |evaluation| %>
-    <%
-      # 関連するローカル変数を全てここで定義
-      # カードの背景色を決定
-      card_bg_color = is_received ? 'bg-red-50' : 'bg-green-50'
-      
-      # モデルのアソシエーション名（evaluator/evaluated_user）を使用
-      target_user = is_received ? evaluation.evaluator : evaluation.evaluated_user
-      label_text = is_received ? '送信者' : '受信者'
-
-      # usernameの取得とnilガードを分離し、ローカル変数に格納
-      target_username = target_user&.username || '不明なユーザー'
-    %>
-
-    <div class="p-5 <%= card_bg_color %> rounded-xl shadow-md transition duration-300 hover:shadow-lg border border-gray-200">
-      <div class="flex justify-between items-start mb-2">
-        
-        <%# メッセージタイトルと相手の名前 - 文字色を黒に固定 %>
-        <div>
-          <h3 class="text-lg font-bold text-gray-900 mb-1">
-            <%= is_received ? 'あなたへのお手紙' : '送信済みのお手紙' %>
-          </h3>
-          <p class="text-sm text-gray-700">
-            <%= label_text %>: 
-            <span class="font-semibold text-gray-900">
-              <%# 定義したローカル変数 target_username を使用 %>
-              <%= target_username %>
-            </span>
-          </p>
-        </div>
-        
-        <%# 日付 %>
-        <div class="text-right flex-shrink-0">
-          <p class="text-xs text-gray-500">
-            <%= l evaluation.created_at, format: :short %>
-          </p>
-        </div>
-      </div>
-      
-      <p class="text-gray-700 mb-3 line-clamp-2">
-        <%= evaluation.message.presence || "メッセージ本文がありません" %>
-      </p>
-      
-      <%# 詳細ボタン %>
-      <div class="text-right">
-        <%= link_to '詳細を見る', evaluation_path(evaluation), 
-            class: 'inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition duration-150' %>
-      </div>
-    </div>
-  <% end %>
-<% else %>
-  <div class="text-center py-12 bg-white rounded-xl shadow-lg border border-gray-100">
-    <p class="text-lg font-semibold text-gray-500">
-      まだ<%= title %>はありません。
-    </p>
-    <p class="text-sm text-gray-400 mt-1">
-      お手紙を送って、フィードバックを交換しましょう。
-    </p>
+<div class="min-h-screen bg-[#2c1e1b] font-serif pb-20 relative overflow-x-hidden text-[#3e2723]">
+  
+  <%# 背景: 重厚な木のテクスチャ %>
+  <div class="fixed inset-0 opacity-40 pointer-events-none" 
+       style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');">
   </div>
-<% end %>
+  <%# 部屋の隅の影 %>
+  <div class="fixed inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,0.7)]"></div>
 
-</div>
-</div>
+  <div class="container mx-auto px-4 py-8 max-w-5xl relative z-10">
+
+    <%# --- 1. 戻るボタン (真鍮のプレート付き木の看板) --- %>
+    <div class="mb-8 text-left relative pl-2">
+       <%= link_to dashboard_path, class: "inline-block group relative" do %>
+         <%# 鎖 %>
+         <div class="absolute -top-12 left-4 w-1 h-16 bg-[#5d4037] shadow-sm"></div>
+         <%# 看板 %>
+         <div class="bg-[#4e342e] border-4 border-[#3e2723] px-5 py-2 rounded-sm shadow-[0_4px_6px_rgba(0,0,0,0.4)] transform group-hover:-translate-y-1 transition duration-300 flex items-center gap-3 relative overflow-hidden">
+           <div class="absolute inset-0 border-2 border-[#cba36b] opacity-30 rounded-sm pointer-events-none"></div>
+           <span class="text-[#cba36b] text-xl drop-shadow-md">🔙</span>
+           <span class="text-[#ffecb3] font-bold text-sm tracking-[0.2em] uppercase text-shadow">GIFT HALL</span>
+         </div>
+       <% end %>
+    </div>
+
+    <%# --- 2. タイトル --- %>
+    <div class="text-center mb-2 relative">
+      <h1 class="text-4xl font-black text-[#cba36b] tracking-[0.3em] uppercase drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)] inline-block relative z-10" style="font-family: 'Georgia', serif;">
+        My Mailbox
+      </h1>
+      <div class="text-[#a1887f] text-sm mt-2 italic">あなた宛て、そしてあなたが送った大切な手紙たち</div>
+    </div>
+
+    <%# --- 3. キャビネット本体 --- %>
+    <div class="mt-8 relative">
+      
+      <%# タブ切り替え (木のインデックスプレート) %>
+      <% active_tab = params[:tab].presence || 'received' %>
+      
+      <div class="flex justify-center -mb-[4px] relative z-20 px-4 gap-1">
+        <%# 受信タブ %>
+        <%= link_to evaluations_path(tab: 'received'), class: "relative group overflow-hidden" do %>
+          <div class="px-8 py-4 rounded-t-lg font-bold text-sm tracking-wider transition-all duration-300 transform 
+                      #{active_tab == 'received' ? 'bg-[#5d4037] text-[#ffecb3] translate-y-0 shadow-[0_-4px_6px_rgba(0,0,0,0.3)] z-10 border-t-4 border-x-4 border-[#3e2723]' 
+                                                 : 'bg-[#3e2723] text-[#a1887f] translate-y-2 hover:translate-y-1 hover:bg-[#4e342e] border-t-4 border-x-4 border-[#2c1e1b] opacity-80'}"
+               style="clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);">
+            <span class="relative z-10 flex items-center gap-2">
+              <span class="<%= active_tab == 'received' ? 'text-[#cba36b]' : '' %>">📥</span> 
+              受け取った手紙
+              <span class="ml-2 bg-[#2c1e1b] text-[#cba36b] text-xs px-2 py-0.5 rounded-full shadow-inner"><%= @received_evaluations.count %></span>
+            </span>
+            <div class="absolute inset-0 bg-gradient-to-b from-[#ffffff10] to-transparent pointer-events-none"></div>
+          </div>
+        <% end %>
+
+        <%# 送信タブ %>
+        <%= link_to evaluations_path(tab: 'sent'), class: "relative group overflow-hidden" do %>
+          <div class="px-8 py-4 rounded-t-lg font-bold text-sm tracking-wider transition-all duration-300 transform 
+                      #{active_tab == 'sent' ? 'bg-[#5d4037] text-[#ffecb3] translate-y-0 shadow-[0_-4px_6px_rgba(0,0,0,0.3)] z-10 border-t-4 border-x-4 border-[#3e2723]' 
+                                             : 'bg-[#3e2723] text-[#a1887f] translate-y-2 hover:translate-y-1 hover:bg-[#4e342e] border-t-4 border-x-4 border-[#2c1e1b] opacity-80'}"
+               style="clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);">
+            <span class="relative z-10 flex items-center gap-2">
+              <span class="<%= active_tab == 'sent' ? 'text-[#cba36b]' : '' %>">📤</span>
+              送った手紙
+              <span class="ml-2 bg-[#2c1e1b] text-[#cba36b] text-xs px-2 py-0.5 rounded-full shadow-inner"><%= @sent_evaluations.count %></span>
+            </span>
+            <div class="absolute inset-0 bg-gradient-to-b from-[#ffffff10] to-transparent pointer-events-none"></div>
+          </div>
+        <% end %>
+      </div>
+
+      <%# メッセージリスト (キャビネット内部) %>
+      <div class="bg-[#4e342e] min-h-[500px] p-6 sm:p-10 rounded-b-lg rounded-tr-lg shadow-[inset_0_10px_20px_rgba(0,0,0,0.5),0_10px_20px_rgba(0,0,0,0.3)] border-[12px] border-[#3e2723] relative z-10 relative overflow-hidden">
+        
+        <%# 内部の質感 %>
+        <div class="absolute inset-0 opacity-30 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png'); filter: brightness(0.5);"></div>
+
+        <%# 表示するデータの決定 %>
+        <% 
+           evaluations_to_display = active_tab == 'received' ? @received_evaluations : @sent_evaluations 
+        %>
+
+        <% if evaluations_to_display.any? %>
+          <div class="grid grid-cols-1 gap-6 relative z-10">
+            <% evaluations_to_display.each do |evaluation| %>
+              <% 
+                 # 相手ユーザーの特定
+                 target_user = active_tab == 'received' ? evaluation.evaluator : evaluation.evaluated_user
+                 target_username = target_user&.username || '不明なユーザー'
+                 target_initial = target_username[0]&.upcase || '?'
+              %>
+              
+              <%# 封筒カード (クラフト紙風) %>
+              <div class="group relative bg-[#d7ccc8] p-1 rounded-sm shadow-[0_4px_8px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.4)] transition-all duration-300 transform hover:-translate-x-1 hover:-translate-y-1 cursor-pointer overflow-hidden border-t border-l border-[#ffffff30] border-b-2 border-r-2 border-[#3e2723]">
+                <%= link_to evaluation_path(evaluation), class: "absolute inset-0 z-20" do %><% end %>
+
+                <%# 封筒の中身 %>
+                <div class="bg-[#efebe9] p-5 rounded-sm relative overflow-hidden" style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');">
+                  
+                  <%# 装飾: 封蝋と紐 %>
+                  <div class="absolute top-4 left-4 z-10">
+                    <div class="w-16 h-16 rounded-full bg-[#8d6e63] border-4 border-[#5d4037] shadow-md flex items-center justify-center text-[#ffecb3] text-2xl font-bold relative" style="box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);">
+                      <span style="filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));"><%= target_initial %></span>
+                      <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-6 bg-[#8d6e63] rounded-full opacity-80"></div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex flex-col sm:flex-row gap-4 justify-between sm:items-center pl-20 relative z-0">
+                    <div>
+                      <p class="text-xs font-bold text-[#8d6e63] uppercase tracking-wider mb-1 flex items-center gap-1">
+                        <%= active_tab == 'received' ? 'From:' : 'To:' %>
+                        <span class="h-px w-8 bg-[#8d6e63] opacity-50 inline-block ml-1"></span>
+                      </p>
+                      <h3 class="text-xl font-black text-[#3e2723] font-serif">
+                        <%= target_username %>
+                      </h3>
+                      <p class="text-xs text-[#a1887f] mt-1 font-mono flex items-center gap-1">
+                        <span>📅</span> <%= l(evaluation.created_at, format: :short) %>
+                      </p>
+                    </div>
+
+                    <%# メッセージ抜粋 %>
+                    <div class="flex-grow px-2 sm:px-8 relative">
+                      <span class="text-4xl text-[#d7ccc8] absolute -top-2 -left-2 opacity-50">“</span>
+                      <p class="text-[#5d4037] text-sm italic line-clamp-2 leading-relaxed font-medium" style="font-family: 'Georgia', serif;">
+                        <%= evaluation.message.presence || "（メッセージ本文なし）" %>
+                      </p>
+                      <span class="text-4xl text-[#d7ccc8] absolute -bottom-4 -right-0 opacity-50">”</span>
+                    </div>
+
+                    <%# OPENボタン %>
+                    <div class="shrink-0 text-right">
+                      <span class="inline-flex items-center gap-1 px-3 py-1 border-2 border-[#8d6e63] text-[#5d4037] text-xs font-bold rounded-sm group-hover:bg-[#8d6e63] group-hover:text-[#ffecb3] transition shadow-sm">
+                        <span>✉️</span> OPEN
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <%# 封筒の紐 (右端の装飾) %>
+                  <div class="absolute top-0 bottom-0 right-6 w-1 bg-[#a1887f] opacity-30 shadow-sm z-10"></div>
+                   <div class="absolute top-1/2 right-4 w-5 h-5 bg-[#a1887f] rounded-full shadow-md z-20 transform -translate-y-1/2 border-2 border-[#8d6e63]"></div>
+
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+                <% else %>
+          <%# 空の状態 (アイコンなし、真鍮プレートの文字のみ) %>
+          <div class="h-full flex flex-col items-center justify-center py-32 text-center relative z-10 bg-[#3e2723] bg-opacity-30 rounded-lg shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] border-2 border-[#5d4037] border-opacity-50 mx-4 my-8 overflow-hidden">
+            
+            <%# 真鍮プレート風の枠装飾 %>
+            <div class="absolute inset-0 m-4 border-4 border-[#cba36b] border-double opacity-40 rounded-sm pointer-events-none"></div>
+
+            <%# メインテキスト (巨大な真鍮刻印) %>
+            <p class="text-4xl sm:text-5xl font-black text-[#cba36b] mb-6 uppercase tracking-[0.2em] drop-shadow-[2px_4px_6px_rgba(0,0,0,0.8)] relative z-10 px-4 py-2" style="font-family: 'Georgia', serif; border-bottom: 2px solid #cba36b50; border-top: 2px solid #cba36b50;">
+              Cabinet is Empty
+            </p>
+            
+            <%# サブテキスト (明るいベージュ) %>
+            <p class="text-2xl text-[#ffecb3] font-medium italic drop-shadow-[1px_2px_3px_rgba(0,0,0,0.9)] opacity-90 relative z-10">
+              <%= active_tab == 'received' ? 'まだ手紙は届いていません。' : 'まだ手紙を送っていません。' %>
+            </p>
+            
+            <%# 装飾：キャビネット奥の微かな光 %>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#cba36b10] via-transparent to-transparent pointer-events-none"></div>
+          </div>
+        <% end %>
+        
+        <%# 棚板ライン %>
+        <div class="absolute top-1/3 left-0 right-0 h-1 bg-[#3e2723] opacity-20 shadow-sm pointer-events-none"></div>
+        <div class="absolute top-2/3 left-0 right-0 h-1 bg-[#3e2723] opacity-20 shadow-sm pointer-events-none"></div>

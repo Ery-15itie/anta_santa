@@ -4,6 +4,7 @@ FROM ruby:3.3.8-slim
 WORKDIR /rails
 
 # Install packages needed for development
+# chromium と chromium-driver を追加（システムテスト用）
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     build-essential \
@@ -12,12 +13,13 @@ RUN apt-get update -qq && \
     libvips \
     libyaml-dev \
     nodejs \
-    # PostgreSQL用のライブラリ
     libpq-dev \
     postgresql-client \
     npm \
     pkg-config \
-    curl && \
+    curl \
+    chromium \
+    chromium-driver && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Yarnのグローバルパスを$PATHに追加

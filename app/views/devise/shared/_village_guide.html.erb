@@ -1,0 +1,201 @@
+<%# --- 共通部品: Anta-Santa村ガイド (掲示板・ガイド・メッセージ) --- %>
+
+<%# 1. アップデート情報 (村の掲示板) %>
+<div class="w-full max-w-4xl mb-16">
+  <div class="bg-[#5d4037] p-3 rounded-t-lg mx-4 border-x-4 border-t-4 border-[#3e2723] shadow-md relative z-0">
+    <h3 class="text-center text-[#ffecb3] font-bold tracking-[0.2em] text-sm">VILLAGE NOTICE BOARD</h3>
+  </div>
+  <div class="bg-[#fdf6e3] p-8 rounded-lg shadow-xl border-8 border-[#5d4037] relative z-10">
+    <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full bg-[#b71c1c] shadow-sm border border-[#e57373]"></div>
+    
+    <h3 class="text-xl font-bold text-[#3e2723] text-center mb-6 border-b-2 border-dashed border-[#a1887f] pb-3 inline-block w-full">
+      📢 アップデート情報
+    </h3>
+    
+    <ul class="space-y-4 text-[#4e342e]">
+      <li class="flex items-start gap-3">
+        <span class="bg-[#2e7d32] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">UPDATE</span>
+        <div>
+          <strong class="block text-sm font-bold">2025/11/24 初期アップデート（ギフトホールリニューアル）を行いました</strong>
+          <span class="text-xs opacity-80">お手紙機能のデザインを一新し、より温かい体験をお届けできるようになりました。</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<%# 2. Heartory Home ガイドブック (アプリ概要) %>
+<div class="w-full bg-[#fffdf5] p-8 sm:p-12 rounded-sm shadow-2xl border border-[#d7ccc8] mb-16 relative transform rotate-[-0.5deg]">
+  <%# 紙の質感 %>
+  <div class="absolute inset-0 opacity-30 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
+  
+  <div class="text-center mb-12 relative z-10">
+    <span class="bg-[#3e2723] text-[#ffecb3] px-4 py-1 rounded-full text-xs font-bold tracking-widest uppercase">GUIDE BOOK</span>
+    <h2 class="text-3xl font-black text-[#3e2723] mt-4 mb-4 font-serif">Heartory Home の歩き方</h2>
+    <p class="text-[#5d4037] text-base leading-loose max-w-2xl mx-auto font-medium">
+      Heart（心）＋ Story（物語）。<br>
+      ここは、自身の “心の物語を育てていく家” です。<br>
+      家の中の一つひとつの部屋には、あなたの内面を整理するための仕掛けが用意されています。
+    </p>
+  </div>
+
+<%# 部屋の紹介 (10部屋) %>
+  <div class="relative z-10 mb-12">
+    <h3 class="text-xl font-bold text-[#3e2723] text-center mb-8 ">
+    🏠家の間取りと役割
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <%# 1階 %>
+      <div class="bg-[#fff8e1] p-6 rounded border-2 border-[#ffe0b2] shadow-sm">
+        <h4 class="text-orange-800 font-black mb-4 flex items-center border-b border-orange-200 pb-2"><span class="text-xl mr-2">1F</span> Core & Daily Life</h4>
+        <ul class="space-y-4 text-sm">
+          <li class="flex gap-3">
+            <span class="text-2xl shrink-0">🎁</span>
+            <div><strong class="text-[#3e2723] block font-bold">① 玄関：ギフトホール</strong><span class="text-[#5d4037]">他者からの優しさを受け取る、メールボックスのある場所。「自分は誰かにとって価値がある」と実感できる場所。</span></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-2xl shrink-0">🔥</span>
+            <div><strong class="text-[#3e2723] block font-bold">② リビング：感情の暖炉</strong><span class="text-[#5d4037]">感情ログ。今の気持ちを見つめ、感情を燃やして昇華する場所。</span></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-2xl shrink-0">📜</span>
+            <div><strong class="text-[#3e2723] block font-bold">③ 書斎：サンタの書斎</strong><span class="text-[#5d4037]">価値観マップと人生地図。自分の軸を見つけ、生き方の指針を知る場所。</span></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-2xl shrink-0">❄️</span>
+            <div><strong class="text-[#3e2723] block font-bold">④ アトリエ：雪の結晶</strong><span class="text-[#5d4037]">性格診断。自分の特性を「結晶」として可視化し、強み・弱みを優しく知る場所。</span></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-2xl shrink-0">🍪</span>
+            <div><strong class="text-[#3e2723] block font-bold">⑤キッチン</strong><span class="text-[#5d4037]">セルフケアと休息。心のクッキー作りで「自分を大切にする方法」を学ぶ場所。</span></div>
+          </li>
+        </ul>
+      </div>
+
+      <%# 2階・地下 %>
+      <div class="bg-[#e0f2f1] p-6 rounded border-2 border-[#b2dfdb] shadow-sm">
+        <h4 class="text-teal-800 font-black mb-4 flex items-center border-b border-teal-200 pb-2"><span class="text-xl mr-2">2F & B1</span> Future & Growth</h4>
+        <ul class="space-y-4 text-sm">
+          <li class="flex gap-3">
+            <span class="text-2xl shrink-0">🌠</span>
+            <div><strong class="text-[#3e2723] block font-bold">⑥ 屋根裏：プランニング</strong><span class="text-[#5d4037]">未来設計。目標や夢を育成し、未来の自分をデザインする場所。</span></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-2xl shrink-0">🦌</span>
+            <div><strong class="text-[#3e2723] block font-bold">⑦ 小屋：トナカイの厩舎</strong><span class="text-[#5d4037]">9つの強み（トナカイ）を育て、「自分は何ができる？」に答える場所。</span></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-2xl shrink-0">🎄</span>
+            <div><strong class="text-[#3e2723] block font-bold">⑧ 中庭：クリスマスツリー</strong><span class="text-[#5d4037]">成長の象徴。部屋の活動によって飾りが増え、自己理解の進捗が光り出す場所。</span></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-2xl shrink-0">🖼</span>
+            <div><strong class="text-[#3e2723] block font-bold">⑨ 廊下：思い出ギャラリー</strong><span class="text-[#5d4037]">過去から学ぶ。過去の成果や言葉を飾り、頑張ってきた自分を肯定する場所。</span></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-2xl shrink-0">🕯</span>
+            <div><strong class="text-[#3e2723] block font-bold">⑩ 地下室：秘密の工房</strong><span class="text-[#5d4037]">弱さと共に生きる練習。不安や挫折を閉じ込めず、そっと置いておける安全地帯。</span></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <%# トナカイ一覧 %>
+  <div class="relative z-10">
+    <h3 class="text-xl font-bold text-[#3e2723] text-center mb-6 ">
+    🦌あなたが育てる9頭のトナカイたち（あなたの強み）
+    </h3>
+    <div class="overflow-x-auto rounded-lg border border-[#d7ccc8]">
+      <table class="w-full text-sm text-left text-[#5d4037] border-collapse">
+        <thead class="text-xs text-[#3e2723] uppercase bg-[#d7ccc8]">
+          <tr>
+            <th class="px-4 py-3">ICON</th>
+            <th class="px-4 py-3">NAME</th>
+            <th class="px-4 py-3">MEANING</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white">
+          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🔥</td><td class="px-4 py-2 font-bold">ブレイズ (Blaze)</td><td class="px-4 py-2">情熱・行動力</td></tr>
+          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">💡</td><td class="px-4 py-2 font-bold">ルキス (Lucis)</td><td class="px-4 py-2">洞察・気づき</td></tr>
+          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🍯</td><td class="px-4 py-2 font-bold">ミエル (Miel)</td><td class="px-4 py-2">優しさ・共感</td></tr>
+          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🎨</td><td class="px-4 py-2 font-bold">イデア (Idea)</td><td class="px-4 py-2">創造・アイデア</td></tr>
+          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🌱</td><td class="px-4 py-2 font-bold">クレスコ (Cresco)</td><td class="px-4 py-2">成長・努力</td></tr>
+          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🛡️</td><td class="px-4 py-2 font-bold">ノービレ (Nobile)</td><td class="px-4 py-2">誠実・責任感</td></tr>
+          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">❄️</td><td class="px-4 py-2 font-bold">カルマ (Calma)</td><td class="px-4 py-2">冷静・判断力</td></tr>
+          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🤝</td><td class="px-4 py-2 font-bold">リアン (Lien)</td><td class="px-4 py-2">協力・つながり</td></tr>
+          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">⚡</td><td class="px-4 py-2 font-bold">アウダ (Audax)</td><td class="px-4 py-2">挑戦・冒険</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<%# 3. 開発者からの手紙 (Story) %>
+<div class="w-full max-w-4xl bg-[#fffdf5] p-10 sm:p-16 rounded-sm shadow-2xl border border-[#d7ccc8] relative transform rotate-[0.5deg]">
+  
+  <%# 紙の質感 %>
+  <div class="absolute inset-0 opacity-30 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
+  
+  <div class="text-center mb-10 relative z-10">
+    <p class="text-xs font-bold text-[#8d6e63] tracking-widest uppercase mb-2">MESSAGE FROM DEVELOPER　えりぃー</p>
+    <h2 class="text-3xl font-black text-[#3e2723] font-serif">大人になったあなたへ</h2>
+  </div>
+
+  <div class="space-y-6 text-[#4e342e] text-base leading-loose font-medium text-justify sm:text-lg relative z-10">
+    <p>
+      子供の頃の私たちは毎年12月になると「今年は良い子だったかな？」と自分を振り返り、サンタさんからの評価を心待ちにしていました。あの頃のサンタさんは私たちの行いをすべて見ていて、公平に評価してくれる特別な存在でした。
+    </p>
+    <p>
+      でも大人になるとサンタさんはプレゼントを持っては訪れてはくれません。じゃあ誰が私たちを評価してくれるでしょうか？上司でしょうか？それとも家族？友人？<br>
+      実は、私たちの周りにいるすべての人が「サンタさん」なのです。
+    </p>
+    <p>
+      同僚があなたの仕事ぶりに感謝し、友人があなたの優しさに救われ、家族があなたの存在に安心する。私たちは誰かにとっての「サンタさん」であり、同時に誰かから贈り物のような評価をもらう存在なのです。
+    </p>
+    
+    <div class="py-4 px-6 bg-[#fff8e1] border-l-4 border-[#ffb300] italic text-sm sm:text-base text-[#5d4037] my-6">
+      <ul class="space-y-2">
+        <li>「質問に丁寧に答えてくれて、学習のモチベーションが上がった」</li>
+        <li>「一緒に勉強していて、諦めずに続ける姿に刺激を受けた」</li>
+        <li>「エラーで困っていた時、親身になって話をきいてくれた」</li>
+        <li>「初心者の気持ちを理解して、共感してくれた」</li>
+      </ul>
+    </div>
+
+    <p>
+      こうした学習者同士の人間的な価値こそ、大人が求める「サンタさんからの評価」であり価値だと思います。<br>
+      このシステムは、みんなが誰かのサンタさんになれる場所を作ります。クリスマスが一年中続く、温かい居場所の実現を目指しています。
+    </p>
+
+    <%# ▼▼▼ 核心メッセージ ▼▼▼ %>
+    <div class="mt-10 pt-10 border-t border-dashed border-[#8d6e63] text-center">
+      <p class="text-xl font-bold text-[#b71c1c] mb-4">
+        そして、もうひとり<br>大切なサンタさんがいます
+      </p>
+      <p class="text-lg text-[#3e2723] leading-loose">
+        それは、<span class="inline-block border-b-2 border-[#b71c1c] font-bold">あなた自身</span>です。
+      </p>
+      <p class="mt-4">
+        誰よりもあなたの頑張りを知っているのは、あなた自身です。<br>
+        Heartory Homeは、あなたが自分自身と向き合い、<br>
+        「よく頑張ったね」と自分にプレゼントを贈るための場所でもあります。
+      </p>
+      <p class="mt-4 font-bold">
+        さあ、あなただけの物語を始めましょう！！
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-12 text-right relative z-10">
+    <div class="inline-block text-center">
+      <div class="w-20 h-20 bg-[#b71c1c] rounded-full shadow-lg flex items-center justify-center border-4 border-[#e57373] border-dashed opacity-90 mx-auto mb-2">
+         <span class="text-3xl filter drop-shadow-md">🎁</span>
+      </div>
+      <p class="text-xs text-[#8d6e63] font-bold uppercase tracking-widest">Anta-Santa<br>Project</p>
+    </div>
+  </div>
+
+</div>

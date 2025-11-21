@@ -1,35 +1,35 @@
-<%# app/views/users/_follow_form.html.erb - フォローボタンのパーシャル %>
-<%# 呼び出し元で local: { user: 相手のユーザーオブジェクト } のように渡すことを想定 %>
+<%#  - フォローボタンのパーシャル %>
+<%# 郵便局風デザイン (Address Book Style) %>
 
-<%# ログインしている場合のみボタンを表示 %>
-<% if current_user %>
-
-  <%# ログインユーザー自身ではない場合にのみ表示 %>
-  <% if current_user != user %>
-    
-    <%# 既にフォローしているかどうかの判定 %>
+<%# ログインしており、かつ自分自身でない場合のみ表示 %>
+<% if current_user && current_user != user %>
+  
+  <div class="inline-block">
     <% if current_user.following?(user) %>
       
-      <%# --- フォロー解除ボタン (緑色) --- %>
-      <%= button_to "解除", 
-          # relationship_path にフォロー対象ユーザーのIDを渡す
-          # これにより、コントローラ側で find_by(followed_id: user.id) が実行可能
-          relationship_path(user.id), 
+      <%# --- フォロー解除ボタン (Following) --- %>
+      <%# デザイン: 落ち着いたベージュ、スタンプ済みのような雰囲気 %>
+      <%= button_to relationship_path(user.id), 
           method: :delete, 
-          data: { turbo_confirm: "#{user.username} さんのフォローを解除しますか？" },
-          # ボタンのスタイル: 緑、文字は小さく
-          class: "w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-4 rounded-xl shadow-md transition duration-150" %>
+          # 【重要】Turboを無効化して確実に動作させる
+          form: { data: { turbo: false } },
+          class: "flex items-center gap-1 px-4 py-2 bg-[#d7ccc8] text-[#5d4037] text-sm font-bold rounded shadow hover:bg-[#bcaaa4] transition border border-[#a1887f] w-full justify-center" do %>
+        <span>✔ フォロー解除</span>
+      <% end %>
+
     <% else %>
       
-      <%# --- フォローボタン (赤色) --- %>
-      <%= button_to "フォロー", 
-          # followed_idをパラメータとして渡す
-          relationships_path(followed_id: user.id), 
+      <%# --- フォローボタン (Follow) --- %>
+      <%# デザイン: 濃い茶色、新しい切手を貼るような雰囲気 %>
+      <%= button_to relationships_path(followed_id: user.id), 
           method: :post, 
-          # ボタンのスタイル: 赤、文字は小さく
-          class: "w-full bg-red-500 hover:bg-red-600 text-white text-sm font-semibold py-2 px-4 rounded-xl shadow-md transition duration-150" %>
-    <% end %>
+          # 【重要】Turboを無効化して確実に動作させる
+          form: { data: { turbo: false } },
+          class: "flex items-center gap-1 px-4 py-2 bg-[#5d4037] text-[#ffecb3] text-sm font-bold rounded shadow hover:bg-[#3e2723] transition border border-[#3e2723] w-full justify-center" do %>
+        <span>＋ フォロー</span>
+      <% end %>
 
-  <% end %>
+    <% end %>
+  </div>
 
 <% end %>

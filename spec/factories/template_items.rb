@@ -1,9 +1,8 @@
 FactoryBot.define do
   factory :template_item do
-    template { nil }
-    title { "MyString" }
-    description { "MyText" }
-    item_type { "MyString" }
-    weight { 1 }
+    title { "テスト項目" }
+    category { "テストカテゴリ" }
+    association :template
+    item_type { "checkbox" }
   end
 end

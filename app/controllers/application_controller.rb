@@ -4,21 +4,21 @@ class ApplicationController < ActionController::Base
 
   protected
 
-  # Deviseのパラメーターを許可する（usernameの追加を許可）
+  # Deviseのパラメーターを許可する（username, image_urlの追加を許可）
   def configure_permitted_parameters
-    # sign_up 時に username, image_url を許可
     devise_parameter_sanitizer.permit(:sign_up, keys: [:username, :image_url])
-    # account_update 時に username, image_url を許可
     devise_parameter_sanitizer.permit(:account_update, keys: [:username, :image_url])
   end
               
-  # ログイン後のリダイレクト先をダッシュボードに変更
+  # ログイン後のリダイレクト先
+  # 新しいダッシュボード（HomesController#index）は root_path に設定されているため、ここを root_path にすることで、ログイン後すぐに10部屋の画面に行ける
   def after_sign_in_path_for(resource)
-    dashboard_path # 新しいルーティングヘルパーを使用
+    root_path
   end
 
-  # ログアウト後のリダイレクト先をトップページ（ログイン画面）に変更
+  # ログアウト後のリダイレクト先
+  # ログイン画面（new_user_session_path）に戻します
   def after_sign_out_path_for(resource_or_scope)
-    root_path
+    new_user_session_path
   end
 end
