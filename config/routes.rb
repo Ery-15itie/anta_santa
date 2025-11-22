@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   
   # ----------------------------------------------------
-  #  1. Devise（認証機能）- 既存のまま維持
+  #  1. Devise（認証機能）
   # ----------------------------------------------------
   devise_for :users, controllers: {
     sessions: 'users/sessions',
@@ -9,15 +9,17 @@ Rails.application.routes.draw do
   }
 
   # ----------------------------------------------------
-  #  2. API v1 エンドポイント (NEW: React連携用)
+  #  2. API v1 エンドポイント (React連携用)
   # ----------------------------------------------------
-  # Heartory Home (React) がデータを取得するための窓口
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      # 暖炉の部屋（感情ログ）用
-      resources :emotion_logs, only: [:index, :create, :show, :update, :destroy]
-      
-      # ※ 必要に応じて将来ここへ users や evaluations のAPIも追加可能
+      # 暖炉の部屋（感情ログ）
+      resources :emotion_logs, only: [:index, :create] do
+        # 追加: 統計・実績データを取得するエンドポイント 
+        collection do
+          get :stats
+        end
+      end
     end
   end
 
@@ -28,28 +30,37 @@ Rails.application.routes.draw do
   # === ログイン済みユーザーの世界 ===
   authenticated :user do
     # 【A】新しい玄関: Heartory Home (Reactダッシュボード)
-    # 新しく作る HomesController がここを担当
     root 'homes#index', as: :authenticated_root
 
+    # 拡張用: Reactのページでリロードしても404にならないようにする設定 
+    # これらのURLにアクセスが来たら、Reactの入り口(homes#index)を表示させとく
+    get 'emotion-log', to: 'homes#index'
+    get 'emotion-stats', to: 'homes#index'
+    get 'santa-study', to: 'homes#index'     # 将来用
+    get 'atelier', to: 'homes#index'         # 将来用
+    get 'kitchen', to: 'homes#index'         # 将来用
+    get 'planning', to: 'homes#index'        # 将来用
+    get 'reindeer', to: 'homes#index'        # 将来用
+    get 'gallery', to: 'homes#index'         # 将来用
+    get 'gallery-detail', to: 'homes#index'  # 将来用
+    get 'basement', to: 'homes#index'        # 将来用
+
     # 【B】既存のダッシュボード: 🎁 ギフトホール
-    # 今まで root だった dashboard#index を、ここに引っ越し
-    # URLは '/gift-hall' になりますが、中身は既存のまま
     get 'gift-hall', to: 'dashboard#index', as: :gift_hall
     
-    # ※念のため既存の /dashboard というURLも残しておく
+    # 既存互換用
     get 'dashboard', to: 'dashboard#index'
   end
 
   # === 未ログインユーザーの世界 ===
   devise_scope :user do
-    # ログインしていない人は、既存のログイン画面へ
+    # ログインしていない人は、ログイン画面へ
     root to: redirect('/users/sign_in')
   end
 
   # ----------------------------------------------------
-  #  4. アプリケーションの既存機能 (変更なし)
+  #  4. アプリケーションの既存機能 (Rails View)
   # ----------------------------------------------------
-  # これらは「ギフトホール」の中で動く機能としてそのまま維持
   resources :users, only: [:index, :show] do
     collection do
       get :following

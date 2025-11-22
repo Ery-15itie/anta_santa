@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { LogIn, Heart, BookOpen, Clock, Zap, Target, Aperture, Leaf, Users, Cookie, ChevronUp, LogOut } from 'lucide-react';
+import EmotionHearth from './EmotionHearth';
+import EmotionStats from './EmotionStats';
 
 // 画像URL定義
 const rooms = [
@@ -32,7 +34,7 @@ const HeartoryHome = () => {
   };
 
   const handleLogout = (e) => {
-    e.preventDefault();
+    if(e) e.preventDefault();
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = '/users/sign_out';
@@ -51,7 +53,6 @@ const HeartoryHome = () => {
     form.submit();
   };
 
-
   const handleRoomClick = (room) => {
     if (room.id === 'gift_hall') {
       window.location.href = '/gift-hall'; 
@@ -64,7 +65,6 @@ const HeartoryHome = () => {
     }
   };
 
-  // モーダル（デザイン調整：木の枠風）
   const MessageModal = ({ roomId }) => {
     if (!roomId) return null;
     const room = rooms.find(r => r.id === roomId);
@@ -100,53 +100,40 @@ const HeartoryHome = () => {
   // 1. ホーム画面 (ログハウス風デザイン)
   const HomeView = () => (
     <>
-      {/* ▼▼▼ 看板・タイトルエリア ▼▼▼ */}
       <div className="relative mb-12 pt-6">
-        
-        {/* 吊り下げ看板（ログアウトボタン） */}
         <div className="absolute top-0 right-4 sm:right-10 z-20 group cursor-pointer" onClick={handleLogout}>
-            {/* 鎖 */}
             <div className="absolute -top-6 left-4 w-1 h-12 bg-stone-400"></div>
             <div className="absolute -top-6 right-4 w-1 h-12 bg-stone-400"></div>
-            {/* 木の板 */}
             <div className="relative bg-[#5d4037] border-4 border-[#3e2723] rounded shadow-xl px-4 py-2 transform group-hover:rotate-2 transition-transform duration-300 origin-top">
                 <div className="flex items-center gap-2 text-[#ffecb3] font-bold font-serif tracking-wider">
                     <LogOut size={18} />
                     <span>EXIT</span>
                 </div>
-                {/* 木目アクセント */}
                 <div className="absolute top-1 left-1 w-full h-[1px] bg-white/10"></div>
             </div>
         </div>
 
-        {/* メインタイトル（木の切り抜き文字風） */}
         <div className="text-center">
             <h1 className="text-4xl sm:text-5xl font-black text-[#ffecb3] tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] font-serif" 
                 style={{ textShadow: '2px 2px 0px #3e2723, 4px 4px 0px #271c19' }}>
                 Heartory Home
             </h1>
             <p className="text-[#d7ccc8] mt-2 font-medium tracking-widest text-sm sm:text-base shadow-black drop-shadow-md">
-                ― ここは、あなたの心を見つめる温かい家―
+                ― ここは、あなたの心を見つめる温かい家 ―
             </p>
         </div>
       </div>
 
-           {/* ▼▼▼ 家のコンテナ ▼▼▼ */}
       <div className="max-w-6xl mx-auto relative">
-        
-        {/* 屋根 (CSSで作る三角形) */}
+        {/* 屋根 */}
         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-[95%] h-8 bg-[#3e2723] rounded-t-full shadow-xl z-0 flex items-center justify-center">
              <div className="w-20 h-20 bg-[#3e2723] rotate-45 transform translate-y-6 border-4 border-[#5d4037]"></div>
         </div>
 
-        {/* 家の本体 (枠組み) */}
+        {/* 家の本体 */}
         <div className="bg-[#fdf6e3] border-x-8 border-b-8 border-[#5d4037] rounded-b-lg shadow-2xl overflow-hidden relative z-10">
-            
-            {/* 2階フロア (梁のある天井) */}
             <div className="p-6 bg-[#fff8e1] border-b-8 border-[#5d4037] relative">
-                {/* 梁の装飾 */}
                 <div className="absolute top-0 left-0 w-full h-4 bg-[#4e342e] opacity-20"></div>
-                
                 <div className="flex items-center mb-4">
                     <div className="bg-[#5d4037] text-[#ffecb3] text-xs font-bold px-3 py-1 rounded shadow font-serif">2F: Future & Growth</div>
                 </div>
@@ -157,7 +144,6 @@ const HeartoryHome = () => {
                 </div>
             </div>
 
-            {/* 1階フロア */}
             <div className="p-6 bg-[#fff8e1] relative">
                  <div className="flex items-center mb-4">
                     <div className="bg-[#5d4037] text-[#ffecb3] text-xs font-bold px-3 py-1 rounded shadow font-serif">1F: Core & Daily Life</div>
@@ -171,14 +157,12 @@ const HeartoryHome = () => {
         </div>
       </div>
       
-      {/* 地下室への入り口 (ハッチ風) */}
       {roomBasement && (
         <div className="max-w-xl mx-auto mt-12 pb-12">
           <div className="text-center mb-2">
              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-xs font-bold">▼ Basement Entrance</span>
           </div>
           <div className="border-4 border-[#271c19] bg-[#1a1a1a] rounded-xl shadow-2xl p-1 mx-4 relative group cursor-pointer transform hover:translate-y-1 transition-transform">
-             {/* 鉄格子の装飾 */}
              <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_45%,#000_45%,#000_55%,transparent_55%)] opacity-20 pointer-events-none"></div>
             <div className="p-4">
               <RoomCard room={roomBasement} onClick={handleRoomClick} isBasement={true} />
@@ -188,43 +172,33 @@ const HeartoryHome = () => {
       )}
     </>
   );
-
-  // 2. 感情ログ画面
-  const EmotionLogView = () => (
-    <div className="max-w-4xl mx-auto mt-6">
-        <div className="bg-white rounded-xl shadow-xl overflow-hidden border-4 border-[#5d4037]">
-            <div className="h-48 bg-orange-400 relative">
-                 <img src={rooms.find(r => r.id === 'emotion_hearth_living').image_url} alt="Living" className="w-full h-full object-cover opacity-50" />
-                 <div className="absolute inset-0 flex items-center justify-center">
-                    <h2 className="text-4xl font-bold text-white drop-shadow-md font-serif">🔥 暖炉のリビング</h2>
-                 </div>
-            </div>
-            <div className="p-8 text-center bg-[#fff8e1]">
-                <p className="text-[#5d4037] text-lg mb-8 font-medium">
-                    ここは心の暖炉。<br/>
-                    今のあなたの感情を炎にくべて、<br/>
-                    その揺らめきを静かに見つめる場所です。
-                </p>
-                <button onClick={() => handleNavigation('/')} className="py-3 px-8 bg-[#5d4037] text-[#ffecb3] rounded font-bold hover:bg-[#3e2723] transition shadow-lg border-2 border-[#3e2723]">
-                    家に戻る
-                </button>
-            </div>
-        </div>
-    </div>
-  );
   
+   // 各画面にログアウト関数を渡す 
   const renderView = () => {
     switch (currentPath) {
       case '/': return <HomeView />;
-      case '/emotion-log': return <EmotionLogView />;
+      
+      // 暖炉画面
+      case '/emotion-log': 
+        return <EmotionHearth 
+                 onBack={() => handleNavigation('/')} 
+                 onOpenStats={() => handleNavigation('/emotion-stats')}
+                 onLogout={handleLogout} // ← 追加
+               />;
+      
+      // 統計画面
+      case '/emotion-stats':
+         return <EmotionStats 
+                 onBack={() => handleNavigation('/emotion-log')} 
+                 onLogout={handleLogout} // ← 追加
+               />;
+        
       default: return <HomeView />;
     }
   };
 
   return (
-    // ▼▼▼ 背景をダークウッド調に変更 ▼▼▼
     <div className="min-h-screen bg-[#3e2723] font-sans text-gray-800">
-      {/* 木目のテクスチャ効果（CSSグラデーションで擬似的に再現） */}
       <div className="fixed inset-0 opacity-20 pointer-events-none" 
            style={{ backgroundImage: 'repeating-linear-gradient(45deg, #3e2723 25%, #4e342e 25%, #4e342e 50%, #3e2723 50%, #3e2723 75%, #4e342e 75%, #4e342e 100%)', backgroundSize: '20px 20px' }}>
       </div>
@@ -240,10 +214,9 @@ const HeartoryHome = () => {
 
 const RoomCard = ({ room, onClick, isBasement = false }) => {
   const Icon = room.icon;
-  // 枠線のスタイルを木枠・石枠に変更
   const borderClass = isBasement ? 'border-stone-600' : 'border-[#8d6e63]';
   const bgClass = isBasement ? 'bg-stone-800' : 'bg-[#5d4037]';
-  const shadowClass = isBasement ? 'shadow-inner' : 'shadow-[2px_4px_0px_0px_rgba(62,39,35,1)]'; // 影を濃くして厚みを出す
+  const shadowClass = isBasement ? 'shadow-inner' : 'shadow-[2px_4px_0px_0px_rgba(62,39,35,1)]';
 
   return (
     <div
@@ -265,7 +238,6 @@ const RoomCard = ({ room, onClick, isBasement = false }) => {
       </div>
       <div className="absolute inset-0 z-10 flex flex-col justify-end p-3 text-white">
         <div className="flex items-center justify-between mb-1">
-            {/* アイコンの背景を少しシックに */}
             <div className={`p-1.5 rounded backdrop-blur-sm bg-black/30 border border-white/20 ${room.color}`}>
              <Icon size={18} />
             </div>

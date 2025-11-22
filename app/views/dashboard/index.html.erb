@@ -8,7 +8,7 @@
        style="background-image: repeating-linear-gradient(45deg, #3e2723 25%, #4e342e 25%, #4e342e 50%, #3e2723 50%, #3e2723 75%, #4e342e 75%, #4e342e 100%); background-size: 20px 20px;">
   </div>
 
-  <%# ▼▼▼ ナビゲーション：木の看板（ホームに戻る） ▼▼▼ %>
+    <%# ▼▼▼ ナビゲーション：木の看板エリア ▼▼▼ %>
   <div class="relative z-20 max-w-5xl mx-auto pt-6 mb-4 flex justify-between items-start px-4">
     <%# 左上：タイトル %>
     <div class="text-[#ffecb3] drop-shadow-md">
@@ -18,20 +18,39 @@
       <p class="text-xs text-[#d7ccc8] tracking-wider">POST OFFICE</p>
     </div>
 
-    <%# 右上：ホームに戻る看板 %>
-    <%= link_to root_path, class: "group cursor-pointer block" do %>
-      <div class="relative">
-        <%# 鎖 %>
-        <div class="absolute -top-6 left-4 w-1 h-10 bg-stone-400"></div>
-        <div class="absolute -top-6 right-4 w-1 h-10 bg-stone-400"></div>
-        <%# 看板本体 %>
-        <div class="relative bg-[#5d4037] border-4 border-[#3e2723] rounded shadow-xl px-4 py-2 transform group-hover:-rotate-2 transition-transform duration-300 origin-top">
-            <div class="flex items-center gap-2 text-[#ffecb3] font-bold font-serif tracking-wider text-sm">
-                <span>HOMEへ戻る</span>
-            </div>
+    <%# 右上：看板群 (横並び) %>
+    <div class="flex items-start gap-4">
+      
+      <%# 1. EXITボタン  %>
+      <%# 少し小さめで、色は暗めの木目、鎖は1本にして変化をつけた %>
+      <%= button_to destroy_user_session_path, method: :delete, form: { data: { turbo: false } }, class: "group relative inline-block pt-2" do %>
+        <div class="relative">
+          <%# 鎖 %>
+          <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 w-1 h-12 bg-stone-400"></div>
+          <%# 看板本体 %>
+          <div class="relative bg-[#3e2723] border-2 border-[#5d4037] px-3 py-2 rounded shadow-xl transform group-hover:rotate-3 transition-transform duration-300 origin-top flex items-center gap-2">
+              <span class="text-[#ffcdd2]">🚪</span>
+              <span class="text-[#ffcdd2] font-bold font-serif tracking-widest text-xs">EXIT</span>
+          </div>
         </div>
-      </div>
-    <% end %>
+      <% end %>
+
+      <%# 2. HOMEボタン (既存) %>
+      <%= link_to root_path, class: "group cursor-pointer block" do %>
+        <div class="relative">
+          <%# 鎖 %>
+          <div class="absolute -top-6 left-4 w-1 h-10 bg-stone-400"></div>
+          <div class="absolute -top-6 right-4 w-1 h-10 bg-stone-400"></div>
+          <%# 看板本体 %>
+          <div class="relative bg-[#5d4037] border-4 border-[#3e2723] rounded shadow-xl px-4 py-2 transform group-hover:-rotate-2 transition-transform duration-300 origin-top">
+              <div class="flex items-center gap-2 text-[#ffecb3] font-bold font-serif tracking-wider text-sm">
+                  <span>🏠 HOMEへ戻る</span>
+              </div>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
   </div>
 
   <%# ▼▼▼ メインコンテナ：巨大なエアメール封筒風 ▼▼▼ %>
