@@ -5,17 +5,18 @@ set -o errexit
 # 1. Ruby Gemsのインストール
 bundle install
 
-# 2. Yarnロックファイルの削除と再インストール
+# 2. Yarnロックファイルをリセット（MacとLinuxの差異を吸収するため）
 rm -f yarn.lock
-# 開発用ツール(esbuild)を含めてインストールさせる
+
+# 3. JavaScriptパッケージのインストール
+# production=false を付けて、esbuild等の開発ツールも強制的に入れる
 yarn install --production=false
 
-# 3. アセットのプリコンパイル
-# (package.jsonでパスを指定したので、Rake経由でもesbuildが見つかるはず)
+# 4. アセットのプリコンパイル
 bundle exec rake assets:precompile
 
-# 4. 古いアセットの削除
+# 5. 古いアセットの削除
 bundle exec rake assets:clean
 
-# 5. データベースのマイグレーション(resetしない！！！！！！！)
+# 6. データベースのマイグレーション(resetなし!!!!!)
 bundle exec rake db:migrate
