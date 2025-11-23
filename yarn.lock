@@ -42,7 +42,7 @@
   resolved "https://registry.yarnpkg.com/@esbuild/freebsd-x64/-/freebsd-x64-0.27.0.tgz#9bde638bda31aa244d6d64dbafafb41e6e799bcc"
   integrity sha512-zCMeMXI4HS/tXvJz8vWGexpZj2YVtRAihHLk1imZj4efx1BQzN76YFeKqlDr3bUWI26wHwLWPd3rwh6pe4EV7g==
 
-"@esbuild/linux-arm64@0.27.0":
+"@esbuild/linux-arm64@0.27.0", "@esbuild/linux-arm64@^0.27.0":
   version "0.27.0"
   resolved "https://registry.yarnpkg.com/@esbuild/linux-arm64/-/linux-arm64-0.27.0.tgz#96008c3a207d8ca495708db714c475ea5bf7e2af"
   integrity sha512-AS18v0V+vZiLJyi/4LphvBE+OIX682Pu7ZYNsdUHyUKSoRwdnOsMf6FDekwoAFKej14WAkOef3zAORJgAtXnlQ==
