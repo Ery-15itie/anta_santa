@@ -7,19 +7,15 @@ bundle install
 
 # 2. Yarnロックファイルの削除と再インストール
 rm -f yarn.lock
-
-# ▼▼▼ 修正--production=false を追加して、ビルドツールを確実にインストールさせる!! ▼▼▼
+# 開発用ツール(esbuild)を含めてインストールさせる
 yarn install --production=false
 
-# 3. ビルドコマンドの実行 (package.jsonの "build" を実行)
-yarn build
-
-# 4. アセットのプリコンパイル
+# 3. アセットのプリコンパイル
+# (package.jsonでパスを指定したので、Rake経由でもesbuildが見つかるはず)
 bundle exec rake assets:precompile
 
-# 5. 古いアセットの削除
+# 4. 古いアセットの削除
 bundle exec rake assets:clean
 
-# 6. データベースのマイグレーション
-#resetしない！！！！！！！！！！！！！
+# 5. データベースのマイグレーション(resetしない！！！！！！！)
 bundle exec rake db:migrate
