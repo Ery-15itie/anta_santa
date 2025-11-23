@@ -9,8 +9,8 @@ bundle install
 rm -f yarn.lock
 
 # 3. JavaScriptパッケージのインストール
-# production=false を付けて、esbuild等の開発ツールも強制的に入れる
-yarn install --production=false
+# esbuildをdependenciesに入れたので、普通のインストール
+yarn install
 
 # 4. アセットのプリコンパイル
 bundle exec rake assets:precompile
@@ -18,5 +18,6 @@ bundle exec rake assets:precompile
 # 5. 古いアセットの削除
 bundle exec rake assets:clean
 
-# 6. データベースのマイグレーション(resetなし!!!!!)
+# 6. データベースのマイグレーション
+# (リセットはせず、変更分のみ適用してデータを守る！！！！)
 bundle exec rake db:migrate
