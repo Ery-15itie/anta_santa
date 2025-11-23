@@ -1,6 +1,20 @@
 require_relative "boot"
 
+# =========================================================
+#  Deviseのロード遅延を最小化
+# =========================================================
+# rails generateやrakeタスクの際に、deviseがroutesより前にロードされるように制御
+if defined?(Rails::Command::GeneratorCommand) || defined?(Rake)
+  begin
+    require 'devise'
+    require 'devise/jwt'
+  rescue LoadError
+  end
+end
+# =========================================================
+
 require "rails/all"
+
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -27,7 +41,6 @@ module SantaReportApp
     config.i18n.load_path += Dir[Rails.root.join('config', 'locales', '**', '*.{rb,yml}').to_s]
     
     # autoloadingをroutes.rbの前に強制し、Deviseエラーを解決
-    # この行により、Userモデルがroutes.rbより早くロードされる
     config.eager_load_paths << Rails.root.join("app", "models")
 
     # セッション設定（CSRF対策）
@@ -35,9 +48,5 @@ module SantaReportApp
 
     # config.eager_load_paths << Rails.root.join("extras") 
 
-    # 以前のbefore_configurationブロックコメントアウト
-    # config.before_configuration do
-    #   require_relative '../../app/models/user' if File.exist?(Rails.root.join('app', 'models', 'user.rb'))
-    # end
   end
 end

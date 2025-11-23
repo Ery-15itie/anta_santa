@@ -1,149 +1,255 @@
-<%# ログイン後のダッシュボード %>
-<div class="container mx-auto p-4 sm:p-6 lg:p-8 min-h-screen bg-amber-50 font-serif">
-  <div class="max-w-4xl mx-auto">
-    
-    <%# --- 1. ヘッダー --- %>
-    <header class="text-center py-6 mb-8">
-      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 text-gray-800">
-        ようこそ、<%= @user.username %>さん!
+<%# ログイン後の元ダッシュボード→ギフトホール %>
+
+<%# ▼▼▼ 背景：Heartory Homeと同じダークウッド + エアメールの雰囲気 ▼▼▼ %>
+<div class="min-h-screen bg-[#3e2723] font-serif pb-20 relative overflow-x-hidden text-[#3e2723]">
+  
+  <%# 背景テクスチャ（木目） %>
+  <div class="fixed inset-0 opacity-20 pointer-events-none" 
+       style="background-image: repeating-linear-gradient(45deg, #3e2723 25%, #4e342e 25%, #4e342e 50%, #3e2723 50%, #3e2723 75%, #4e342e 75%, #4e342e 100%); background-size: 20px 20px;">
+  </div>
+
+    <%# ▼▼▼ ナビゲーション：木の看板エリア ▼▼▼ %>
+  <div class="relative z-20 max-w-5xl mx-auto pt-6 mb-4 flex justify-between items-start px-4">
+    <%# 左上：タイトル %>
+    <div class="text-[#ffecb3] drop-shadow-md">
+      <h1 class="text-2xl font-black tracking-widest uppercase" style="font-family: 'Courier New', Courier, monospace;">
+        Gift Hall
       </h1>
-      <p class="text-md sm:text-lg font-normal text-gray-600">
-        あなたに届いた温かいメッセージを見てみましょう！
-      </p>
-    </header>
+      <p class="text-xs text-[#d7ccc8] tracking-wider">POST OFFICE</p>
+    </div>
 
-    <%# --- 2. 褒められた項目トップ3の表示 (個人統計) --- %>
-    <div class="p-6 bg-white rounded-xl shadow-lg border border-gray-200 mb-12">
-      <h2 class="text-xl font-semibold text-gray-700 mb-5 border-b pb-2">
-        あなたのトップスキル (褒められた回数)
-        <span class="text-sm font-normal text-gray-500 block mt-1">カテゴリーも確認できます。</span>
-      </h2>
+    <%# 右上：看板群 (横並び) %>
+    <div class="flex items-start gap-4">
       
-      <%# コントローラーの @top_scores は配列 of Hash: [{title: "...", category: "...", count: X}, ...] の形式 %>
-      <% if @top_scores.present? %>
-        <ol class="space-y-3">
-          <% @top_scores.each.with_index(1) do |score_data, index| %>
-            <li class="flex items-center justify-between p-3 rounded-lg <%= index == 1 ? 'bg-amber-100 border-amber-300' : 'bg-gray-50 border-gray-200' %> border">
-              <span class="flex items-center">
-                <%# 順位アイコン %>
-                <span class="w-6 h-6 flex items-center justify-center text-white font-bold text-sm rounded-full mr-3
-                  <%= index == 1 ? 'bg-amber-600' : (index == 2 ? 'bg-gray-500' : 'bg-red-500') %>">
-                  <%= index %>
-                </span>
-                
-                <%# スキルタイトルとカテゴリー %>
-                <div>
-                  <span class="text-md font-bold text-gray-800"><%= score_data[:title] %></span>
-                  <span class="text-xs font-normal text-gray-500 block"> (<%= score_data[:category] %>)</span>
-                </div>
-              </span>
-              <span class="text-xl font-extrabold text-red-600"><%= score_data[:count] %> 回</span>
-            </li>
-          <% end %>
-        </ol>
-      <% else %>
-        <p class="text-gray-500 text-center py-4">まだ評価がありません。評価を受け取るとここに表示されます。</p>
+      <%# 1. EXITボタン  %>
+      <%# 少し小さめで、色は暗めの木目、鎖は1本にして変化をつけた %>
+      <%= button_to destroy_user_session_path, method: :delete, form: { data: { turbo: false } }, class: "group relative inline-block pt-2" do %>
+        <div class="relative">
+          <%# 鎖 %>
+          <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 w-1 h-12 bg-stone-400"></div>
+          <%# 看板本体 %>
+          <div class="relative bg-[#3e2723] border-2 border-[#5d4037] px-3 py-2 rounded shadow-xl transform group-hover:rotate-3 transition-transform duration-300 origin-top flex items-center gap-2">
+              <span class="text-[#ffcdd2]">🚪</span>
+              <span class="text-[#ffcdd2] font-bold font-serif tracking-widest text-xs">EXIT</span>
+          </div>
+        </div>
       <% end %>
+
+      <%# 2. HOMEボタン (既存) %>
+      <%= link_to root_path, class: "group cursor-pointer block" do %>
+        <div class="relative">
+          <%# 鎖 %>
+          <div class="absolute -top-6 left-4 w-1 h-10 bg-stone-400"></div>
+          <div class="absolute -top-6 right-4 w-1 h-10 bg-stone-400"></div>
+          <%# 看板本体 %>
+          <div class="relative bg-[#5d4037] border-4 border-[#3e2723] rounded shadow-xl px-4 py-2 transform group-hover:-rotate-2 transition-transform duration-300 origin-top">
+              <div class="flex items-center gap-2 text-[#ffecb3] font-bold font-serif tracking-wider text-sm">
+                  <span>🏠 HOMEへ戻る</span>
+              </div>
+          </div>
+        </div>
+      <% end %>
+
     </div>
+  </div>
+
+  <%# ▼▼▼ メインコンテナ：巨大なエアメール封筒風 ▼▼▼ %>
+  <div class="max-w-4xl mx-auto relative z-10 px-4">
     
-    <%# --- 3. 統計情報カード (個人統計) --- %>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <%# 封筒の本体 %>
+    <div class="bg-[#fdf6e3] rounded-sm shadow-2xl overflow-hidden relative border-8 border-[#fdf6e3]">
       
-      <%# もらったメッセージ %>
-      <div class="stat-card bg-white p-6 rounded-xl shadow-md border border-gray-200 text-center transition duration-300 hover:shadow-lg">
-        <div class="mb-3">
-          <%= image_tag "icons/gift.png", alt: "もらったメッセージ", class: "h-12 w-12 mx-auto" %>
-        </div>
-        <p class="text-4xl font-bold text-amber-600 mb-1"><%= @total_received || 0 %></p>
-        <p class="text-sm font-medium text-gray-500">もらったメッセージ</p>
+      <%# エアメールのストライプ装飾 (上部) %>
+      <div class="h-3 w-full" 
+           style="background: repeating-linear-gradient(45deg, #d32f2f, #d32f2f 10px, #fdf6e3 10px, #fdf6e3 20px, #1976d2 20px, #1976d2 30px, #fdf6e3 30px, #fdf6e3 40px);">
       </div>
 
-      <%# 褒められたポイント %>
-      <div class="stat-card bg-white p-6 rounded-xl shadow-md border border-gray-200 text-center transition duration-300 hover:shadow-lg">
-        <div class="mb-3">
-          <%= image_tag "icons/star.png", alt: "褒められたポイント", class: "h-12 w-12 mx-auto" %>
-        </div>
-        <p class="text-4xl font-bold text-yellow-600 mb-1"><%= @total_checked_items || 0 %></p>
-        <p class="text-sm font-medium text-gray-500">褒められたポイント</p>
-      </div>
+      <div class="p-6 sm:p-10">
 
-      <%#  送ったメッセージ %>
-      <div class="stat-card bg-white p-6 rounded-xl shadow-md border border-gray-200 text-center transition duration-300 hover:shadow-lg">
-        <div class="mb-3">
-          <%= image_tag "icons/message.png", alt: "送ったメッセージ", class: "h-12 w-12 mx-auto" %>
-        </div>
-        <p class="text-4xl font-bold text-red-600 mb-1"><%= @total_given || 0 %></p>
-        <p class="text-sm font-medium text-gray-500">送ったメッセージ</p>
-      </div>
-    </div>
-    
-    <%# --- 4. アクションセクション --- %>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-      
-      <%# 誰かを褒めてみよう %>
-      <div class="p-8 bg-white rounded-xl shadow-lg border border-gray-200 text-center transition duration-300 hover:shadow-xl hover:border-amber-300">
-        <%= image_tag "icons/send.png", alt: "サンタアイコン (褒める)", class: "mx-auto mb-4 w-16 h-16 object-contain" %>
-        <h2 class="text-xl font-semibold text-gray-800 mb-2">誰かを褒めてみよう!</h2>
-        <p class="text-sm text-gray-500 mb-6">仲間の素敵な活動を見つけて、温かいメッセージを送りましょう</p>
-        <%= link_to "メッセージを送る", users_path, 
-                    class: "inline-block px-8 py-3 bg-red-400 hover:bg-red-500 text-white font-bold rounded-full shadow-md transition duration-300 text-center" %>
-      </div>
+        <%# --- 1. ヘッダー (消印スタンプ風) --- %>
+        <header class="text-center mb-10 relative">
+          <%# スタンプ装飾 %>
+          <div class="absolute top-0 right-0 opacity-20 rotate-12 border-4 border-[#3e2723] rounded-full w-24 h-24 flex items-center justify-center pointer-events-none hidden sm:flex">
+            <span class="text-xs font-bold text-[#3e2723] text-center leading-tight">AIR MAIL<br>APPROVED<br>ANTA-SANTA</span>
+          </div>
 
-      <%# もらったメッセージを見る %>
-      <div class="p-8 bg-white rounded-xl shadow-lg border border-gray-200 text-center transition duration-300 hover:shadow-xl hover:border-red-300">
-        <%= image_tag "icons/list.png", alt: "メモ帳アイコン (メッセージ一覧)", class: "mx-auto mb-4 w-16 h-16 object-contain" %>
-        <h2 class="text-xl font-semibold text-gray-800 mb-2">もらったメッセージを見る</h2>
-        <p class="text-sm text-gray-500 mb-6">あなたに届いた温かいメッセージの一覧を確認できます</p>
-        <%= link_to "メッセージ一覧へ", evaluations_path, 
-                    class: "inline-block px-8 py-3 bg-amber-400 hover:bg-amber-500 text-white font-bold rounded-full shadow-md transition duration-300 text-center" %>
-      </div>
-    </div>
+          <h1 class="text-3xl sm:text-4xl font-bold text-[#3e2723] mb-2" style="font-family: 'Courier New', Courier, monospace;">
+            Dear <%= @user.username %>
+          </h1>
+          <p class="text-sm text-[#5d4037] italic border-b border-[#d7ccc8] inline-block pb-1">
+            あなたに届いた温かいメッセージを見てみましょう
+          </p>
+        </header>
 
-    <%# --- 5. 最近受け取ったメッセージ --- %>
-    <div class="mb-10 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
-      <h2 class="text-xl font-semibold text-gray-700 mb-5 border-b pb-2">最近受け取ったメッセージ</h2>
-      
-      <% if @recent_received_evaluations.any? %>
-        <div class="grid grid-cols-1 gap-4">
-          <% @recent_received_evaluations.each do |evaluation| %>
-            <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 transition duration-300 hover:bg-amber-100">
-              <h3 class="text-md font-bold text-gray-800 truncate mb-1">
-                <%# evaluation.titleがないため、messageの冒頭を表示 %>
-                <% message_preview = evaluation.message.to_s.truncate(40, separator: '...') %>
-                <%= link_to message_preview, evaluation_path(evaluation), class: "text-red-600 hover:text-red-800" %>
-              </h3>
-              <p class="text-xs text-gray-500">
-                From: <%= evaluation.evaluator.username %>さん | <%= l(evaluation.created_at, format: :short) %>
-              </p>
+        <%# --- 2. 褒められた項目トップ3 (切手コレクション風) --- %>
+        <div class="mb-12">
+          <h2 class="text-lg font-bold text-[#5d4037] mb-4 flex items-center gap-2 uppercase tracking-wider border-b-2 border-[#5d4037] pb-1">
+            <span>Top Skills</span>
+            <span class="text-xs font-normal normal-case text-[#8d6e63] ml-auto">Received Stamps</span>
+          </h2>
+          
+          <% if @top_scores.present? %>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <% @top_scores.each.with_index(1) do |score_data, index| %>
+                <%# 切手風カード %>
+                <div class="relative bg-[#fff8e1] p-1 shadow-md transform transition hover:-translate-y-1 hover:shadow-lg"
+                     style="border: 1px dashed #8d6e63; border-radius: 2px;">
+                  <div class="absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm z-10
+                    <%= index == 1 ? 'bg-amber-600' : (index == 2 ? 'bg-stone-500' : 'bg-[#8d6e63]') %>">
+                    <%= index %>
+                  </div>
+                  
+                  <%# 切手の中身 %>
+                  <div class="bg-[#fdf6e3] h-full p-3 flex flex-col items-center justify-center text-center border border-[#eee] relative overflow-hidden">
+                     <%# 波線消印 (CSSで擬似的に) %>
+                     <div class="absolute top-2 right-[-10px] w-16 h-8 border-t-2 border-b-2 border-[#3e2723] opacity-20 rotate-[-15deg]"></div>
+
+                     <p class="text-2xl font-bold text-[#d32f2f] mb-1 font-serif"><%= score_data[:count] %></p>
+                     <p class="text-xs text-[#5d4037] uppercase tracking-widest mb-1">COUNTS</p>
+                     <h3 class="text-sm font-bold text-[#3e2723] border-t border-dotted border-[#8d6e63] pt-1 w-full">
+                       <%= score_data[:title] %>
+                     </h3>
+                     <p class="text-[10px] text-[#8d6e63] mt-1"><%= score_data[:category] %></p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-8 border-2 border-dashed border-[#d7ccc8] bg-[#fafafa] rounded text-[#8d6e63]">
+              <p>No stamps collected yet.</p>
             </div>
           <% end %>
         </div>
-        <%= link_to "もっと見る", evaluations_path, class: "block mt-4 text-center text-sm text-red-500 hover:text-red-700 font-medium" %>
-      <% else %>
-        <div class="p-4 text-center bg-gray-50 rounded-lg border border-gray-200">
-          <p class="text-gray-500">まだ誰もあなたを褒めていません。</p>
+        
+        <%# --- 3. 統計情報カード (小包タグ風) --- %>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          
+          <%# 共通カードスタイル %>
+          <% card_style = "bg-[#efebe9] p-4 rounded-sm shadow border-l-4 border-[#8d6e63] flex flex-col items-center text-center relative" %>
+          <% hole_style = "absolute top-4 left-2 w-3 h-3 rounded-full bg-[#3e2723] border border-[#fff]" %>
+
+          <%# もらったメッセージ %>
+          <div class="<%= card_style %>">
+            <div class="<%= hole_style %>"></div>
+            <%= image_tag "icons/gift.png", class: "h-10 w-10 mb-2 opacity-80 grayscale-[30%]" %>
+            <p class="text-3xl font-bold text-[#5d4037]"><%= @total_received || 0 %></p>
+            <p class="text-xs font-bold text-[#8d6e63] uppercase tracking-wider">Received</p>
+          </div>
+
+          <%# 褒められたポイント %>
+          <div class="<%= card_style %> border-[#ffb300]">
+            <div class="<%= hole_style %>"></div>
+            <%= image_tag "icons/star.png", class: "h-10 w-10 mb-2 opacity-80 sepia" %>
+            <p class="text-3xl font-bold text-[#f57f17]"><%= @total_checked_items || 0 %></p>
+            <p class="text-xs font-bold text-[#8d6e63] uppercase tracking-wider">Points</p>
+          </div>
+
+          <%# 送ったメッセージ %>
+          <div class="<%= card_style %> border-[#d32f2f]">
+            <div class="<%= hole_style %>"></div>
+            <%= image_tag "icons/message.png", class: "h-10 w-10 mb-2 opacity-80 grayscale-[30%]" %>
+            <p class="text-3xl font-bold text-[#c62828]"><%= @total_given || 0 %></p>
+            <p class="text-xs font-bold text-[#8d6e63] uppercase tracking-wider">Sent</p>
+          </div>
         </div>
-      <% end %>
-    </div>
-    
-    <%# --- 6. 最近評価してくれたユーザー --- %>
-    <div class="mb-10 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
-      <h2 class="text-xl font-semibold text-gray-700 mb-5 border-b pb-2">最近褒めてくれたサンタさんたち</h2>
-      
-      <% if @recent_evaluators.any? %>
-        <div class="flex flex-wrap gap-4 justify-center">
-          <% @recent_evaluators.each do |evaluator| %>
-            <%= link_to user_path(evaluator), class: "text-center hover:opacity-75 transition duration-300 p-2 rounded-lg bg-gray-50 border border-gray-200" do %>
-              <span class="text-sm text-gray-700 block font-medium"><%= evaluator.username %></span>
-            <% end %>
+        
+        <%# --- 4. アクションセクション (ポストカード風) --- %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          
+          <%# 左：送る %>
+          <div class="relative bg-white p-6 shadow-md border border-[#d7ccc8] flex flex-col items-center text-center"
+               style="background-image: linear-gradient(#eee .1em, transparent .1em); background-size: 100% 1.5em;">
+            <h2 class="text-lg font-bold text-[#3e2723] mb-2 bg-white px-2">Send a Letter</h2>
+            <p class="text-xs text-[#5d4037] mb-4 bg-white px-2">仲間の素敵な活動を見つけて、<br>温かいメッセージを送りましょう</p>
+            <%= link_to "メッセージを送る", users_path, 
+                        class: "px-6 py-2 bg-[#5d4037] text-[#ffecb3] text-sm font-bold rounded shadow hover:bg-[#3e2723] transition border border-[#3e2723]" %>
+            
+            <%# 郵便マーク %>
+            <div class="absolute bottom-2 right-2 text-[#d7ccc8] text-4xl opacity-50">〒</div>
+          </div>
+
+          <%# 右：見る %>
+          <div class="relative bg-white p-6 shadow-md border border-[#d7ccc8] flex flex-col items-center text-center"
+               style="background-image: linear-gradient(#eee .1em, transparent .1em); background-size: 100% 1.5em;">
+            <h2 class="text-lg font-bold text-[#3e2723] mb-2 bg-white px-2">Check Mailbox</h2>
+            <p class="text-xs text-[#5d4037] mb-4 bg-white px-2">あなたに届いた温かいメッセージの<br>一覧を確認できます</p>
+            <%= link_to "メッセージ一覧へ", evaluations_path, 
+                        class: "px-6 py-2 bg-[#8d6e63] text-white text-sm font-bold rounded shadow hover:bg-[#6d4c41] transition border border-[#5d4037]" %>
+            
+            <%# 郵便マーク %>
+            <div class="absolute bottom-2 right-2 text-[#d7ccc8] text-4xl opacity-50">✉</div>
+          </div>
+        </div>
+
+        <%# --- 5. 最近受け取ったメッセージ (開封された手紙風) --- %>
+        <div class="mb-10">
+          <h2 class="text-lg font-bold text-[#5d4037] mb-4 flex items-center gap-2 uppercase tracking-wider border-b-2 border-[#5d4037] pb-1">
+            <span>最近受け取ったメッセージ</span>
+          </h2>
+          
+          <% if @recent_received_evaluations.any? %>
+            <div class="space-y-4">
+              <% @recent_received_evaluations.each do |evaluation| %>
+                <div class="relative p-4 bg-white shadow-sm border border-[#d7ccc8] transform hover:-translate-x-1 transition duration-300 cursor-pointer group">
+                  <%# 左側の赤青ライン %>
+                  <div class="absolute left-0 top-0 bottom-0 w-1.5" 
+                       style="background: repeating-linear-gradient(45deg, #d32f2f, #d32f2f 5px, #fff 5px, #fff 10px, #1976d2 10px, #1976d2 15px, #fff 15px, #fff 20px);">
+                  </div>
+                  
+                  <div class="pl-4">
+                    <p class="text-xs text-[#8d6e63] mb-1 flex justify-between">
+                      <span>From: <%= evaluation.evaluator.username %></span>
+                      <span><%= l(evaluation.created_at, format: :short) %></span>
+                    </p>
+                    <h3 class="text-md font-serif font-bold text-[#3e2723] group-hover:text-[#d32f2f] transition-colors leading-snug">
+                      <% message_preview = evaluation.message.to_s.truncate(50, separator: '...') %>
+                      <%= link_to message_preview, evaluation_path(evaluation), class: "block" %>
+                    </h3>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            <div class="text-center mt-6">
+               <%= link_to "View All Letters", evaluations_path, class: "text-sm font-bold text-[#5d4037] hover:text-[#d32f2f] border-b border-[#5d4037] hover:border-[#d32f2f] transition-colors pb-0.5" %>
+            </div>
+          <% else %>
+            <div class="p-6 text-center border-2 border-dashed border-[#d7ccc8] text-[#8d6e63]">
+              <p>Mailbox is empty.</p>
+            </div>
           <% end %>
         </div>
-      <% else %>
-        <p class="text-gray-500 text-center py-4">まだ褒めてくれた人はいません。</p>
-      <% end %>
-    </div>
+        
+        <%# --- 6. 最近褒めてくれたサンタさんたち (シール風) --- %>
+        <div class="mb-4">
+          <h2 class="text-lg font-bold text-[#5d4037] mb-4 flex items-center gap-2 uppercase tracking-wider border-b-2 border-[#5d4037] pb-1">
+            <span>最近褒めてくれたサンタさんたち</span>
+          </h2>
+          
+          <% if @recent_evaluators.any? %>
+            <div class="flex flex-wrap gap-3 justify-center">
+              <% @recent_evaluators.each do |evaluator| %>
+                <%= link_to user_path(evaluator), class: "inline-flex items-center gap-2 px-3 py-1.5 bg-[#efebe9] border border-[#d7ccc8] rounded-full text-sm text-[#5d4037] hover:bg-[#fff] hover:border-[#8d6e63] transition shadow-sm" do %>
+                  <span class="text-[#d32f2f]">★</span>
+                  <span><%= evaluator.username %></span>
+                <% end %>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-[#8d6e63] text-center text-sm">No Santas yet.</p>
+          <% end %>
+        </div>
 
-    <%# --- グローバル統計のセクション 予定 --- %>
+      </div>
+      
+      <%# エアメールのストライプ装飾 (下部) %>
+      <div class="h-3 w-full" 
+           style="background: repeating-linear-gradient(45deg, #d32f2f, #d32f2f 10px, #fdf6e3 10px, #fdf6e3 20px, #1976d2 20px, #1976d2 30px, #fdf6e3 30px, #fdf6e3 40px);">
+      </div>
+
+    </div>
+    
+    <%# 封筒のフタの影 %>
+    <div class="h-4 mx-4 bg-black opacity-10 rounded-b-full filter blur-sm"></div>
 
   </div>
 </div>

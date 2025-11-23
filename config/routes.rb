@@ -1,52 +1,79 @@
 Rails.application.routes.draw do
   
   # ----------------------------------------------------
-  #  Devise（認証機能）のルーティング定義を最優先
+  #  1. Devise（認証機能）
   # ----------------------------------------------------
   devise_for :users, controllers: {
     sessions: 'users/sessions',
     registrations: 'users/registrations'
-    # パスワードリセット機能はDevise標準コントローラーが適用
   }
 
   # ----------------------------------------------------
-  #  アプリケーションの中心機能のルーティング定義
+  #  2. API v1 エンドポイント (React連携用)
+  # ----------------------------------------------------
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      # 暖炉の部屋（感情ログ）
+      resources :emotion_logs, only: [:index, :create] do
+        # 追加: 統計・実績データを取得するエンドポイント 
+        collection do
+          get :stats
+        end
+      end
+    end
+  end
+
+  # ----------------------------------------------------
+  #  3. ルーティングのメイン定義
   # ----------------------------------------------------
   
-  # プロフィール表示 (show)、ユーザー一覧 (index)、
-  # およびフレンド一覧 (/users/following) を追加
+  # === ログイン済みユーザーの世界 ===
+  authenticated :user do
+    # 【A】新しい玄関: Heartory Home (Reactダッシュボード)
+    root 'homes#index', as: :authenticated_root
+
+    # 拡張用: Reactのページでリロードしても404にならないようにする設定 
+    # これらのURLにアクセスが来たら、Reactの入り口(homes#index)を表示させとく
+    get 'emotion-log', to: 'homes#index'
+    get 'emotion-stats', to: 'homes#index'
+    get 'santa-study', to: 'homes#index'     # 将来用
+    get 'atelier', to: 'homes#index'         # 将来用
+    get 'kitchen', to: 'homes#index'         # 将来用
+    get 'planning', to: 'homes#index'        # 将来用
+    get 'reindeer', to: 'homes#index'        # 将来用
+    get 'gallery', to: 'homes#index'         # 将来用
+    get 'gallery-detail', to: 'homes#index'  # 将来用
+    get 'basement', to: 'homes#index'        # 将来用
+
+    # 【B】既存のダッシュボード: 🎁 ギフトホール
+    get 'gift-hall', to: 'dashboard#index', as: :gift_hall
+    
+    # 既存互換用
+    get 'dashboard', to: 'dashboard#index'
+  end
+
+  # === 未ログインユーザーの世界 ===
+  devise_scope :user do
+    # ログインしていない人は、ログイン画面へ
+    root to: redirect('/users/sign_in')
+  end
+
+  # ----------------------------------------------------
+  #  4. アプリケーションの既存機能 (Rails View)
+  # ----------------------------------------------------
   resources :users, only: [:index, :show] do
     collection do
-      get :following # GET /users/following => users#following
+      get :following
     end
   end
   
-  # フォロー/アンフォロー
   resources :relationships, only: [:create, :destroy]
-
-  # 評価（サンタ通知）
   resources :evaluations, only: [:index, :show, :new, :create]
 
-  # --- ダッシュボード周りのルーティング ---
-  get 'dashboard', to: 'dashboard#index', as: 'dashboard'
-
   # ----------------------------------------------------
-  # 開発環境向けメール確認UIの追加
+  #  5. 開発ツール
   # ----------------------------------------------------
-  # Letter Opener Webを開発環境でのみ有効化し、本番環境へのアクセスを防止
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
   end
-
-  # ----------------------------------------------------
-  # トップページ（Root Path）の定義
-  # ----------------------------------------------------
-  
-  # 認証済みユーザー向けのルート
-  authenticated :user do
-    root 'dashboard#index', as: :authenticated_root
-  end
-
-  # 未認証ユーザー向けのルート
-  root to: redirect('/users/sign_in')
 end
