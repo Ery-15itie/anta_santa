@@ -2,21 +2,19 @@
 # exit on error
 set -o errexit
 
-# 1. Ruby Gems (ライブラリ) のインストール
+# 1. Ruby Gemsのインストール
 bundle install
 
-# 2. React用パッケージのインストール
-# (これを忘れると本番でReactが動かない)
+# ▼▼▼ 修正ポイント：yarn.lock を削除して、その場で最適なものを入れ直させる ▼▼▼
+rm -f yarn.lock
 yarn install
 
-# 3. アセットのコンパイル (JavaScript/CSSの生成)
-# ここで esbuild が走り、Reactコードがブラウザで動く形に変換される
+# 3. アセットのプリコンパイル
 bundle exec rake assets:precompile
 
-# 4. 古いアセットのお掃除
+# 4. 古いアセットの削除
 bundle exec rake assets:clean
 
-# 5. データベースの更新 (マイグレーション)
-# ⚠️重要: ここで db:reset や db:seed は絶対に使うなよ！
-# db:migrate は「既存データを残したまま、テーブル構造だけを変更」
+# 5. データベースのマイグレーション
+#絶対reset,seedしないで！！！！！！！！！！！！！
 bundle exec rake db:migrate
