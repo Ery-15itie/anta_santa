@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sparkles, History, LogOut, Flame } from 'lucide-react';
+import { ArrowLeft, Sparkles, History, LogOut, Flame, AlertCircle } from 'lucide-react';
 
 // 感情データ
 const EMOTIONS = [
@@ -17,9 +17,10 @@ const EMOTIONS = [
   { id: 'empty', label: '😞 虚しい', color: '#9ca3af', type: 'negative' },
 ];
 
+// 魔法の粉データ
 const MAGIC_POWDERS = [
   { id: 'copper', label: '銅の粉 (青緑)', desc: '冷静さに変える', color: '#2dd4bf' },
-  { id: 'lithium', label: 'リチウム (赤)', desc: '情熱に変える', color: '#db2777' },
+  { id: 'lithium', label: 'リチウム (赤紫)', desc: '情熱に変える', color: '#db2777' },
   { id: 'sodium', label: 'ナトリウム (黄)', desc: '明るさに変える', color: '#facc15' },
   { id: 'barium', label: 'バリウム (緑)', desc: '成長に変える', color: '#65a30d' },
 ];
@@ -27,10 +28,13 @@ const MAGIC_POWDERS = [
 // 共通パーツ：吊り看板ボタン
 const HangingSign = ({ onClick, icon: Icon, label, color = "text-[#ffecb3]" }) => (
   <div className="relative group cursor-pointer z-50" onClick={onClick}>
+    {/* 鎖 */}
     <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-1 h-12 bg-[#3e2723] shadow-sm"></div>
+    {/* 看板本体 */}
     <div className={`relative mt-2 bg-[#5d4037] border-4 border-[#3e2723] px-3 py-2 rounded-sm shadow-[0_4px_6px_rgba(0,0,0,0.5)] flex items-center gap-2 transform transition-transform hover:rotate-2 origin-top ${color}`}>
        <Icon size={16} />
        <span className="font-black text-xs tracking-widest font-serif uppercase">{label}</span>
+       {/* 釘 */}
        <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#271c19] rounded-full opacity-80"></div>
     </div>
   </div>
@@ -50,17 +54,21 @@ const EmotionButton = ({ emo, selectedEmotion, setSelectedEmotion }) => (
 );
 
 const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
-  const [fireState, setFireState] = useState({ size: 1.0, color: 'normal', temperature: 36 });
-  const [logs, setLogs] = useState([]);
+  const [fireState, setFireState] = useState({ size: 1.0, color: 'normal', temperature: 36.5 });
+  const [logs, setLogs] = useState([]); 
   const [selectedEmotion, setSelectedEmotion] = useState(null);
   const [note, setNote] = useState('');
   const [intensity, setIntensity] = useState(3);
   const [showPowderModal, setShowPowderModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     fetchFireState();
+    // 1分ごとに温度更新
+    const interval = setInterval(fetchFireState, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchFireState = async () => {
@@ -69,7 +77,6 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
       if (response.ok) {
         const data = await response.json();
         setFireState(data.fire_state);
-        // 履歴を多めに取得して薪として表示
         setLogs(data.logs || []);
       }
     } catch (error) {
@@ -79,7 +86,9 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
 
   const handleSubmit = async (powderId = 'no_powder') => {
     setIsSubmitting(true);
+    setErrorMessage(null);
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
     try {
       const response = await fetch('/api/v1/emotion_logs', {
         method: 'POST',
@@ -104,9 +113,15 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
         setShowPowderModal(false);
         setSuccessMessage("感情が炎に変わりました 🔥");
         setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        const errorData = await response.json();
+        const msg = errorData.errors ? errorData.errors.join(' / ') : 'エラーが発生しました';
+        setErrorMessage(msg);
+        setTimeout(() => setErrorMessage(null), 5000);
       }
     } catch (error) {
       console.error('Error:', error);
+      setErrorMessage("通信エラーが発生しました");
     } finally {
       setIsSubmitting(false);
     }
@@ -137,19 +152,33 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
   const currentFireSize = Math.min(Math.max(fireState.size, 1.0), 3.0);
 
   return (
-    <div className="min-h-screen bg-[#271c19] text-[#d7ccc8] font-sans relative overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-[#5d4037] text-[#ffecb3] font-sans relative overflow-hidden flex flex-col">
       
-      {/* 背景 (暗い部屋) */}
-      <div className="absolute inset-0 z-0 bg-[#1a100e]"></div>
-      <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png")' }}></div>
+      {/* ▼▼▼ 背景: 温かみのあるレンガ調  ▼▼▼ */}
+      <div className="absolute inset-0 z-0 opacity-40" 
+           style={{ 
+             // 明るめのテラコッタ/赤レンガ色ベース
+             backgroundColor: '#a1887f',
+             backgroundImage: `
+               linear-gradient(335deg, rgba(0,0,0,0.1) 23px, transparent 23px),
+               linear-gradient(155deg, rgba(0,0,0,0.1) 23px, transparent 23px),
+               linear-gradient(335deg, rgba(0,0,0,0.1) 23px, transparent 23px),
+               linear-gradient(155deg, rgba(0,0,0,0.1) 23px, transparent 23px)`,
+             backgroundSize: '58px 58px',
+             backgroundPosition: '0px 2px, 4px 35px, 29px 31px, 34px 6px'
+           }}>
+      </div>
+      {/* 部屋の四隅を少し暗くするビネット効果 */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#3e2723_100%)] opacity-60 z-0"></div>
 
       {/* ヘッダー */}
       <div className="relative z-50 p-4 flex justify-between items-start">
         <HangingSign onClick={onBack} icon={ArrowLeft} label="Home" />
         
-        <div className="mt-6 bg-[#3e2723] border-2 border-[#5d4037] px-4 py-1 rounded-full shadow-lg flex items-center gap-2">
+        {/* 温度計 (壁掛け) */}
+        <div className="mt-6 bg-[#3e2723] border-2 border-[#5d4037] px-4 py-1 rounded-full shadow-[0_4px_10px_rgba(0,0,0,0.6)] flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${fireState.temperature > 50 ? 'bg-red-500 animate-pulse' : 'bg-orange-500'}`}></div>
-            <span className="text-xs font-mono text-[#8d6e63]">TEMP:</span>
+            <span className="text-xs font-mono text-[#a1887f]">TEMP:</span>
             <span className="text-sm font-bold text-[#ffcc80] font-mono">{Math.round(fireState.temperature)}°C</span>
         </div>
 
@@ -159,34 +188,39 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
         </div>
       </div>
 
-      {/* ▼▼▼ 暖炉本体 (ピザ釜風デザイン) ▼▼▼ */}
-      <div className="flex-grow relative flex flex-col items-center justify-end pb-32 z-10">
+      {/* ▼▼▼ メインエリア: パン焼き釜風の暖炉  ▼▼▼ */}
+      <div className="flex-grow relative flex flex-col items-center justify-end pb-48 z-10">
         
-        {/* 煙突 */}
-        <div className="absolute -top-10 w-48 h-[120%] bg-[#5d4037] z-0 border-x-4 border-[#3e2723]" 
-             style={{backgroundImage: 'repeating-linear-gradient(0deg, transparent 0, transparent 19px, #3e2723 19px, #3e2723 20px)'}}>
+        {/* 煙突 (上部が丸い) */}
+        <div className="absolute -top-20 w-40 h-[130%] bg-[#6d4c41] z-0 border-x-4 border-[#5d4037] rounded-t-3xl shadow-inner" 
+             style={{backgroundImage: 'repeating-linear-gradient(0deg, transparent 0, transparent 19px, #5d4037 19px, #5d4037 20px)'}}>
         </div>
 
         {/* 暖炉の構造体 (上下2段) */}
         <div className="relative w-full max-w-3xl z-10 flex flex-col items-center">
 
-           {/* 上段：燃焼室 (アーチ状のレンガ造り) */}
-           <div className="w-[80%] aspect-[4/3] bg-[#6d4c41] rounded-t-[10rem] relative border-[20px] border-[#5d4037] shadow-2xl overflow-hidden flex items-end justify-center"
-                style={{backgroundImage: 'repeating-linear-gradient(45deg, #6d4c41 0, #6d4c41 10px, #5d4037 10px, #5d4037 20px)'}}>
+           {/* 上段：燃焼室 (ドーム型) */}
+           {/* rounded-t-[18rem] で大きく丸いアーチを作る */}
+           <div className="w-[85%] aspect-[5/4] bg-[#8d6e63] rounded-t-[18rem] relative border-[24px] border-[#5d4037] shadow-2xl overflow-hidden flex items-end justify-center z-20"
+                style={{
+                    // レンガのテクスチャ
+                    backgroundImage: 'repeating-linear-gradient(45deg, #8d6e63 0, #8d6e63 10px, #6d4c41 10px, #6d4c41 20px)',
+                    boxShadow: 'inset 0 -10px 30px rgba(0,0,0,0.3), 5px 10px 30px rgba(0,0,0,0.5)'
+                }}>
               
-              {/* 炉内 (煤けた暗闇 + 奥行き) */}
-              <div className="w-[80%] h-[80%] bg-[#1a0f0d] rounded-t-[8rem] relative overflow-hidden shadow-[inset_0_20px_80px_#000] border-4 border-[#3e2723]">
+              {/* 炉内 (アーチ状の開口部 - 奥行きのある影) */}
+              <div className="w-[75%] h-[75%] bg-[#271c19] rounded-t-[14rem] relative overflow-hidden shadow-[inset_0_30px_100px_#000] border-8 border-[#5d4037]">
                   
                   {/* 🔥 炎のアニメーション 🔥 */}
                   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
-                     {/* 1. グロー (部屋全体を照らす明かり) */}
+                     {/* グロー */}
                      <motion.div 
                        animate={{ opacity: [0.4, 0.6, 0.4], scale: [1, 1.1, 1] }} 
                        transition={{ duration: 3, repeat: Infinity }}
                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full blur-[60px] -z-10"
                        style={{ backgroundColor: getFireColorCode(fireState.color) }}
                      />
-                     {/* 2. メインの炎 (ゆらめく) */}
+                     {/* メイン炎 */}
                      <motion.div
                        animate={{
                          scale: [currentFireSize, currentFireSize * 1.1, currentFireSize],
@@ -196,7 +230,7 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
                        className="w-32 h-40 rounded-full blur-xl"
                        style={{ backgroundColor: getFireColorCode(fireState.color), mixBlendMode: 'screen' }}
                      />
-                     {/* 3. 火の粉 (パーティクル) */}
+                     {/* 火の粉 */}
                      {[...Array(8)].map((_, i) => (
                        <motion.div
                           key={i}
@@ -207,56 +241,48 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
                        />
                      ))}
                   </div>
-                            {/* 燃えている薪 (シルエット) */}
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-40 h-10 bg-[#2e1c18] rounded-t flex items-center justify-center shadow-lg">
-                     {/* 燃え差し */}
+                  {/* 燃えている薪 (シルエット) */}
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-40 h-10 bg-[#3e2723] rounded-t flex items-center justify-center shadow-lg">
                      <div className="w-full h-full bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
                   </div>
               </div>
            </div>
 
            {/* 仕切り (マントルピース) */}
-           <div className="w-[90%] h-8 bg-[#4e342e] shadow-xl rounded border-y-4 border-[#3e2723] z-20 relative">
-              <div className="absolute inset-0 bg-black opacity-20" style={{backgroundImage: 'repeating-linear-gradient(90deg, transparent 0, transparent 19px, rgba(0,0,0,0.5) 20px)'}}></div>
+           <div className="w-[92%] h-10 bg-[#6d4c41] shadow-xl rounded-b-xl border-b-8 border-[#5d4037] z-30 relative -mt-1">
+              <div className="absolute inset-0 bg-black opacity-10" style={{backgroundImage: 'repeating-linear-gradient(90deg, transparent 0, transparent 19px, rgba(0,0,0,0.3) 20px)'}}></div>
            </div>
 
-           {/* 下段：薪置き場 (Wood Storage) */}
-           <div className="w-[80%] h-40 bg-[#3e2723] border-x-[20px] border-b-[20px] border-[#5d4037] relative shadow-[inset_0_10px_30px_#000] flex items-end justify-center overflow-hidden px-2 pb-2">
+           {/* 下段：薪置き場 (土台) */}
+           <div className="w-[92%] h-48 bg-[#4e342e] border-x-[24px] border-b-[24px] border-[#5d4037] relative shadow-[inset_0_20px_50px_rgba(0,0,0,0.8)] flex items-end justify-center overflow-hidden px-4 pb-4 rounded-b-lg z-10 -mt-1">
               
-              {/* 🪵 くべた薪の山 (リアルな薪が積み上がる) */}
+              {/* 🪵 くべた薪の山 (リアルな薪) */}
               <div className="flex flex-wrap-reverse justify-center gap-y-1 gap-x-0.5 w-full max-h-full overflow-visible relative z-10">
                  {logs.slice(0, 25).map((log, i) => {
-                    const emo = EMOTIONS.find(e => e.id === log.emotion);
                     const iconColor = (log.magic_powder && log.magic_powder !== 'no_powder') 
                        ? MAGIC_POWDERS.find(p=>p.id === log.magic_powder)?.color 
-                       : emo?.color;
+                       : null;
 
                     return (
                       <motion.div
                         key={log.id}
-                        // 上から降ってくるようなアニメーション
                         initial={{ y: -100, opacity: 0, rotate: Math.random() * 180 }}
                         animate={{ y: 0, opacity: 1, rotate: (i % 2 === 0 ? 2 : -2) }}
                         transition={{ type: 'spring', bounce: 0.3, delay: i * 0.05 }}
                         className="relative group cursor-help -ml-1 sm:ml-0"
-                        style={{ zIndex: 30 - i }} // 新しいものを手前に
+                        style={{ zIndex: 30 - i }}
                         title={log.body}
                       >
-              {/* ▼ リアルな薪デザイン (焼き印なしVer) ▼ */}
-                  <div className="relative w-14 h-5 sm:w-16 sm:h-6 bg-[#5d4037] rounded-sm border border-[#3e2723] shadow-[1px_2px_3px_rgba(0,0,0,0.6)] flex items-center overflow-hidden transform hover:-translate-y-1 transition">
-                        {/* 樹皮テクスチャ */}
-                        <div className="absolute inset-0 opacity-70" style={{backgroundImage: 'repeating-linear-gradient(90deg, #4e342e 0px, #4e342e 2px, #5d4037 2px, #5d4037 5px)'}}></div>
-                        
-                        {/* 断面 (年輪風) */}
-                        <div className="h-full w-3 bg-[#3e2723] border-r border-[#2c1e1b] relative flex-shrink-0">
-                            <div className="absolute inset-0 opacity-60" style={{backgroundImage: 'radial-gradient(circle at -30% 50%, transparent 30%, #d7ccc8 40%, #3e2723 80%)'}}></div>
+                        {/* リアルな薪デザイン (焼き印なし) */}
+                        <div className="relative w-14 h-5 sm:w-16 sm:h-6 bg-[#5d4037] rounded-sm border border-[#3e2723] shadow-[1px_2px_3px_rgba(0,0,0,0.6)] flex items-center overflow-hidden transform hover:-translate-y-1 transition">
+                            <div className="absolute inset-0 opacity-70" style={{backgroundImage: 'repeating-linear-gradient(90deg, #4e342e 0px, #4e342e 2px, #5d4037 2px, #5d4037 5px)'}}></div>
+                            <div className="h-full w-3 bg-[#3e2723] border-r border-[#2c1e1b] relative flex-shrink-0">
+                                <div className="absolute inset-0 opacity-60" style={{backgroundImage: 'radial-gradient(circle at -30% 50%, transparent 30%, #d7ccc8 40%, #3e2723 80%)'}}></div>
+                            </div>
                         </div>
-                        
-                        {/* 中央の焼き印ブロックを削除*/}
-                     </div>
 
-                         {/* 魔法の粉エフェクト */}
-                         {log.magic_powder && log.magic_powder !== 'no_powder' && (
+                         {/* 魔法の粉エフェクト (粉があるときだけ光る) */}
+                         {iconColor && (
                            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full border border-black animate-pulse shadow-[0_0_5px_currentColor]" style={{backgroundColor: iconColor, color: iconColor}}></span>
                          )}
                          
@@ -277,11 +303,19 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
         </div>
       </div>
 
-      {/* --- 入力エリア --- */}
-      <div className="relative z-40 bg-[#271c19] border-t-4 border-[#3e2723] p-4 sm:p-6 shadow-[0_-20px_50px_rgba(0,0,0,1)]">
+      {/* --- 床 (フローリング) --- */}
+      <div className="absolute bottom-0 w-full h-32 bg-[#4e342e] z-0 border-t-4 border-[#3e2723]"
+           style={{
+             backgroundImage: 'repeating-linear-gradient(90deg, transparent 0, transparent 59px, #3e2723 59px, #3e2723 60px)',
+             backgroundSize: '60px 100%'
+           }}>
+           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+      </div>
+
+      {/* --- 入力エリア (操作盤) --- */}
+      <div className="relative z-40 bg-[#3e2723] border-t-4 border-[#5d4037] p-4 sm:p-6 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
         
-        {/* ガイドメッセージ */}
-        <p className="text-center text-[#8d6e63] text-sm font-bold mb-4 tracking-wider">今の気持ちを選んでください</p>
+        <p className="text-center text-[#ffcc80] text-sm font-bold mb-4 tracking-wider drop-shadow-md">今の気持ちを選んでください</p>
 
         {/* 1. 感情選択 */}
         <div className="mb-6 space-y-3">
@@ -290,7 +324,7 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
           </div>
           <div className="flex flex-wrap justify-center gap-2 items-center">
             {groupedEmotions.neutral.map(emo => <EmotionButton key={emo.id} emo={emo} selectedEmotion={selectedEmotion} setSelectedEmotion={setSelectedEmotion} />)}
-            <div className="hidden sm:block w-px h-8 bg-[#3e2723] mx-2"></div>
+            <div className="hidden sm:block w-px h-8 bg-[#2c1e1b] mx-2"></div>
             {groupedEmotions.negative.map(emo => <EmotionButton key={emo.id} emo={emo} selectedEmotion={selectedEmotion} setSelectedEmotion={setSelectedEmotion} />)}
           </div>
         </div>
@@ -299,16 +333,15 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
         <AnimatePresence>
           {selectedEmotion && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-4 overflow-hidden">
-              <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="その気持ちについて、一言メモを残しますか？" className="w-full bg-[#1a100e] border border-[#4e342e] rounded px-4 py-3 text-[#d7ccc8] focus:outline-none focus:border-[#8d6e63] transition placeholder-[#5d4037]" />
+              <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="その気持ちについて、一言メモを残しますか？" className="w-full bg-[#2c1e1b] border border-[#4e342e] rounded px-4 py-3 text-[#d7ccc8] focus:outline-none focus:border-[#ffcc80] transition placeholder-[#8d6e63]" />
               
-              {/* 強度スライダー (目盛り付き) */}
-              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-[#1a100e] p-3 rounded border border-[#3e2723]">
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-[#2c1e1b] p-3 rounded border border-[#4e342e]">
                 <div className="w-full sm:w-auto flex-grow">
                     <div className="flex justify-between text-[10px] text-[#8d6e63] font-bold mb-1 px-1">
                        <span>弱い</span><span>強い</span>
                     </div>
-                    <input type="range" min="1" max="5" step="1" value={intensity} onChange={(e) => setIntensity(parseInt(e.target.value))} className="w-full h-2 bg-[#3e2723] rounded-lg appearance-none cursor-pointer accent-[#d84315]" />
-                    <div className="flex justify-between text-[10px] text-[#5d4037] mt-1 px-1">
+                    <input type="range" min="1" max="5" step="1" value={intensity} onChange={(e) => setIntensity(parseInt(e.target.value))} className="w-full h-2 bg-[#3e2723] rounded-lg appearance-none cursor-pointer accent-[#ffcc80]" />
+                    <div className="flex justify-between text-[10px] text-[#8d6e63] mt-1 px-1">
                        <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
                     </div>
                 </div>
@@ -323,11 +356,16 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
         </AnimatePresence>
       </div>
       
-      {/* メッセージ (Toast) */}
+      {/* メッセージ & エラー (Toast) */}
       <AnimatePresence>
         {successMessage && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="absolute top-32 left-1/2 transform -translate-x-1/2 z-50 bg-[#ffcc80] text-[#3e2723] px-6 py-3 rounded shadow-xl font-bold border-2 border-[#fff] flex items-center gap-2">
             <Flame size={20} /> {successMessage}
+          </motion.div>
+        )}
+        {errorMessage && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="absolute top-32 left-1/2 transform -translate-x-1/2 z-50 bg-[#e53935] text-white px-6 py-3 rounded shadow-xl font-bold border-2 border-[#ffcdd2] flex items-center gap-2">
+            <AlertCircle size={20} /> {errorMessage}
           </motion.div>
         )}
       </AnimatePresence>
@@ -348,7 +386,7 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
                             </div>
                         </button>
                     ))}
-                  <button onClick={() => handleSubmit('no_powder')} className="w-full p-3 text-[#8d6e63] text-sm hover:text-[#d7ccc8] mt-2">粉を使わずに燃やす</button>
+                    <button onClick={() => handleSubmit('no_powder')} className="w-full p-3 text-[#8d6e63] text-sm hover:text-[#d7ccc8] mt-2">粉を使わずに燃やす</button>
                  </div>
              </div>
          </div>
