@@ -92,6 +92,14 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
+  # ==========================================================================
+  #  【重要】独自ドメイン（ホスト）許可設定
+  # ==========================================================================
+  # ここに取得したドメインを追加することで、Blocked hostエラーを防ぎます
+  config.hosts << "anta-santa.net"      # 独自ドメイン (ここをあなたのドメインに書き換えてください)
+  config.hosts << "www.anta-santa.net"  # www付きも許可
+  config.hosts << ".onrender.com"       # Renderのドメインも許可（サブドメイン含む）
+
   # Enable DNS rebinding protection and other Host header attacks.
   # config.hosts = [
   #   "example.com",     # Allow requests from example.com
