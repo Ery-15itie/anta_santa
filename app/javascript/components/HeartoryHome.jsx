@@ -97,9 +97,10 @@ const HeartoryHome = () => {
     );
   };
 
-  // 1. ホーム画面 (ログハウス風デザイン)
+     // 1. ホーム画面
   const HomeView = () => (
     <>
+      {/* 看板・タイトル */}
       <div className="relative mb-12 pt-6">
         <div className="absolute top-0 right-4 sm:right-10 z-20 group cursor-pointer" onClick={handleLogout}>
             <div className="absolute -top-6 left-4 w-1 h-12 bg-stone-400"></div>
@@ -124,13 +125,12 @@ const HeartoryHome = () => {
         </div>
       </div>
 
+      {/* 家のコンテナ */}
       <div className="max-w-6xl mx-auto relative">
-        {/* 屋根 */}
         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-[95%] h-8 bg-[#3e2723] rounded-t-full shadow-xl z-0 flex items-center justify-center">
              <div className="w-20 h-20 bg-[#3e2723] rotate-45 transform translate-y-6 border-4 border-[#5d4037]"></div>
         </div>
 
-        {/* 家の本体 */}
         <div className="bg-[#fdf6e3] border-x-8 border-b-8 border-[#5d4037] rounded-b-lg shadow-2xl overflow-hidden relative z-10">
             <div className="p-6 bg-[#fff8e1] border-b-8 border-[#5d4037] relative">
                 <div className="absolute top-0 left-0 w-full h-4 bg-[#4e342e] opacity-20"></div>
@@ -157,8 +157,9 @@ const HeartoryHome = () => {
         </div>
       </div>
       
+      {/* 地下室 */}
       {roomBasement && (
-        <div className="max-w-xl mx-auto mt-12 pb-12">
+        <div className="max-w-xl mx-auto mt-12 pb-8">
           <div className="text-center mb-2">
              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-xs font-bold">▼ Basement Entrance</span>
           </div>
@@ -170,42 +171,58 @@ const HeartoryHome = () => {
           </div>
         </div>
       )}
+
+      {/* フッターリンク */}
+      <div className="mt-12 mb-8 text-center border-t border-[#5d4037] pt-8 opacity-80 max-w-4xl mx-auto">
+        <ul className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-[#ffecb3] font-bold tracking-wider">
+          <li>
+            <a href="/terms" className="hover:text-[#ffcc80] transition border-b border-transparent hover:border-[#ffcc80]">
+              利用規約 (村の掟)
+            </a>
+          </li>
+          <li>
+            <a href="/privacy" className="hover:text-[#ffcc80] transition border-b border-transparent hover:border-[#ffcc80]">
+              プライバシーポリシー (秘密の守り方)
+            </a>
+          </li>
+          <li>
+            <a href="/contact" className="hover:text-[#ffcc80] transition border-b border-transparent hover:border-[#ffcc80]">
+              お問い合わせフォーム
+            </a>
+          </li>
+        </ul>
+        <p className="text-[#8d6e63] text-[10px] sm:text-xs mt-4 font-mono">© 2025 Anta-Santa. All Rights Reserved.</p>
+      </div>
     </>
   );
   
-   // 各画面にログアウト関数を渡す 
   const renderView = () => {
     switch (currentPath) {
       case '/': return <HomeView />;
-      
-      // 暖炉画面
       case '/emotion-log': 
         return <EmotionHearth 
                  onBack={() => handleNavigation('/')} 
                  onOpenStats={() => handleNavigation('/emotion-stats')}
-                 onLogout={handleLogout} // ← 追加
+                 onLogout={handleLogout} 
                />;
-      
-      // 統計画面
       case '/emotion-stats':
          return <EmotionStats 
                  onBack={() => handleNavigation('/emotion-log')} 
-                 onLogout={handleLogout} // ← 追加
+                 onLogout={handleLogout} 
                />;
-        
       default: return <HomeView />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#3e2723] font-sans text-gray-800">
+    <div className="min-h-screen bg-[#3e2723] font-sans text-gray-800 flex flex-col">
       <div className="fixed inset-0 opacity-20 pointer-events-none" 
            style={{ backgroundImage: 'repeating-linear-gradient(45deg, #3e2723 25%, #4e342e 25%, #4e342e 50%, #3e2723 50%, #3e2723 75%, #4e342e 75%, #4e342e 100%)', backgroundSize: '20px 20px' }}>
       </div>
 
       <MessageModal roomId={activeRoomId} />
       
-      <main className="container mx-auto p-4 relative z-10">
+      <main className="container mx-auto p-4 relative z-10 flex-grow">
         {renderView()}
       </main>
     </div>
