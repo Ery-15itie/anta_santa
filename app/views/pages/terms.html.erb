@@ -1,0 +1,121 @@
+<%# 利用規約: 村の掟 (The Village Rules) %>
+
+<div class="min-h-screen bg-[#271c19] font-serif pb-20 relative overflow-x-hidden text-[#d7ccc8]">
+  
+  <div class="fixed inset-0 opacity-60 pointer-events-none" 
+       style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');">
+  </div>
+  <div class="fixed inset-0 bg-black opacity-40 pointer-events-none"></div>
+
+  <div class="container mx-auto px-4 py-12 max-w-4xl relative z-10">
+
+    <%# 戻るボタン %>
+    <div class="mb-8 text-center">
+       <%= link_to root_path, class: "inline-block group relative" do %>
+         <div class="bg-[#4e342e] border-2 border-[#5d4037] px-6 py-2 rounded shadow-lg transform group-hover:-translate-y-1 transition duration-300 flex items-center gap-2">
+           <span class="text-[#ffecb3] font-bold text-sm tracking-widest">🏠 村へ戻る</span>
+         </div>
+       <% end %>
+    </div>
+
+    <%# 石碑本体 %>
+    <div class="bg-[#3e2723] p-8 sm:p-16 rounded-t-full shadow-[0_20px_50px_rgba(0,0,0,1)] border-8 border-[#5d4037] relative text-center overflow-hidden"
+         style="background-image: url('https://www.transparenttextures.com/patterns/stone-wall.png');">
+      
+      <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#1b5e20]/40 to-transparent pointer-events-none"></div>
+
+      <h1 class="text-4xl sm:text-5xl font-black text-[#a1887f] mb-4 tracking-[0.3em] drop-shadow-[2px_4px_6px_rgba(0,0,0,0.8)]" style="font-family: 'Georgia', serif;">
+        利用規約
+      </h1>
+      <p class="text-sm text-[#8d6e63] mb-12 font-bold uppercase tracking-widest">Anta-Santa村の掟</p>
+
+      <div class="text-left space-y-10 text-[#d7ccc8] text-sm sm:text-base leading-loose font-medium max-w-2xl mx-auto">
+        
+        <p class="italic text-center mb-8 text-[#ffcc80] border-b border-[#5d4037] pb-8">
+          この石碑には、Anta-Santa村で暮らすための大切な約束が刻まれています。<br>
+          村人（ユーザー）となる皆様は、この掟を守り、<br>
+          互いに温かな火を灯し続けることを誓ってください。
+        </p>
+
+        <section>
+          <h2 class="text-lg font-bold text-[#ffcc80] mb-2">第1条（適用の範囲）</h2>
+          <p>この掟は、ユーザーとAnta-Santa村（本サービス）との間の全ての関係に適用されます。村の掲示板等で告知される「個別規定」も、この掟の一部として同じ効力を持ちます。</p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-bold text-[#ffcc80] mb-2">第2条（入村の資格）</h2>
+          <p>
+            本サービスの利用登録（入村）を申請し、本サービスがこれを承認することで、あなたは「サンタ（ユーザー）」としての資格を得ます。<br>
+            ただし、過去に掟を破り追放された者や、虚偽の申告をした者など、本サービスが不適切と判断した場合は、入村をお断りすることがあります。
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-bold text-[#ffcc80] mb-2">第3条（家の鍵の管理）</h2>
+          <p>
+            あなたの Heartory Home の鍵（IDとパスワード）は、あなた自身の責任で大切に管理してください。<br>
+            鍵を第三者に貸したり、譲ったりすることはできません。鍵が使われた場合、それは登録された本人による行動とみなされます。
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-bold text-[#b71c1c] mb-2">第4条（村の禁忌 / 禁止事項）</h2>
+          <p>村の平穏を守るため、以下の行為を固く禁じます。</p>
+          <ul class="list-disc ml-5 space-y-2 mt-2 text-[#bcaaa4]">
+            <li><strong class="text-[#ffcc80]">他者の心を凍らせる行為</strong>：誹謗中傷、脅迫、差別的な発言など、誰かを傷つける行為。</li>
+            <li><strong class="text-[#ffcc80]">村の秩序を乱す行為</strong>：法令違反、公序良俗に反する行為、犯罪に関連する行為。</li>
+            <li><strong class="text-[#ffcc80]">秘密を暴く行為</strong>：他者の個人情報を収集したり、不正に公開したりする行為。</li>
+            <li><strong class="text-[#ffcc80]">偽りのサンタ</strong>：なりすましや、不正な目的での利用。</li>
+            <li><strong class="text-[#ffcc80]">破壊工作</strong>：サーバーへの攻撃、不正アクセス、運営の妨害。</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-bold text-[#ffcc80] mb-2">第5条（村の封鎖 / 停止）</h2>
+          <p>
+            システムの保守点検や、天災（地震・火災・停電）などの不可抗力により、事前の通知なく村を一時的に封鎖（サービス停止）することがあります。<br>
+            それにより生じた不利益について、本サービスは責任を負いかねます。
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-bold text-[#ffcc80] mb-2">第6条（追放処分）</h2>
+          <p>
+            この掟に違反した場合、または長期間村に帰ってこない場合、本サービスは事前の通知なく利用を制限し、あるいは村からの追放（登録抹消）を行うことができます。
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-bold text-[#ffcc80] mb-2">第7条（免責事項）</h2>
+          <p>
+            本サービスは、皆様に「自己理解」と「相互評価」の場を提供しますが、その完全性や確実性を保証するものではありません。<br>
+            ユーザー間で生じたトラブルや、サービス利用に起因する損害について、本サービスは故意または重過失がない限り責任を負いません。<br>
+            <span class="text-xs opacity-80 block mt-1">※心の温かさは、皆様自身の行動によって作られるものです。</span>
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-bold text-[#ffcc80] mb-2">第8条（掟の改定）</h2>
+          <p>
+            運営は、必要に応じてこの掟を変更することがあります。変更後は村の中で周知され、その後も利用を続けた場合は、新しい掟に同意したものとみなします。
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-bold text-[#ffcc80] mb-2">第9条（準拠法・裁判管轄）</h2>
+          <p>この掟の解釈は日本法に従います。紛争が生じた場合は、本サービスを管轄する裁判所を専属的合意管轄とします。</p>
+        </section>
+
+        <div class="text-center mt-16 pt-8 border-t-2 border-[#5d4037] opacity-70">
+          <p class="text-sm font-mono">制定日：2025年11月24日</p>
+          <p class="text-sm font-mono">Anta-Santa </p>
+        </div>
+
+      </div>
+    </div>
+    
+    <%# 石碑の土台 %>
+    <div class="h-12 mx-10 bg-[#271c19] rounded-b-lg shadow-2xl border-x-8 border-b-8 border-[#3e2723]"></div>
+
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<%# お問い合わせ %>
+
+<div class="min-h-screen bg-[#271c19] font-serif pb-20 relative overflow-x-hidden text-[#d7ccc8]">
+  
+  <div class="fixed inset-0 opacity-40 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');"></div>
+  
+  <div class="container mx-auto px-4 py-12 max-w-2xl relative z-10 flex flex-col items-center">
+    
+     <%# 戻るボタン (吊り看板風)  %>
+    <div class="w-full mb-12 text-center">
+       <%= link_to root_path, class: "inline-block group relative" do %>
+         <%# 看板本体 %>
+         <div class="bg-[#4e342e] border-2 border-[#5d4037] px-6 py-2 rounded shadow-lg transform group-hover:-translate-y-1 transition duration-300 flex items-center gap-2">
+           <span class="text-[#ffecb3] font-bold text-sm tracking-widest">🏠 村へ戻る</span>
+         </div>
+       <% end %>
+    </div>
+
+    <%# 投函箱 %>
+    <div class="bg-[#4e342e] w-full p-8 sm:p-12 rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.8)] border-t-[20px] border-x-[20px] border-[#3e2723] relative text-center">
+      
+      <%# 投入口 %>
+      <div class="w-3/4 h-4 bg-[#1a100e] mx-auto rounded-full shadow-inner mb-8 border-b-2 border-[#5d4037]"></div>
+
+      <h1 class="text-3xl font-black text-[#ffecb3] mb-4 tracking-widest">お問い合わせフォーム</h1>
+      <p class="text-xs font-bold text-[#8d6e63] uppercase mb-8">CONTACT US</p>
+
+      <p class="text-[#a1887f] mb-8 text-sm leading-loose">
+        村での暮らしで困ったこと、<br>
+        「こんな部屋が欲しい」というアイデア、<br>
+        あるいは運営への手紙など。<br>
+        <br>
+        どんなことでも、そっと教えてください。<br>
+        一つ一つ大切に読ませていただきます。
+      </p>
+
+      <%# フォームへのリンク %>
+      <a href="mailto:admin@antasantaapp.com" target="_blank" rel="noopener noreferrer" 
+         class="inline-flex items-center gap-2 bg-[#5d4037] text-[#ffecb3] px-8 py-4 rounded shadow-lg hover:bg-[#6d4c41] transition border-2 border-[#8d6e63] font-bold tracking-widest group">
+         <span class="text-xl">📮</span>
+         <span>手紙を書く (フォームへ)</span>
+         <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+      </a>
+
+    </div>
+    
+    <div class="w-[90%] h-4 bg-black opacity-40 rounded-full filter blur-xl mt-4"></div>
+
+  </div>
+</div>
