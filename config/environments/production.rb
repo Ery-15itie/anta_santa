@@ -96,7 +96,7 @@ Rails.application.configure do
   #  【重要】独自ドメイン（ホスト）許可設定
   # ==========================================================================
   # ここに取得したドメインを追加することで、Blocked hostエラーを防ぎます
-  config.hosts << "anta-santa.net"      # 独自ドメイン (ここをあなたのドメインに書き換えてください)
+  config.hosts << "anta-santa.net"      # 独自ドメイン 
   config.hosts << "www.anta-santa.net"  # www付きも許可
   config.hosts << ".onrender.com"       # Renderのドメインも許可（サブドメイン含む）
 
