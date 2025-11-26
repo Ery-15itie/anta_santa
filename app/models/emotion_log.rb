@@ -29,7 +29,7 @@ class EmotionLog < ApplicationRecord
     lithium: 2,   # リチウム
     sodium: 3,    # ナトリウム
     barium: 4     # バリウム
-  }, _prefix: true
+  }, prefix: true
 
   # =========================================================
   # バリデーション
@@ -42,8 +42,8 @@ class EmotionLog < ApplicationRecord
     only_integer: true 
   }
   
-  # メモ (bodyに統一済み)
-  validates :body, length: { maximum: 200 }, allow_blank: true
+  # メモ(body)の上限を500文字に変更 
+  validates :body, length: { maximum: 500 }, allow_blank: true
 
   # =========================================================
   # スコープ
@@ -61,27 +61,47 @@ class EmotionLog < ApplicationRecord
 
     # 1. 炎の大きさ
     total_intensity = todays_logs.sum(:intensity)
-    fire_size = 1.0 + (todays_logs.count * 0.2) + (total_intensity * 0.1)
-    fire_size = [[fire_size, 5.0].min, 0.5].max
+    base_size = 1.0 + (todays_logs.count * 0.2) + (total_intensity * 0.1)
+
+    # ▼▼▼ 時間経過によるサイズの減衰 (1時間で10%縮小、最小50%) ▼▼▼
+    if latest_log
+      elapsed_hours = (Time.current - latest_log.created_at) / 1.hour
+      decay_factor = [1.0 - (elapsed_hours * 0.1), 0.5].max 
+      base_size *= decay_factor
+    end
+
+    fire_size = [[base_size, 5.0].min, 0.5].max
 
     # 2. 炎の色
-    # 最新のログがあれば色を決定
     fire_color = if latest_log.nil?
                    'normal'
-                 # no_powder 以外なら魔法の色
                  elsif latest_log.magic_powder != 'no_powder' 
                    latest_log.magic_powder
                  else
                    latest_log.emotion
                  end
 
-    # 3. 炎の温度
-    fire_temperature = 36 + (todays_logs.count * 2) + total_intensity
+    # 3. 炎の温度 (時間経過で冷めるロジック)
+    base_temperature = 36.5 # 基礎温度
+    
+    if latest_log
+      # 熱量計算: 強度合計 * 10度
+      potential_heat = total_intensity * 10.0
+      
+      # 冷却計算: 1分経過するごとに 0.5度 冷める
+      elapsed_minutes = (Time.current - latest_log.created_at) / 60.0
+      cooling_amount = elapsed_minutes * 0.5
+      
+      # 現在の上昇温度 (0以下にはならない)
+      current_heat = [potential_heat - cooling_amount, 0].max
+      
+      base_temperature += current_heat
+    end
 
     {
       size: fire_size,
       color: fire_color,
-      temperature: fire_temperature
+      temperature: base_temperature.round(1) # 小数点1桁まで
     }
   end
 end
