@@ -84,15 +84,22 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
     }
   };
 
+  // CSRFトークン取得処理を安全に修正
   const handleSubmit = async (powderId = 'no_powder') => {
     setIsSubmitting(true);
     setErrorMessage(null);
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
     try {
+      // tryブロック内で安全に取得する
+      const csrfElement = document.querySelector('meta[name="csrf-token"]');
+      const csrfToken = csrfElement ? csrfElement.content : '';
+
       const response = await fetch('/api/v1/emotion_logs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+        headers: { 
+          'Content-Type': 'application/json', 
+          'X-CSRF-Token': csrfToken 
+        },
         body: JSON.stringify({
           emotion_log: {
             emotion: selectedEmotion.id,
@@ -341,8 +348,18 @@ const EmotionHearth = ({ onBack, onOpenStats, onLogout }) => {
                        <span>弱い</span><span>強い</span>
                     </div>
                     <input type="range" min="1" max="5" step="1" value={intensity} onChange={(e) => setIntensity(parseInt(e.target.value))} className="w-full h-2 bg-[#3e2723] rounded-lg appearance-none cursor-pointer accent-[#ffcc80]" />
+                    
+                    {/* 数字をクリック可能に変更 */}
                     <div className="flex justify-between text-[10px] text-[#8d6e63] mt-1 px-1">
-                       <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                       {[1, 2, 3, 4, 5].map((num) => (
+                         <span 
+                           key={num}
+                           onClick={() => setIntensity(num)}
+                           className="cursor-pointer hover:text-[#ffcc80] px-2 py-1 transition-colors"
+                         >
+                           {num}
+                         </span>
+                       ))}
                     </div>
                 </div>
                 <div className="text-xl font-black text-[#ffcc80] w-8 text-center">{intensity}</div>

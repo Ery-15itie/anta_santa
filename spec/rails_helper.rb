@@ -8,7 +8,7 @@ require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
-# spec/support/ and its subdirectories. Files matching spec/**/*_spec.rb are
+# spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
 # run as spec files by default. This means that files in spec/support that end
 # in _spec.rb will both be required and run as specs, causing the specs to be
 # run twice. It is recommended that you do not name files matching this glob to
@@ -17,7 +17,7 @@ require 'rspec/rails'
 #
 # The following line is provided for convenience purposes. It has the downside
 # of increasing the boot-up time by auto-requiring all files in the support
-# directory. Alternatively, in the individual *_spec.rb files, manually
+# directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
 #
 # Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
@@ -41,23 +41,25 @@ RSpec.configure do |config|
   # ------------------------------------------------------------
   # システムスペック (ブラウザテスト) の設定
   # ------------------------------------------------------------
-  # 通常のテストは高速な rack_test を使用
+  # 通常のテスト（JS不要）は高速な rack_test を使用
   config.before(:each, type: :system) do
     driven_by :rack_test
   end
 
-  # JSが必要なテスト(js: true)の設定
+  # JSが必要なテスト(js: true)は Docker内のChromiumを使用
   config.before(:each, type: :system, js: true) do
     driven_by :selenium, using: :chrome, screen_size: [1400, 1400] do |options|
-      # ヘッドレスモードとDocker用オプション
+      # ヘッドレスモード（画面を表示せずに実行）
       options.add_argument('--headless=new')
+      
+      # Docker環境で動作させるための必須オプション
       options.add_argument('--no-sandbox')
       options.add_argument('--disable-dev-shm-usage')
       options.add_argument('--disable-gpu')
       options.add_argument('--window-size=1400,1400')
 
-      # DockerでインストールしたChromiumの場所を明示的に指定
-      # これがないと "unable to connect" エラーになる
+      # 【重要】DockerでインストールしたChromiumの場所を明示的に指定
+      # これがないと "unable to connect" エラーになることがあります
       options.binary = "/usr/bin/chromium"
     end
   end
@@ -76,8 +78,8 @@ RSpec.configure do |config|
   # config.use_active_record = false
 
   # RSpec Rails can automatically mix in different behaviours to your tests
-  # based on their file location, for example enabling you to call get and
-  # post in specs under `spec/controllers`.
+  # based on their file location, for example enabling you to call `get` and
+  # `post` in specs under `spec/controllers`.
   #
   # You can disable this behaviour by removing the line below, and instead
   # explicitly tag your specs with their type, e.g.:

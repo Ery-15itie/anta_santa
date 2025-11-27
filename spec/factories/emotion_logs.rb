@@ -3,7 +3,7 @@ FactoryBot.define do
     association :user
     emotion { :joy }          # デフォルトは「喜び」
     intensity { 3 }           # 強さ3
-    body { "テストの感情メモ" } # 本文 (noteではなくbody)
+    body { "テストの薪です" } # 本文 (noteではなくbody)
     magic_powder { :no_powder } # 魔法の粉なし
 
     # ネガティブ感情のパターン

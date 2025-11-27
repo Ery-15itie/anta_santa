@@ -16,7 +16,7 @@ RSpec.describe 'Relationships', type: :system do
     
     # フォロー前
     expect(page).to have_content '＋ フォロー'
-    click_on '＋ フォロー' # click_button ではなく click_on を使用
+    click_on '＋ フォロー' , match: :first # click_button ではなく click_on を使用
 
     # フォロー後（AjaxやTurboの完了を待つため、have_contentで確認）
     expect(page).to have_content '✔ フォロー解除'
