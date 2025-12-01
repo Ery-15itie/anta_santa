@@ -33,6 +33,8 @@ Rails.application.routes.draw do
       resources :value_categories, only: [:index]
       # ユーザーの選択保存・削除用
       resources :user_card_selections, only: [:index, :create, :destroy]
+      # 航海日誌 (魔法の本) 機能
+      resources :reflections, only: [:index, :update]
     end
   end
 

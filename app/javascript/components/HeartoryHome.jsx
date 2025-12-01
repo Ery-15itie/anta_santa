@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { LogIn, Heart, BookOpen, Clock, Zap, Target, Aperture, Leaf, Users, Cookie, ChevronUp, LogOut } from 'lucide-react';
-// コンポーネント読み込み
 import EmotionHearth from './EmotionHearth';
 import EmotionStats from './EmotionStats';
-import StarryWorkshop from './SantaStudy/StarryWorkshop'; 
+// 新しい「書斎の部屋」コンポーネントを読み込み 
+import SantasStudyRoom from './SantaStudy/SantasStudyRoom'; 
 
 // 画像URL定義
 const rooms = [
@@ -56,23 +56,20 @@ const HeartoryHome = () => {
   };
 
   const handleRoomClick = (room) => {
-    // 1. ギフトホールは別ページへ遷移（Rails View）
     if (room.id === 'gift_hall') {
       window.location.href = '/gift-hall'; 
       return;
     }
-    // 2. 暖炉のリビングはReact内で画面切り替え
     if (room.id === 'emotion_hearth_living') {
       handleNavigation(room.path);
       return;
     }
-    // サンタの書斎。星空画面へ移動 
+    // 修正: サンタの書斎なら書斎画面へ 
     if (room.id === 'santa_study') {
-      handleNavigation(room.path); // pathは '/santa-study'
+      handleNavigation(room.path); // '/santa-study'
       return;
     }
-
-    // それ以外はモーダル(Coming Soon)を表示
+    
     setActiveRoomId(room.id); 
   };
 
@@ -106,11 +103,9 @@ const HeartoryHome = () => {
       </div>
     );
   };
-
-  // 1. ホーム画面
+    // 1. ホーム画面
   const HomeView = () => (
     <>
-      {/* 看板・タイトル */}
       <div className="relative mb-12 pt-6">
         <div className="absolute top-0 right-4 sm:right-10 z-20 group cursor-pointer" onClick={handleLogout}>
             <div className="absolute -top-6 left-4 w-1 h-12 bg-stone-400"></div>
@@ -135,7 +130,6 @@ const HeartoryHome = () => {
         </div>
       </div>
 
-      {/* 家のコンテナ */}
       <div className="max-w-6xl mx-auto relative">
         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-[95%] h-8 bg-[#3e2723] rounded-t-full shadow-xl z-0 flex items-center justify-center">
              <div className="w-20 h-20 bg-[#3e2723] rotate-45 transform translate-y-6 border-4 border-[#5d4037]"></div>
@@ -167,7 +161,6 @@ const HeartoryHome = () => {
         </div>
       </div>
       
-      {/* 地下室 */}
       {roomBasement && (
         <div className="max-w-xl mx-auto mt-12 pb-8">
           <div className="text-center mb-2">
@@ -182,24 +175,11 @@ const HeartoryHome = () => {
         </div>
       )}
 
-      {/* フッターリンク */}
       <div className="mt-12 mb-8 text-center border-t border-[#5d4037] pt-8 opacity-80 max-w-4xl mx-auto">
         <ul className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-[#ffecb3] font-bold tracking-wider">
-          <li>
-            <a href="/terms" className="hover:text-[#ffcc80] transition border-b border-transparent hover:border-[#ffcc80]">
-              利用規約 (村の掟)
-            </a>
-          </li>
-          <li>
-            <a href="/privacy" className="hover:text-[#ffcc80] transition border-b border-transparent hover:border-[#ffcc80]">
-              プライバシーポリシー (秘密の守り方)
-            </a>
-          </li>
-          <li>
-            <a href="/contact" className="hover:text-[#ffcc80] transition border-b border-transparent hover:border-[#ffcc80]">
-              お問い合わせフォーム
-            </a>
-          </li>
+          <li><a href="/terms" className="hover:text-[#ffcc80]">利用規約 (村の掟)</a></li>
+          <li><a href="/privacy" className="hover:text-[#ffcc80]">プライバシーポリシー (秘密の守り方)</a></li>
+          <li><a href="/contact" className="hover:text-[#ffcc80]">お問い合わせフォーム</a></li>
         </ul>
         <p className="text-[#8d6e63] text-[10px] sm:text-xs mt-4 font-mono">© 2025 Anta-Santa. All Rights Reserved.</p>
       </div>
@@ -209,27 +189,14 @@ const HeartoryHome = () => {
   const renderView = () => {
     switch (currentPath) {
       case '/': return <HomeView />;
-      
-      //  感情ログ
       case '/emotion-log': 
-        return <EmotionHearth 
-                 onBack={() => handleNavigation('/')} 
-                 onOpenStats={() => handleNavigation('/emotion-stats')}
-                 onLogout={handleLogout} 
-               />;
-      
-      // 感情スタッツ
+        return <EmotionHearth onBack={() => handleNavigation('/')} onOpenStats={() => handleNavigation('/emotion-stats')} onLogout={handleLogout} />;
       case '/emotion-stats':
-         return <EmotionStats 
-                 onBack={() => handleNavigation('/emotion-log')} 
-                 onLogout={handleLogout} 
-               />;
+         return <EmotionStats onBack={() => handleNavigation('/emotion-log')} onLogout={handleLogout} />;
       
-      // サンタの書斎画面の表示ロジック 
+      // 「書斎の部屋」を表示 ▼▼▼
       case '/santa-study':
-         return <StarryWorkshop 
-                  onBack={() => handleNavigation('/')} 
-                />;
+         return <SantasStudyRoom onBack={() => handleNavigation('/')} />;
       
       default: return <HomeView />;
     }
@@ -237,12 +204,8 @@ const HeartoryHome = () => {
 
   return (
     <div className="min-h-screen bg-[#3e2723] font-sans text-gray-800 flex flex-col">
-      <div className="fixed inset-0 opacity-20 pointer-events-none" 
-           style={{ backgroundImage: 'repeating-linear-gradient(45deg, #3e2723 25%, #4e342e 25%, #4e342e 50%, #3e2723 50%, #3e2723 75%, #4e342e 75%, #4e342e 100%)', backgroundSize: '20px 20px' }}>
-      </div>
-
+      <div className="fixed inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #3e2723 25%, #4e342e 25%, #4e342e 50%, #3e2723 50%, #3e2723 75%, #4e342e 75%, #4e342e 100%)', backgroundSize: '20px 20px' }}></div>
       <MessageModal roomId={activeRoomId} />
-      
       <main className="container mx-auto p-4 relative z-10 flex-grow">
         {renderView()}
       </main>
@@ -259,34 +222,19 @@ const RoomCard = ({ room, onClick, isBasement = false }) => {
   return (
     <div
       onClick={() => onClick(room)}
-      className={`
-        group relative overflow-hidden rounded-lg cursor-pointer
-        h-40 sm:h-48 w-full ${shadowClass}
-        transition-all duration-300 transform hover:-translate-y-1 hover:brightness-110
-        border-4 ${borderClass} ${bgClass}
-      `}
+      className={`group relative overflow-hidden rounded-lg cursor-pointer h-40 sm:h-48 w-full ${shadowClass} transition-all duration-300 transform hover:-translate-y-1 hover:brightness-110 border-4 ${borderClass} ${bgClass}`}
     >
       <div className="absolute inset-0 z-0">
-        <img 
-          src={room.image_url} 
-          alt={room.name} 
-          className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-110" 
-        />
+        <img src={room.image_url} alt={room.name} className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-110" />
         <div className={`absolute inset-0 bg-gradient-to-t ${isBasement ? 'from-black via-stone-900/70' : 'from-[#3e2723] via-transparent'} to-transparent opacity-90`} />
       </div>
       <div className="absolute inset-0 z-10 flex flex-col justify-end p-3 text-white">
         <div className="flex items-center justify-between mb-1">
-            <div className={`p-1.5 rounded backdrop-blur-sm bg-black/30 border border-white/20 ${room.color}`}>
-             <Icon size={18} />
-            </div>
+            <div className={`p-1.5 rounded backdrop-blur-sm bg-black/30 border border-white/20 ${room.color}`}><Icon size={18} /></div>
             {!isBasement && <ChevronUp size={16} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 rotate-90 text-[#ffecb3]" />}
         </div>
-        <h4 className="font-bold text-sm sm:text-base leading-tight drop-shadow-md font-serif tracking-wide text-[#ffecb3]">
-            {room.name}
-        </h4>
-        <p className="text-[10px] sm:text-xs text-gray-200 mt-0.5 truncate opacity-90 font-light">
-            {room.description}
-        </p>
+        <h4 className="font-bold text-sm sm:text-base leading-tight drop-shadow-md font-serif tracking-wide text-[#ffecb3]">{room.name}</h4>
+        <p className="text-[10px] sm:text-xs text-gray-200 mt-0.5 truncate opacity-90 font-light">{room.description}</p>
       </div>
     </div>
   );
