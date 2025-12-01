@@ -11,7 +11,6 @@ Rails.application.routes.draw do
   # ----------------------------------------------------
   #  2. 静的ページ (村の公共施設) - 未ログインでもアクセス可
   # ----------------------------------------------------
-  # これにより terms_path, privacy_path, contact_path が使えるようになります
   get 'guide',    to: 'pages#guide',    as: :guide    # 操作ガイド
   get 'terms',    to: 'pages#terms',    as: :terms    # 利用規約
   get 'privacy',  to: 'pages#privacy',  as: :privacy  # プライバシーポリシー
@@ -24,11 +23,16 @@ Rails.application.routes.draw do
     namespace :v1 do
       # 暖炉の部屋（感情ログ）
       resources :emotion_logs, only: [:index, :create] do
-        # 統計・実績データを取得するエンドポイント
         collection do
           get :stats
         end
       end
+
+      #  サンタの書斎 (価値観パズル) 機能 
+      # パズル一覧取得用
+      resources :value_categories, only: [:index]
+      # ユーザーの選択保存・削除用
+      resources :user_card_selections, only: [:index, :create, :destroy]
     end
   end
 
@@ -42,17 +46,19 @@ Rails.application.routes.draw do
     root 'homes#index', as: :authenticated_root
 
     # Reactのページでリロードしても404にならないようにする設定
-    # これらのURLにアクセスが来たら、Reactの入り口(homes#index)を表示させます
+    # これにより、/santa-study でリロードしても homes#index が呼ばれ、Reactが起動する
     get 'emotion-log',    to: 'homes#index'
     get 'emotion-stats',  to: 'homes#index'
-    get 'santa-study',    to: 'homes#index'     # 将来用
-    get 'atelier',        to: 'homes#index'     # 将来用
-    get 'kitchen',        to: 'homes#index'     # 将来用
-    get 'planning',       to: 'homes#index'     # 将来用
-    get 'reindeer',       to: 'homes#index'     # 将来用
-    get 'gallery',        to: 'homes#index'     # 将来用
-    get 'gallery-detail', to: 'homes#index'     # 将来用
-    get 'basement',       to: 'homes#index'     # 将来用
+    get 'santa-study',    to: 'homes#index'     # 価値観パズル
+    
+    # --- 以下、将来実装予定のページのプレースホルダー ---
+    get 'atelier',        to: 'homes#index'
+    get 'kitchen',        to: 'homes#index'
+    get 'planning',       to: 'homes#index'
+    get 'reindeer',       to: 'homes#index'
+    get 'gallery',        to: 'homes#index'
+    get 'gallery-detail', to: 'homes#index'
+    get 'basement',       to: 'homes#index'
 
     # 【B】既存のダッシュボード: 🎁 ギフトホール
     get 'gift-hall', to: 'dashboard#index', as: :gift_hall

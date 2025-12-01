@@ -44,6 +44,16 @@ class User < ApplicationRecord
   # =========================================================
   # 感情ログ (EmotionLog) の関連付け
   has_many :emotion_logs, dependent: :destroy
+
+  # =========================================================
+  # サンタの書斎 (価値観パズル) 機能  
+  # =========================================================
+  # ユーザーの価値観選択データ (中間テーブル)
+  has_many :user_card_selections, dependent: :destroy
+
+  # ユーザーが選んだカードそのものへのショートカット
+  # current_user.selected_value_cards で選んだカード一覧を取得可能
+  has_many :selected_value_cards, through: :user_card_selections, source: :value_card
   
   # =========================================================
   # バリデーションとヘルパーメソッド

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { LogIn, Heart, BookOpen, Clock, Zap, Target, Aperture, Leaf, Users, Cookie, ChevronUp, LogOut } from 'lucide-react';
+// コンポーネント読み込み
 import EmotionHearth from './EmotionHearth';
 import EmotionStats from './EmotionStats';
+import StarryWorkshop from './SantaStudy/StarryWorkshop'; 
 
 // 画像URL定義
 const rooms = [
@@ -54,15 +56,24 @@ const HeartoryHome = () => {
   };
 
   const handleRoomClick = (room) => {
+    // 1. ギフトホールは別ページへ遷移（Rails View）
     if (room.id === 'gift_hall') {
       window.location.href = '/gift-hall'; 
       return;
     }
+    // 2. 暖炉のリビングはReact内で画面切り替え
     if (room.id === 'emotion_hearth_living') {
       handleNavigation(room.path);
-    } else {
-      setActiveRoomId(room.id); 
+      return;
     }
+    // サンタの書斎。星空画面へ移動 
+    if (room.id === 'santa_study') {
+      handleNavigation(room.path); // pathは '/santa-study'
+      return;
+    }
+
+    // それ以外はモーダル(Coming Soon)を表示
+    setActiveRoomId(room.id); 
   };
 
   const MessageModal = ({ roomId }) => {
@@ -73,7 +84,6 @@ const HeartoryHome = () => {
     return (
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
         <div className={`relative p-8 rounded-sm shadow-2xl max-w-sm w-full bg-[#fdf6e3] border-8 border-[#5d4037] outline outline-2 outline-[#3e2723]`}>
-          {/* 釘の装飾 */}
           <div className="absolute top-2 left-2 w-3 h-3 rounded-full bg-[#3e2723] opacity-80 shadow-inner"></div>
           <div className="absolute top-2 right-2 w-3 h-3 rounded-full bg-[#3e2723] opacity-80 shadow-inner"></div>
           <div className="absolute bottom-2 left-2 w-3 h-3 rounded-full bg-[#3e2723] opacity-80 shadow-inner"></div>
@@ -97,7 +107,7 @@ const HeartoryHome = () => {
     );
   };
 
-     // 1. ホーム画面
+  // 1. ホーム画面
   const HomeView = () => (
     <>
       {/* 看板・タイトル */}
@@ -199,17 +209,28 @@ const HeartoryHome = () => {
   const renderView = () => {
     switch (currentPath) {
       case '/': return <HomeView />;
+      
+      //  感情ログ
       case '/emotion-log': 
         return <EmotionHearth 
                  onBack={() => handleNavigation('/')} 
                  onOpenStats={() => handleNavigation('/emotion-stats')}
                  onLogout={handleLogout} 
                />;
+      
+      // 感情スタッツ
       case '/emotion-stats':
          return <EmotionStats 
                  onBack={() => handleNavigation('/emotion-log')} 
                  onLogout={handleLogout} 
                />;
+      
+      // サンタの書斎画面の表示ロジック 
+      case '/santa-study':
+         return <StarryWorkshop 
+                  onBack={() => handleNavigation('/')} 
+                />;
+      
       default: return <HomeView />;
     }
   };

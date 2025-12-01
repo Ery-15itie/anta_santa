@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_26_105307) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_01_000642) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -73,6 +73,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_26_105307) do
     t.index ["jti"], name: "index_jwt_denylists_on_jti"
   end
 
+  create_table "reflection_questions", force: :cascade do |t|
+    t.text "body"
+    t.string "category"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "relationships", force: :cascade do |t|
     t.bigint "follower_id", null: false
     t.bigint "followed_id", null: false
@@ -107,6 +115,29 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_26_105307) do
     t.index ["user_id"], name: "index_templates_on_user_id"
   end
 
+  create_table "user_card_selections", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "value_card_id", null: false
+    t.integer "timeframe", default: 1, null: false
+    t.integer "satisfaction"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "value_card_id", "timeframe"], name: "index_unique_user_card_selection", unique: true
+    t.index ["user_id"], name: "index_user_card_selections_on_user_id"
+    t.index ["value_card_id"], name: "index_user_card_selections_on_value_card_id"
+  end
+
+  create_table "user_reflections", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "reflection_question_id", null: false
+    t.text "answer"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reflection_question_id"], name: "index_user_reflections_on_reflection_question_id"
+    t.index ["user_id"], name: "index_user_reflections_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -132,6 +163,25 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_26_105307) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  create_table "value_cards", force: :cascade do |t|
+    t.bigint "value_category_id", null: false
+    t.string "name", null: false
+    t.text "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["value_category_id", "name"], name: "index_value_cards_on_value_category_id_and_name", unique: true
+    t.index ["value_category_id"], name: "index_value_cards_on_value_category_id"
+  end
+
+  create_table "value_categories", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "theme_color", null: false
+    t.string "icon_key", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_value_categories_on_name", unique: true
+  end
+
   add_foreign_key "emotion_logs", "users"
   add_foreign_key "evaluation_scores", "evaluations"
   add_foreign_key "evaluation_scores", "template_items"
@@ -143,4 +193,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_26_105307) do
   add_foreign_key "relationships", "users", column: "follower_id"
   add_foreign_key "template_items", "templates"
   add_foreign_key "templates", "users"
+  add_foreign_key "user_card_selections", "users"
+  add_foreign_key "user_card_selections", "value_cards"
+  add_foreign_key "user_reflections", "reflection_questions"
+  add_foreign_key "user_reflections", "users"
+  add_foreign_key "value_cards", "value_categories"
 end
