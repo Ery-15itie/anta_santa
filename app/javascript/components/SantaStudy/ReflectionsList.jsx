@@ -10,9 +10,10 @@ const ReflectionsList = ({ onBack }) => {
     const loadLogs = async () => {
       try {
         const res = await fetchUserSelections();
-        // 振り返り(description)があるデータのみ抽出し、更新日時順にソート
+        // descriptionがあるものを抽出
         const history = res.data
           .filter(item => item.description && item.description.length > 0)
+          // 日付順にソート
           .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
         setLogs(history);
       } catch (error) {
@@ -27,21 +28,19 @@ const ReflectionsList = ({ onBack }) => {
   return (
     <div className="fixed inset-0 z-[60] bg-[#0f172a]/95 backdrop-blur-xl flex flex-col items-center animate-fade-in overflow-hidden">
       
-      {/* ヘッダー */}
       <div className="w-full max-w-4xl px-6 py-6 flex items-center justify-between border-b border-white/10">
         <h2 className="text-2xl font-bold text-yellow-100 flex items-center gap-3 font-serif">
           <Book className="text-yellow-500" />
-          過去の航海日誌
+          星空の記録
         </h2>
         <button 
           onClick={onBack} 
           className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-sm text-slate-300 transition-colors"
         >
-          <ArrowLeft size={16} /> 星空に戻る
+          <ArrowLeft size={16} /> 書斎に戻る
         </button>
       </div>
 
-      {/* リストコンテンツ */}
       <div className="flex-1 w-full max-w-4xl overflow-y-auto p-6 pb-20">
         {loading ? (
           <div className="text-center mt-20 text-slate-400 animate-pulse">ページをめくっています...</div>
@@ -55,7 +54,6 @@ const ReflectionsList = ({ onBack }) => {
           <div className="space-y-8">
             {logs.map((log) => (
               <div key={log.id} className="bg-[#1e1b4b]/50 border border-white/10 rounded-2xl p-6 shadow-lg relative overflow-hidden group hover:border-yellow-500/30 transition-colors">
-                {/* 装飾ライン */}
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-yellow-500/50 to-transparent"></div>
                 
                 <div className="flex justify-between items-start mb-4">
@@ -78,6 +76,7 @@ const ReflectionsList = ({ onBack }) => {
                 </div>
 
                 <div className="prose prose-invert max-w-none">
+                  {/* 改行を維持して表示 */}
                   <p className="text-slate-200 whitespace-pre-wrap leading-relaxed font-serif text-lg">
                     {log.description}
                   </p>

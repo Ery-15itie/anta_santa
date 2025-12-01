@@ -4,108 +4,112 @@ import MagicBook from './MagicBook';
 import ReflectionsList from './ReflectionsList';
 import { ArrowLeft, Map, Book, Library, Flame } from 'lucide-react';
 
+/**
+ * SantasStudyRoom コンポーネント
+ * * サンタの書斎のエントランス（ハブ画面）。
+ * 図書館のような落ち着いたUIを提供し、ユーザーの目的に応じて各機能コンポーネントを表示
+ * * @param {function} onBack - ホームに戻る
+ */
 const SantasStudyRoom = ({ onBack }) => {
-  // 画面モード: 'room' | 'workshop' | 'magic_book' | 'history'
+  // --- 画面モード管理 ---
+  // 'room'       : 書斎の部屋（メニュー画面）
+  // 'workshop'   : 価値観の地図（星空パズル）
+  // 'magic_book' : 心の航海日誌（質問回答）
+  // 'history'    : 星空の記録（過去ログ閲覧）
   const [mode, setMode] = useState('room');
 
-  // --- ナビゲーション制御 ---
+  // --- モードによるコンポーネントの切り替え ---
+  
+  // 1. 価値観パズル画面へ
   if (mode === 'workshop') {
+    // onBackで 'room' モードに戻る関数を渡す
     return <StarryWorkshop onBack={() => setMode('room')} />;
   }
+  // 2. 過去の記録リストへ
   if (mode === 'history') {
     return <ReflectionsList onBack={() => setMode('room')} />;
   }
 
+  // 3. メイン：書斎の部屋（メニュー）
   return (
     <div className="min-h-screen bg-[#2a1b15] relative overflow-hidden font-sans text-white">
       
-      {/* --- 書斎の背景と装飾 --- */}
+      {/* --- 背景装飾レイヤー --- */}
       <div className="absolute inset-0 z-0">
-        {/* 壁紙 */}
-        <div className="absolute inset-0 bg-[#3e2723] opacity-80" 
-             style={{ backgroundImage: 'repeating-linear-gradient(90deg, #3e2723 0, #3e2723 20px, #4e342e 20px, #4e342e 40px)' }}>
+        {/* 壁紙: 重厚な縦ストライプで書斎の厳格さを演出 */}
+        <div className="absolute inset-0 bg-[#2d1b15]" 
+             style={{ backgroundImage: 'repeating-linear-gradient(90deg, #3e2723 0, #3e2723 40px, #2a1b15 40px, #2a1b15 80px)' }}>
         </div>
-        {/* 床 */}
-        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-[#1a100c] border-t-8 border-[#1a100c]"></div>
-        
-        {/* 暖炉の灯り（環境光） */}
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-orange-500/20 rounded-full blur-[100px] animate-pulse"></div>
+        {/* 環境光: 暖炉からの温かい光を下部に配置 */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2 bg-gradient-to-t from-orange-900/50 to-transparent blur-3xl"></div>
       </div>
 
-      {/* --- メインUI (部屋のオブジェクト) --- */}
-      <div className="relative z-10 container mx-auto px-4 h-screen flex flex-col">
+      {/* --- コンテンツレイヤー --- */}
+      <div className="relative z-10 container mx-auto px-4 h-screen flex flex-col items-center justify-center">
         
-        {/* ヘッダー */}
-        <header className="flex justify-between items-center py-6">
-          <h1 className="text-2xl font-bold text-[#ffecb3] font-serif tracking-wider drop-shadow-md">
-            📜 サンタの書斎
-          </h1>
-          <button 
-            onClick={onBack} 
-            className="flex items-center gap-2 bg-black/30 hover:bg-black/50 px-4 py-2 rounded-full transition text-sm border border-white/10"
-          >
-            <ArrowLeft size={16} /> 家に戻る
-          </button>
-        </header>
+        {/* 左上の戻るボタン */}
+        <button 
+          onClick={onBack} 
+          className="absolute top-6 left-6 flex items-center gap-2 bg-black/40 hover:bg-black/60 px-4 py-2 rounded-full transition text-sm border border-white/10"
+        >
+          <ArrowLeft size={16} /> 家に戻る
+        </button>
 
-        {/* 部屋のコンテンツエリア */}
-        <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 pb-20">
+        {/* --- 3つのメインメニューボタン --- */}
+        <div className="flex flex-col md:flex-row gap-8 items-stretch justify-center w-full max-w-5xl">
           
-          {/* 1. 机と地図 (価値観パズルへ) */}
-          <div className="group relative cursor-pointer" onClick={() => setMode('workshop')}>
-            <div className="absolute -inset-4 bg-yellow-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
-            <div className="relative bg-[#5d4037] w-64 h-48 rounded-lg shadow-2xl border-b-8 border-[#3e2723] transform group-hover:-translate-y-2 transition duration-300 flex flex-col items-center justify-center border border-[#795548]">
-              <Map size={64} className="text-[#ffecb3] mb-3 drop-shadow-md" />
-              <div className="text-center">
-                <h3 className="text-xl font-bold text-[#ffecb3] font-serif">価値観の地図</h3>
-                <p className="text-xs text-[#d7ccc8] mt-1">星空のパズルを開く</p>
-              </div>
-              {/* 地図っぽい装飾 */}
-              <div className="absolute top-2 left-2 w-full h-full border-2 border-dashed border-[#8d6e63]/30 pointer-events-none rounded"></div>
-            </div>
-          </div>
-
-          {/* 2. 本棚 (航海日誌 & 記録) */}
-          <div className="flex flex-col gap-6">
+          {/* 1. 価値観の地図 (メイン機能) */}
+          <button 
+            type="button"
+            onClick={() => setMode('workshop')}
+            className="group relative flex-1 bg-[#4e342e] border-4 border-[#3e2723] rounded-xl shadow-2xl p-8 flex flex-col items-center justify-center gap-4 hover:scale-105 transition-transform duration-300 min-h-[240px] cursor-pointer active:scale-95"
+          >
+            {/* 縫い目のような破線装飾 */}
+            <div className="absolute inset-2 border-2 border-dashed border-[#8d6e63]/50 rounded-lg pointer-events-none"></div>
             
-            {/* 魔法の本 (質問へ) */}
-            <div className="group relative cursor-pointer" onClick={() => setMode('magic_book')}>
-              <div className="absolute -inset-4 bg-purple-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
-              <div className="relative bg-[#4a148c] w-64 h-20 rounded-md shadow-xl border-l-8 border-[#311b92] flex items-center px-6 transform group-hover:translate-x-2 transition duration-300">
-                <Book size={32} className="text-[#e1bee7] mr-4" />
-                <div>
-                  <h3 className="text-lg font-bold text-[#e1bee7] font-serif">心の航海日誌</h3>
-                  <p className="text-xs text-[#ce93d8]">16の問いに向き合う</p>
-                </div>
-              </div>
+            <Map size={64} className="text-[#ffecb3] drop-shadow-md group-hover:scale-110 transition-transform" />
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-[#ffecb3] font-serif mb-2">価値観の地図</h2>
+              <p className="text-[#d7ccc8] text-sm">星空のパズルを開く</p>
             </div>
+          </button>
 
-            {/* 過去の記録 (リストへ) */}
-            <div className="group relative cursor-pointer" onClick={() => setMode('history')}>
-              <div className="absolute -inset-4 bg-blue-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
-              <div className="relative bg-[#1a237e] w-60 h-16 rounded-md shadow-xl border-l-8 border-[#0d47a1] flex items-center px-6 transform group-hover:translate-x-2 transition duration-300">
-                <Library size={24} className="text-[#c5cae9] mr-4" />
-                <div>
-                  <h3 className="text-md font-bold text-[#c5cae9] font-serif">星空の記録</h3>
-                  <p className="text-[10px] text-[#9fa8da]">過去の軌跡を見る</p>
-                </div>
+          {/* 右側のサブメニュー群 */}
+          <div className="flex flex-col gap-6 flex-1 justify-center">
+            
+            {/* 2. 心の航海日誌 (質問) */}
+            <button 
+              type="button"
+              onClick={() => setMode('magic_book')}
+              className="group relative bg-[#4a148c] border-l-8 border-[#311b92] rounded-r-lg shadow-xl p-6 flex items-center gap-6 hover:translate-x-2 transition-transform duration-300 cursor-pointer active:scale-95"
+            >
+              <Book size={40} className="text-[#e1bee7]" />
+              <div className="text-left">
+                <h3 className="text-xl font-bold text-[#e1bee7] font-serif">心の航海日誌</h3>
+                <p className="text-xs text-[#ce93d8]">20の問いに向き合う</p>
               </div>
-            </div>
+            </button>
 
-          </div>
-        </div>
+            {/* 3. 星空の記録 (履歴) */}
+            <button 
+              type="button"
+              onClick={() => setMode('history')}
+              className="group relative bg-[#1a237e] border-l-8 border-[#0d47a1] rounded-r-lg shadow-xl p-6 flex items-center gap-6 hover:translate-x-2 transition-transform duration-300 cursor-pointer active:scale-95"
+            >
+              <Library size={40} className="text-[#c5cae9]" />
+              <div className="text-left">
+                <h3 className="text-xl font-bold text-[#c5cae9] font-serif">星空の記録</h3>
+                <p className="text-xs text-[#9fa8da]">過去の軌跡を見る</p>
+              </div>
+            </button>
 
-        {/* 暖炉の演出 (フッター) */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl flex flex-col items-center">
-          <div className="bg-[#3e2723] w-full h-12 rounded-t-lg shadow-inner flex justify-center items-end pb-2 relative">
-             <div className="absolute -top-16 text-orange-500 animate-bounce opacity-80"><Flame size={48} /></div>
-             <div className="text-[#8d6e63] text-xs font-serif tracking-widest">SANTA'S STUDY</div>
           </div>
         </div>
 
       </div>
 
-      {/* 魔法の本モーダル */}
+      {/* --- モーダル展開 --- */}
+      {/* 魔法の本は「部屋の中で開いている」演出のため、モーダルとして表示 */}
       {mode === 'magic_book' && <MagicBook onClose={() => setMode('room')} />}
 
     </div>

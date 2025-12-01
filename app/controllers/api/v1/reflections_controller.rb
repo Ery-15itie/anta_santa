@@ -1,6 +1,7 @@
 module Api
   module V1
     class ReflectionsController < ApplicationController
+      # ログイン必須
       before_action :authenticate_user!
 
       def index
