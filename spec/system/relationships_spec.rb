@@ -9,26 +9,40 @@ RSpec.describe 'Relationships', type: :system do
   end
 
   it 'ユーザーをフォローおよびフォロー解除できる', js: true do
+    # ユーザー一覧画面へ移動
     visit users_path
 
-    # ▼▼▼ buttonタグに限定せず、表示テキストでクリックする ▼▼▼
-    # デザイン変更でボタンが button タグでない場合や、アイコンを含む場合に備えて
+    # --- フォローする ---
+    # フォロー前の確認
+    expect(page).to have_content('＋ フォロー', wait: 5)
     
-    # フォロー前
-    expect(page).to have_content '＋ フォロー'
-    click_on '＋ フォロー' , match: :first # click_button ではなく click_on を使用
+    # ボタンをクリック (match: :first で最初の要素を確実に押す)
+    click_on '＋ フォロー', match: :first
 
-    # フォロー後（AjaxやTurboの完了を待つため、have_contentで確認）
-    expect(page).to have_content '✔ フォロー解除'
+    # 【重要】処理完了待ち - 待機時間を延長
+    # 画面の表示が「フォロー解除」に変わるのを待つことで、Ajax通信の完了を保証
+    expect(page).to have_content('✔ フォロー解除', wait: 10)
     
-    # データ確認
-    expect(user.following?(other_user)).to be_truthy
+    # さらに、DOM更新の完了を確実にするため、短い待機を追加
+    sleep 0.5
+    
+    # DBのデータ確認
+    # 【重要】user.reload をして、DBの最新状態を読み込み
+    expect(user.reload.following?(other_user)).to be_truthy
 
-    # 解除実行
-    click_on '✔ フォロー解除'
+    # --- フォロー解除する ---
+    # 解除ボタンをクリック
+    click_on '✔ フォロー解除', match: :first
 
-    # 解除後
-    expect(page).to have_content '＋ フォロー'
-    expect(user.following?(other_user)).to be_falsey
+    # 【重要】処理完了待ち - 待機時間を延長
+    # 画面の表示が「＋ フォロー」に戻るのを待つ
+    expect(page).to have_content('＋ フォロー', wait: 10)
+    
+    # さらに、DOM更新とDB反映の完了を確実にするため、短い待機を追加
+    sleep 0.5
+    
+    # DBのデータ確認
+    # ここも reload して確認
+    expect(user.reload.following?(other_user)).to be_falsey
   end
 end

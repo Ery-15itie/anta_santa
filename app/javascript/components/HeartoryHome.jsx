@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LogIn, Heart, BookOpen, Clock, Zap, Target, Aperture, Leaf, Users, Cookie, ChevronUp, LogOut } from 'lucide-react';
 import EmotionHearth from './EmotionHearth';
 import EmotionStats from './EmotionStats';
@@ -27,13 +27,23 @@ const roomsSecondFloor = rooms.filter(r => r.floor === 2);
 const roomBasement = rooms.find(r => r.floor === 0);
 
 const HeartoryHome = () => {
-  const [currentPath, setCurrentPath] = useState('/'); 
+  // ▼▼▼ 修正: 初期値を「現在のURL」にすることで、リロード時も正しい画面を表示 ▼▼▼
+  const [currentPath, setCurrentPath] = useState(window.location.pathname); 
   const [activeRoomId, setActiveRoomId] = useState(null); 
 
+  // ▼▼▼ 修正: ブラウザの履歴(URL)も更新するSPA遷移 ▼▼▼
   const handleNavigation = (path) => {
+    window.history.pushState({}, '', path);
     setCurrentPath(path);
     setActiveRoomId(null);
   };
+
+  // ▼▼▼ 修正: ブラウザの「戻る/進む」ボタンに対応 ▼▼▼
+  useEffect(() => {
+    const onPopState = () => setCurrentPath(window.location.pathname);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   const handleLogout = (e) => {
     if(e) e.preventDefault();
@@ -56,20 +66,23 @@ const HeartoryHome = () => {
   };
 
   const handleRoomClick = (room) => {
+    // ギフトホールはRailsのページへ完全遷移
     if (room.id === 'gift_hall') {
       window.location.href = '/gift-hall'; 
       return;
     }
+    // React内遷移
     if (room.id === 'emotion_hearth_living') {
       handleNavigation(room.path);
       return;
     }
-    // 修正: サンタの書斎なら書斎画面へ 
+    // サンタの書斎へ遷移
     if (room.id === 'santa_study') {
-      handleNavigation(room.path); // '/santa-study'
+      handleNavigation(room.path); // path: '/santa-study'
       return;
     }
     
+    // その他はComing Soon
     setActiveRoomId(room.id); 
   };
 
@@ -189,25 +202,43 @@ const HeartoryHome = () => {
   const renderView = () => {
     switch (currentPath) {
       case '/': return <HomeView />;
+      
+      // 感情ログ
       case '/emotion-log': 
-        return <EmotionHearth onBack={() => handleNavigation('/')} onOpenStats={() => handleNavigation('/emotion-stats')} onLogout={handleLogout} />;
+        return <EmotionHearth 
+                 onBack={() => handleNavigation('/')} 
+                 onOpenStats={() => handleNavigation('/emotion-stats')}
+                 onLogout={handleLogout} 
+               />;
+      
+      // 感情スタッツ
       case '/emotion-stats':
-         return <EmotionStats onBack={() => handleNavigation('/emotion-log')} onLogout={handleLogout} />;
+         return <EmotionStats 
+                 onBack={() => handleNavigation('/emotion-log')} 
+                 onLogout={handleLogout} 
+               />;
       
-      // 「書斎の部屋」を表示 ▼▼▼
+      // 書斎の部屋
       case '/santa-study':
-         return <SantasStudyRoom onBack={() => handleNavigation('/')} />;
+         return <SantasStudyRoom 
+                  onBack={() => handleNavigation('/')} 
+                />;
       
-      default: return <HomeView />;
+      // ▼▼▼ 重要修正: 未知のパス(Rails側のページ)ならnullを返してReactを消す ▼▼▼
+      default: return null;
     }
   };
+
+  // Reactがnullを返すときはコンテナ全体を表示しない (RailsのViewが表示されるようにする)
+  const content = renderView();
+  if (content === null) return null;
 
   return (
     <div className="min-h-screen bg-[#3e2723] font-sans text-gray-800 flex flex-col">
       <div className="fixed inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #3e2723 25%, #4e342e 25%, #4e342e 50%, #3e2723 50%, #3e2723 75%, #4e342e 75%, #4e342e 100%)', backgroundSize: '20px 20px' }}></div>
       <MessageModal roomId={activeRoomId} />
       <main className="container mx-auto p-4 relative z-10 flex-grow">
-        {renderView()}
+        {content}
       </main>
     </div>
   );

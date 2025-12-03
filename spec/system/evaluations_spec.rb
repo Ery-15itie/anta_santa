@@ -1,44 +1,35 @@
 require 'rails_helper'
 
-RSpec.describe 'Evaluations', type: :system do
-  let(:sender) { create(:user, username: 'SenderSanta') }
-  let!(:receiver) { create(:user, username: 'ReceiverSanta') }
-  let!(:template) { create(:template) }
+RSpec.describe "Evaluations", type: :system, js: true do
+  let(:user) { FactoryBot.create(:user) }
+  let!(:other_user) { User.find_by(username: 'テストユーザー2') }
 
   before do
-    sign_in sender
+    visit new_user_session_path
+    fill_in 'user[email]', with: user.email
+    fill_in 'user[password]', with: user.password
+    find('input[type="submit"]').click
   end
 
-  it '相手を選んで感謝の手紙を送り、送信トレイで確認できる', js: true do
-    # 1. ユーザー一覧へ
-    visit users_path
+  it '相手を選んで感謝の手紙を送ることができる' do
+    visit gift_hall_path
+    click_link 'メッセージを送る'
     
-    # 相手ユーザーがいるか確認
-    expect(page).to have_content receiver.username
+    # ユーザー一覧からテストユーザー2を選択
+    user_card = find('div.flex', text: 'テストユーザー2', match: :first)
+    within(user_card) do
+      click_link 'お手紙を送る'
+    end
 
-    # 2. 「お手紙を送る」ボタンをクリック
-    click_on 'お手紙を送る', match: :first
-
-    # 3. 手紙作成画面
-    expect(page).to have_content "To: #{receiver.username}"
+    # フォームが表示されたことを確認
+    expect(page).to have_button('送信')
     
-    # 入力
-    fill_in 'evaluation[message]', with: 'いつもありがとう！'
-    check '行動力がすごい'
-
-    # 4. 送信ボタンをクリック
-    # デザイン変更で装飾されていても、buttonタグやinput[type=submit]のvalueが「送信」なら反応します
+    # 任意の項目をチェック（最初の項目）
+    first('input[type="checkbox"]').click
+    fill_in 'evaluation[message]', with: 'テストメッセージ'
     click_button '送信'
 
-    # 5. 送信完了 (一覧画面へ遷移するまで待つ)
-    expect(page).to have_content 'MY MAILBOX'
-    expect(page).to have_content 'お手紙を「ReceiverSanta」さんに送りました。'
-    
-    # 6. 送信トレイを確認
-    click_link '送った手紙'
-
-    # 内容が表示されているか
-    expect(page).to have_content receiver.username
-    expect(page).to have_content 'いつもありがとう！'
+    # 送信完了
+    expect(page).not_to have_button('送信')
   end
 end

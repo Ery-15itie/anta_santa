@@ -2,6 +2,10 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  # Dockerのサービス名 "db" を指定
+  host: <%= ENV.fetch("DB_HOST") { "db" } %>
+  username: <%= ENV.fetch("POSTGRES_USER") { "postgres" } %>
+  password: <%= ENV.fetch("POSTGRES_PASSWORD") { "password" } %>
 
 development:
   <<: *default
@@ -9,7 +13,8 @@ development:
 
 test:
   <<: *default
-  database: santa_report_app_test
+  # テスト用DB名
+  database: anta_santa_test
 
 production:
   <<: *default
