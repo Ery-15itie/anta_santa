@@ -389,7 +389,7 @@ const StarryWorkshop = ({ onBack }) => {
               disabled={selections[activeTimeframe].length === 0}
               className={`px-8 py-3 rounded-full font-bold shadow-2xl transition-all flex items-center gap-3 ${selections[activeTimeframe].length > 0 ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:scale-105' : 'bg-white/5 text-slate-600 cursor-not-allowed'}`}
             >
-              決定して振り返る <Send size={18} />
+              星空を決定する <Send size={18} />
             </button>
           </div>
         </div>
