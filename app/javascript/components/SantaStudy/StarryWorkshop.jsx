@@ -688,7 +688,7 @@ const StarryWorkshop = ({ onBack }) => {
                   
                   {/* タイトル */}
                   <h1 className="text-5xl font-bold text-yellow-100 mb-4 font-serif drop-shadow-lg z-10">
-                    My Value Constellation
+                    私の選んだ価値観の星たち
                   </h1>
                   
                   {/* サブタイトル */}
