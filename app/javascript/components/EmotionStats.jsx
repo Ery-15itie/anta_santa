@@ -88,7 +88,7 @@ const EmotionStats = ({ onBack, onLogout }) => {
         <div className="bg-[#fdf6e3] p-6 sm:p-10 rounded-b-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-x-8 border-b-8 border-[#fdf6e3] relative text-[#3e2723]">
           <div className="absolute inset-0 opacity-20 pointer-events-none" style={{backgroundImage: 'url("https://www.transparenttextures.com/patterns/cream-paper.png")'}}></div>
           
-          {/* 実績バッジコレクション */}
+          {/* 実績カードコレクション */}
           <div className="mb-12 relative z-10">
             <h3 className="text-lg font-bold text-[#5d4037] mb-6 flex items-center gap-2 border-b-2 border-dashed border-[#8d6e63] pb-2">
               <Trophy size={20} /> 実績カードコレクション

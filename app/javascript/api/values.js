@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 // 1. Railsのセキュリティトークン(CSRF)を取得
-// これがないと、データの保存(POST/PUT)や削除(DELETE)がRailsに拒否されてしまう
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
 // 2. Axiosの共通設定
@@ -52,4 +51,9 @@ export const fetchReflections = () => {
 // questionId: 質問ID, answer: 回答テキスト
 export const saveReflection = (questionId, answer) => {
   return client.put(`/reflections/${questionId}`, { answer });
+};
+
+// --- OGP画像アップロード用 
+export const uploadOgpImage = (imageBase64) => {
+  return client.post('/ogp_images', { image: imageBase64 });
 };

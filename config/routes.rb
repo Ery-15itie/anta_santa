@@ -9,12 +9,17 @@ Rails.application.routes.draw do
   }
 
   # ----------------------------------------------------
-  #  2. 静的ページ (村の公共施設) - 未ログインでもアクセス可
+  #  2. 静的ページ  - 未ログインでもアクセス可
   # ----------------------------------------------------
   get 'guide',    to: 'pages#guide',    as: :guide    # 操作ガイド
   get 'terms',    to: 'pages#terms',    as: :terms    # 利用規約
   get 'privacy',  to: 'pages#privacy',  as: :privacy  # プライバシーポリシー
   get 'contact',  to: 'pages#contact',  as: :contact  # お問い合わせ
+
+  # ----------------------------------------------------
+  #  2.5 共有ページ（OGP画像表示用）- 未ログインでもアクセス可
+  # ----------------------------------------------------
+  get 'share/:id', to: 'share#show', as: :share
 
   # ----------------------------------------------------
   #  3. API v1 エンドポイント (React連携用)
@@ -35,6 +40,9 @@ Rails.application.routes.draw do
       resources :user_card_selections, only: [:index, :create, :destroy]
       # 航海日誌 (魔法の本) 機能
       resources :reflections, only: [:index, :update]
+      
+      # OGP画像アップロード用
+      resources :ogp_images, only: [:create]
     end
   end
 
