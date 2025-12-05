@@ -173,7 +173,7 @@ const StarryWorkshop = ({ onBack }) => {
       const text = `【${timeframeLabel}の価値観】私の大切な価値観の星々✨\n\n#サンタの書斎 #AntaSanta #価値観パズル`;
       
       // Twitter Intent URLを構築
-      const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
+      const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
       
       // 新しいウィンドウで開く
       const newWindow = window.open(tweetUrl, '_blank', 'noopener,noreferrer');
