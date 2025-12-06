@@ -31,14 +31,17 @@ module Api
         total_logs = user_logs.count
         magic_powder_count = user_logs.where.not(magic_powder: 0).count
         
+        # ▼▼▼ 修正: モデルの高速計算メソッドを使用 ▼▼▼
+        current_streak = current_user.emotion_streak
+
         # 1. レベル計算 (段階的ロジック)
         level = calculate_level(total_logs)
         
         # 2. 称号判定
         title = calculate_title(level)
 
-        # 3. バッジ判定
-        badges = calculate_badges(user_logs, total_logs, magic_powder_count)
+        # 3. カード判定 (計算済みの streak を渡す)
+        badges = calculate_badges(user_logs, total_logs, magic_powder_count, current_streak)
 
         history = user_logs.recent.limit(30)
 
@@ -47,7 +50,8 @@ module Api
             total_logs: total_logs,
             magic_powder_count: magic_powder_count,
             level: level,
-            title: title
+            title: title,
+            streak: current_streak # フロントエンド表示用にここにも含めておくと便利です
           },
           badges: badges,
           history: history
@@ -98,13 +102,12 @@ module Api
         end
       end
 
-      # バッジ判定ロジック
-      def calculate_badges(logs, total, powder_total)
+      # カード判定ロジック
+      # ▼▼▼ 修正: streak を引数で受け取るように変更 ▼▼▼
+      def calculate_badges(logs, total, powder_total, streak)
         badges = []
         
-        # 日付計算（ストリーク用簡易ロジック）
-        log_dates = logs.order(created_at: :desc).pluck(:created_at).map(&:to_date).uniq
-        streak = calculate_streak(log_dates)
+        # ※以前の非効率な Rubyによる日付計算ロジックは削除しました
 
         # --- 継続系 ---
         badges << { id: 'first_fire', name: '🕯️ 初点火', desc: '初めて薪をくべる。記念すべき最初の一歩です。', earned: total >= 1 }
@@ -114,6 +117,7 @@ module Api
         badges << { id: 'immortal', name: '🌟🔥🌟 不滅の炎', desc: '100日連続で記録する。炎はもはやあなたの生活の一部です。', earned: streak >= 100 }
 
         # --- 感情の多様性 ---
+        # NOTE: distinct count はDB側で行われるので高速です
         unique_emotions = logs.select(:emotion).distinct.count
         badges << { id: 'explorer', name: '🎭 感情の探求者', desc: '5種類の異なる感情を記録する。心の色彩に気づき始めました。', earned: unique_emotions >= 5 }
         badges << { id: 'master', name: '🌈 エモーションマスター', desc: '全種類の感情を記録する。全ての感情を受け入れる心が育っています。', earned: unique_emotions >= 10 }
@@ -128,7 +132,8 @@ module Api
         badges << { id: '100_logs', name: '🪵🪵 百薪達成', desc: '合計100本の薪をくべる。100の物語が暖炉に刻まれました。', earned: total >= 100 }
 
         # --- 時間帯 ---
-        recent_logs = logs.limit(100)
+        # 直近100件だけ取得して判定（全件ロードを防ぐためlimitを使用）
+        recent_logs = logs.order(created_at: :desc).limit(100)
         has_night = recent_logs.any? { |l| l.created_at.hour >= 0 && l.created_at.hour < 4 }
         has_morning = recent_logs.any? { |l| l.created_at.hour >= 4 && l.created_at.hour < 6 }
 
@@ -136,24 +141,6 @@ module Api
         badges << { id: 'early_bird', name: '🌅 朝の儀式', desc: '午前4時〜6時に記録する。朝一番に心を整える習慣。', earned: has_morning }
 
         badges
-      end
-
-      def calculate_streak(sorted_dates)
-        return 0 if sorted_dates.empty?
-        streak = 0
-        current_date = Date.current
-        return 0 unless [current_date, current_date - 1.day].include?(sorted_dates.first)
-
-        current_check_date = sorted_dates.first
-        sorted_dates.each do |date|
-          if date == current_check_date
-            streak += 1
-            current_check_date -= 1.day
-          else
-            break
-          end
-        end
-        streak
       end
     end
   end
