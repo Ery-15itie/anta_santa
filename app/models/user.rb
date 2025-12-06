@@ -50,53 +50,40 @@ class User < ApplicationRecord
   # 統計・集計ロジック
   # =========================================================
   
-  # EmotionLogの連続投稿日数を計算（パフォーマンス最適化版）
-  # 再帰的CTEを使用してDB側で計算することで、大量データでも高速に動作します
+  # EmotionLogの連続投稿日数を計算
+  # 複雑なSQLを避け、Ruby側で計算することで保守性と安定性を向上させています
   def emotion_streak
-    # アプリケーションのタイムゾーン設定（Tokyoなど）を取得
-    timezone = Time.zone.name
-    # 基準となる「昨日」の日付（ここより前で途切れていたらストリーク終了）
-    yesterday = Date.current - 1.day
+    # 1. ログの日付リストを取得（降順、重複なし、Date型に変換）
+    # in_time_zoneを使うことで、アプリのタイムゾーン設定（東京など）を考慮した日付になります
+    log_dates = emotion_logs.order(created_at: :desc)
+                            .pluck(:created_at)
+                            .map { |time| time.in_time_zone.to_date }
+                            .uniq
 
-    # 再帰的CTEを使用した高速クエリ
-    query = <<~SQL
-      WITH RECURSIVE daily_logs AS (
-        -- 1. ユーザーの記録を、指定タイムゾーンの日付に変換して取得（重複排除）
-        SELECT DISTINCT date(created_at AT TIME ZONE :timezone) as log_date
-        FROM emotion_logs
-        WHERE user_id = :user_id
-      ),
-      streak_calculation AS (
-        -- 2. 起点: 今日または昨日の記録があればスタート
-        SELECT log_date
-        FROM daily_logs
-        WHERE log_date >= :yesterday
-        ORDER BY log_date DESC
-        LIMIT 1
+    # 記録が一つもない場合は0
+    return 0 if log_dates.empty?
 
-        UNION ALL
+    # 2. ストリークが「現役」かチェック
+    # 最新の記録が「昨日」より前（一昨日以前）なら、既に途切れているので0を返す
+    latest_date = log_dates.first
+    return 0 if latest_date < Date.yesterday
 
-        -- 3. 再帰: 1日前の日付を探し続ける
-        SELECT d.log_date
-        FROM daily_logs d
-        INNER JOIN streak_calculation s ON d.log_date = s.log_date - INTERVAL '1 day'
-      )
-      -- 4. 連続した行数をカウント
-      SELECT COUNT(*) FROM streak_calculation;
-    SQL
+    # 3. 連続日数をカウント
+    streak = 0
+    # カウントを開始する基準日（最新の記録日）
+    check_date = latest_date
 
-    # SQLを実行して数値で返す
-    result = ActiveRecord::Base.connection.select_value(
-      ActiveRecord::Base.sanitize_sql_array([
-        query, 
-        { 
-          user_id: id, 
-          timezone: timezone,
-          yesterday: yesterday 
-        }
-      ])
-    )
-    
-    result.to_i
+    log_dates.each do |date|
+      if date == check_date
+        streak += 1
+        # 次のループでは「1日前」が存在するかを確認するため日付を戻す
+        check_date -= 1.day 
+      else
+        # 日付が連続しなくなったらそこで終了
+        break
+      end
+    end
+
+    streak
   end
 end
