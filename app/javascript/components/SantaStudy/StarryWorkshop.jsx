@@ -343,7 +343,7 @@ const StarryWorkshop = ({ onBack }) => {
        
         <div className="absolute top-[-5%] right-[-5%] w-[500px] h-[500px] bg-yellow-100/5 rounded-full blur-[100px]"></div>
        
-        <div className="absolute top-20 left-0 animate-drift opacity-50" style={{ animationDelay: '5s' }}>
+        <div className="absolute top-1/2 left-0 animate-drift opacity-50" style={{ animationDelay: '5s' }}>
            <div className="text-7xl filter grayscale brightness-200 contrast-0 blur-[1px] transform -rotate-6 drop-shadow-lg">🛷💨</div>
         </div>
 
