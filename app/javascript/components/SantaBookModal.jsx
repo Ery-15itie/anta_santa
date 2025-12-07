@@ -46,6 +46,15 @@ const fontStyle = (
         z-index: 10;
         opacity: 0.95;
       }
+
+      /* スマホ用の調整 */
+      @media (max-width: 640px) {
+        .masking-tape {
+          width: 70px;
+          height: 20px;
+          top: -8px;
+        }
+      }
     `}
   </style>
 );
@@ -233,14 +242,15 @@ const SantaBookModal = () => {
     // === 目次ページ (Index) ===
     if (spreadIndex === 0) {
       return (
-        <div className="flex flex-col md:flex-row h-full paper-texture font-picture-book rounded-lg">
-          {/* 左側：イントロダクション＆挿絵 */}
-          <div className="flex-1 p-8 border-b md:border-b-0 md:border-r border-[#D7CCC8] border-dashed flex flex-col items-center justify-center text-center">
+        // スマホ: flex-col (縦並び), PC: flex-row (横並び)
+        <div className="flex flex-col md:flex-row h-full paper-texture font-picture-book rounded-lg overflow-hidden">
+          {/* 左側：イントロダクション */}
+          <div className="flex-1 p-6 md:p-8 border-b md:border-b-0 md:border-r border-[#D7CCC8] border-dashed flex flex-col items-center justify-center text-center">
             
-            {/* ▼▼▼ 追加：挿絵エリア ▼▼▼ */}
-            <div className="mb-6 w-48 h-48 md:w-56 md:h-56 bg-white p-2 rounded shadow-md transform rotate-2 border border-[#E0E0E0]">
+            {/* 挿絵：スマホでは少し小さくする */}
+            <div className="mb-4 md:mb-6 w-32 h-32 md:w-56 md:h-56 bg-white p-2 rounded shadow-md transform rotate-2 border border-[#E0E0E0]">
                <img 
-                 src="/images/guide/intro_illustration.png"  // ※ここに挿絵の画像を置く
+                 src="/images/guide/intro_illustration.png"
                  alt="Introduction" 
                  className="w-full h-full object-cover rounded opacity-90 sepia-[0.1]"
                  onError={(e) => {
@@ -250,28 +260,28 @@ const SantaBookModal = () => {
                />
             </div>
 
-            <h2 className="text-3xl font-bold text-[#B71C1C] mb-4 tracking-widest drop-shadow-sm">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#B71C1C] mb-2 md:mb-4 tracking-widest drop-shadow-sm">
               GUIDE BOOK
             </h2>
             
-            <p className="text-[#5D4037] text-sm leading-loose font-bold">
+            <p className="text-[#5D4037] text-xs md:text-sm leading-loose font-bold">
               ようこそ、心の家、Heartory Homeへ<br/>
-              右の目次から<br/>
+              <span className="md:hidden">下</span><span className="hidden md:inline">右</span>の目次から<br/>
               気になる部屋を探してみてください<br/>
-              <span className="text-[#8D6E63] text-xs mt-2 block">
-                サンタさんが夜な夜な執筆中... ✍️<br/>(まだ未完成です)
+              <span className="text-[#8D6E63] text-[10px] md:text-xs mt-2 block">
+                サンタさんが夜な夜な執筆中... ✍️
               </span>
             </p>
           </div>
 
           {/* 右側：目次リスト */}
-          <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
-            <h3 className="text-center font-bold text-[#3E2723] border-b-2 border-[#B71C1C] pb-2 mb-4 inline-block w-full">
+          <div className="flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar">
+            <h3 className="text-center font-bold text-[#3E2723] border-b-2 border-[#B71C1C] pb-2 mb-4 inline-block w-full text-sm md:text-base">
               I N D E X
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1 md:space-y-2">
               {guideContent.map((item, idx) => (
-                <li key={item.id} className="text-sm">
+                <li key={item.id} className="text-xs md:text-sm">
                   <button 
                     onClick={() => jumpToPage(idx)}
                     className="w-full text-left flex items-center justify-between group hover:bg-[#FFE0B2]/50 p-2 rounded transition"
@@ -279,8 +289,8 @@ const SantaBookModal = () => {
                     <span className="text-[#5D4037] font-bold truncate group-hover:text-[#B71C1C]">
                       {idx + 1}. {item.title}
                     </span>
-                    <span className="text-xs text-[#8D6E63] border-b border-dotted border-[#8D6E63] flex-grow mx-2"></span>
-                    <span className="text-xs text-[#B71C1C]">p.{Math.floor(idx/2)+1}</span>
+                    <span className="text-[10px] md:text-xs text-[#8D6E63] border-b border-dotted border-[#8D6E63] flex-grow mx-2"></span>
+                    <span className="text-[10px] md:text-xs text-[#B71C1C]">p.{Math.floor(idx/2)+1}</span>
                   </button>
                 </li>
               ))}
@@ -290,20 +300,32 @@ const SantaBookModal = () => {
       );
     }
 
-    // === 詳細ページ（左右見開き） ===
+    // === 詳細ページ（左右見開き / スマホは縦スクロール） ===
     const startIndex = (spreadIndex - 1) * 2;
     const leftItem = guideContent[startIndex];
     const rightItem = guideContent[startIndex + 1];
 
     return (
-      <div className="flex flex-col md:flex-row h-full">
-        <DetailPage item={leftItem} pageNum={startIndex + 1} closeBook={toggleBook} />
-        {/* 中央の影（本ののど） */}
+      <div className="flex flex-col md:flex-row h-full overflow-y-auto md:overflow-hidden">
+        {/* スマホでは縦に積むので h-auto */}
+        <div className="h-auto md:h-full flex-1">
+          <DetailPage item={leftItem} pageNum={startIndex + 1} closeBook={toggleBook} />
+        </div>
+        
+        {/* 中央の影（PCのみ）/ 区切り線（スマホのみ） */}
         <div className="hidden md:block w-0 relative">
            <div className="absolute inset-y-0 -left-4 w-8 bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.05)] to-transparent pointer-events-none z-10"></div>
            <div className="absolute inset-y-0 left-0 w-[1px] bg-[#D7CCC8]"></div>
         </div>
-        <DetailPage item={rightItem} pageNum={startIndex + 2} closeBook={toggleBook} />
+        
+        {/* スマホで2ページ目がある場合は区切り線を入れる */}
+        {rightItem && (
+          <div className="md:hidden w-full h-4 bg-[#D7CCC8]/30 border-y border-[#D7CCC8] border-dashed"></div>
+        )}
+
+        <div className="h-auto md:h-full flex-1">
+          <DetailPage item={rightItem} pageNum={startIndex + 2} closeBook={toggleBook} />
+        </div>
       </div>
     );
   };
@@ -312,62 +334,61 @@ const SantaBookModal = () => {
     <>
       {fontStyle}
 
-      {/* 🔴 トリガーボタン */}
+      {/* 🔴 トリガーボタン（スマホでは少し小さく） */}
       <button 
         onClick={toggleBook}
-        className="fixed bottom-6 right-6 z-50 bg-[#B71C1C] text-[#FFD54F] p-4 rounded-full shadow-xl hover:scale-110 hover:bg-[#C62828] transition-all border-2 border-[#FFD54F] group"
+        className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 bg-[#B71C1C] text-[#FFD54F] p-3 md:p-4 rounded-full shadow-xl hover:scale-110 hover:bg-[#C62828] transition-all border-2 border-[#FFD54F] group"
         title="ガイドブックを開く"
       >
-        <BookOpen size={24} className="group-hover:animate-bounce" />
+        <BookOpen size={20} className="md:w-6 md:h-6 group-hover:animate-bounce" />
       </button>
 
       {/* 📖 モーダル本体 */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 transition-opacity duration-300">
-          <div className="relative bg-[#B71C1C] p-3 md:p-4 rounded-r-xl rounded-l-md shadow-2xl max-w-5xl w-full h-[85vh] flex flex-col border-l-8 border-[#8E1C1C]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-2 md:p-4 transition-opacity duration-300">
+          <div className="relative bg-[#B71C1C] p-2 md:p-4 rounded-md md:rounded-r-xl md:rounded-l-md shadow-2xl max-w-5xl w-full h-[90vh] md:h-[85vh] flex flex-col border-l-4 md:border-l-8 border-[#8E1C1C]">
             <button 
               onClick={toggleBook}
-              className="absolute -top-4 -right-4 bg-[#FFD54F] text-[#B71C1C] rounded-full p-2 shadow-lg hover:bg-white transition z-50 border-2 border-[#B71C1C]"
+              className="absolute -top-3 -right-3 md:-top-4 md:-right-4 bg-[#FFD54F] text-[#B71C1C] rounded-full p-1.5 md:p-2 shadow-lg hover:bg-white transition z-50 border-2 border-[#B71C1C]"
             >
-              <X size={20} strokeWidth={3} />
+              <X size={16} className="md:w-5 md:h-5" strokeWidth={3} />
             </button>
 
             {/* 紙の部分 */}
             <div className="bg-[#FFF8E1] flex-grow rounded shadow-inner relative overflow-hidden flex flex-col">
               <div className="flex-grow overflow-y-auto relative custom-scrollbar">
-                 {/* しおり */}
-                 <div className="absolute top-0 right-8 w-6 h-16 bg-[#C62828] rounded-b-lg shadow-md z-10 pointer-events-none opacity-90"></div>
+                 <div className="absolute top-0 right-4 md:right-8 w-4 md:w-6 h-12 md:h-16 bg-[#C62828] rounded-b-lg shadow-md z-10 pointer-events-none opacity-90"></div>
                  {renderSpread()}
               </div>
 
-              {/* ページ送りナビゲーション */}
-              <div className="h-14 border-t border-[#D7CCC8] bg-[#FFF3E0] flex items-center justify-between px-6 select-none flex-shrink-0 font-picture-book">
+              {/* フッター（ページ送り） */}
+              <div className="h-12 md:h-14 border-t border-[#D7CCC8] bg-[#FFF3E0] flex items-center justify-between px-4 md:px-6 select-none flex-shrink-0 font-picture-book">
                 <button 
                   onClick={prevPage}
                   disabled={spreadIndex === 0}
-                  className={`flex items-center gap-1 text-[#5D4037] font-bold hover:text-[#B71C1C] transition ${spreadIndex === 0 ? 'opacity-30 cursor-not-allowed' : ''}`}
+                  className={`flex items-center gap-1 text-[#5D4037] font-bold text-xs md:text-base hover:text-[#B71C1C] transition ${spreadIndex === 0 ? 'opacity-30 cursor-not-allowed' : ''}`}
                 >
-                  <ChevronLeft size={18} /> Prev
+                  <ChevronLeft size={16} className="md:w-[18px]" /> Prev
                 </button>
                 <div className="flex items-center gap-2">
                   {spreadIndex > 0 && (
                     <button 
                       onClick={() => setSpreadIndex(0)}
-                      className="text-xs px-3 py-1 rounded-full bg-[#D7CCC8] text-[#5D4037] hover:bg-[#B71C1C] hover:text-white transition font-bold"
+                      className="text-[10px] md:text-xs px-2 md:px-3 py-1 rounded-full bg-[#D7CCC8] text-[#5D4037] hover:bg-[#B71C1C] hover:text-white transition font-bold"
                     >
-                      目次へ
+                      目次
                     </button>
                   )}
-                  <span className="text-xs text-[#8D6E63]">
+                  <span className="text-[10px] md:text-xs text-[#8D6E63]">
                     {spreadIndex === 0 ? "" : `${spreadIndex} / ${Math.ceil(guideContent.length/2)}`}
                   </span>
                 </div>
                 <button 
                   onClick={nextPage}
                   disabled={spreadIndex >= Math.ceil(guideContent.length / 2)}
-                  className={`flex items-center gap-1 text-[#5D4037] font-bold hover:text-[#B71C1C] transition ${spreadIndex >= Math.ceil(guideContent.length / 2) ? 'opacity-30 cursor-not-allowed' : ''}`}
+                  className={`flex items-center gap-1 text-[#5D4037] font-bold text-xs md:text-base hover:text-[#B71C1C] transition ${spreadIndex >= Math.ceil(guideContent.length / 2) ? 'opacity-30 cursor-not-allowed' : ''}`}
                 >
-                  Next <ChevronRight size={18} />
+                  Next <ChevronRight size={16} className="md:w-[18px]" />
                 </button>
               </div>
             </div>
@@ -380,18 +401,21 @@ const SantaBookModal = () => {
 
 // === 詳細ページのコンポーネント（デザイン強化版） ===
 const DetailPage = ({ item, pageNum, closeBook }) => {
-  if (!item) return <div className="flex-1 paper-texture rounded-r-lg"></div>; 
+  if (!item) return <div className="flex-1 paper-texture md:rounded-r-lg min-h-[50vh]"></div>; 
   const isOpen = item.status === "open";
 
   return (
-    <div className="flex-1 p-6 md:p-8 flex flex-col h-full relative paper-texture font-picture-book">
+    <div className="flex-1 p-4 md:p-8 flex flex-col h-full relative paper-texture font-picture-book">
+      {/* ページ番号（スマホでは小さく） */}
+      <div className="absolute top-2 right-4 text-[#A1887F] text-xs md:text-sm font-bold opacity-50">-{pageNum}-</div>
+      
       {/* ヘッダー */}
-      <div className="flex items-center gap-3 mb-6 border-b-2 border-dashed border-[#D7CCC8] pb-4">
-        <div className={`text-3xl p-2 rounded-lg ${isOpen ? 'bg-[#FFECB3]' : 'bg-[#E0E0E0] grayscale opacity-50'}`}>
+      <div className="flex items-center gap-3 mb-4 md:mb-6 border-b-2 border-dashed border-[#D7CCC8] pb-3 md:pb-4">
+        <div className={`text-2xl md:text-3xl p-1.5 md:p-2 rounded-lg ${isOpen ? 'bg-[#FFECB3]' : 'bg-[#E0E0E0] grayscale opacity-50'}`}>
           {item.icon}
         </div>
         <div>
-          <h3 className={`font-bold text-lg ${isOpen ? 'text-[#3E2723]' : 'text-[#757575]'}`}>{item.title}</h3>
+          <h3 className={`font-bold text-base md:text-lg ${isOpen ? 'text-[#3E2723]' : 'text-[#757575]'}`}>{item.title}</h3>
           <span className={`text-[10px] px-2 py-0.5 rounded-full ${isOpen ? 'bg-[#C62828] text-white' : 'bg-[#9E9E9E] text-white'}`}>
             {isOpen ? "AVAILABLE" : "COMING SOON"}
           </span>
@@ -399,27 +423,27 @@ const DetailPage = ({ item, pageNum, closeBook }) => {
       </div>
 
       {/* コンテンツエリア */}
-      <div className="flex-grow overflow-y-auto pr-2 custom-scrollbar">
-        <p className={`text-sm leading-relaxed font-medium mb-6 ${isOpen ? 'text-[#5D4037]' : 'text-[#9E9E9E]'}`}>
+      <div className="flex-grow pr-0 md:pr-2">
+        <p className={`text-xs md:text-sm leading-relaxed font-medium mb-6 ${isOpen ? 'text-[#5D4037]' : 'text-[#9E9E9E]'}`}>
           {item.desc}
         </p>
         
-        {/* ▼▼▼ ステップ（手順）がある場合の表示（ポラロイド風） ▼▼▼ */}
+        {/* ▼▼▼ ステップ（手順）がある場合の表示 ▼▼▼ */}
         {isOpen && item.steps && item.steps.length > 0 && (
-          <div className="space-y-10 pb-8 px-1">
-            <div className="text-center text-xs text-[#B71C1C] font-bold border-y border-dashed border-[#B71C1C] py-1 mb-6">
+          <div className="space-y-6 md:space-y-10 pb-4 md:pb-8 px-1">
+            <div className="text-center text-xs text-[#B71C1C] font-bold border-y border-dashed border-[#B71C1C] py-1 mb-4 md:mb-6">
               ★ サンタの使いかたガイド ★
             </div>
             
             {item.steps.map((step, idx) => (
-              <div key={idx} className={`relative bg-white p-3 pt-6 pb-4 rounded shadow-sm border border-[#EFEBE9] 
-                 ${idx % 2 === 0 ? 'rotate-1' : '-rotate-1'} hover:rotate-0 transition-transform duration-300 hover:shadow-md hover:z-10`}>
+              <div key={idx} className={`relative bg-white p-2 md:p-3 pt-5 md:pt-6 pb-3 md:pb-4 rounded shadow-sm border border-[#EFEBE9] 
+                 ${idx % 2 === 0 ? 'rotate-1' : '-rotate-1'} hover:rotate-0 transition-transform duration-300`}>
                 
                 {/* マスキングテープ装飾 */}
                 <div className="masking-tape"></div>
 
                 {/* 画像エリア */}
-                <div className="bg-[#FAFAFA] border border-[#E0E0E0] p-1 pb-4 mb-3 shadow-inner">
+                <div className="bg-[#FAFAFA] border border-[#E0E0E0] p-1 pb-3 md:pb-4 mb-2 md:mb-3 shadow-inner">
                   {step.img ? (
                     <img 
                       src={step.img} 
@@ -431,17 +455,17 @@ const DetailPage = ({ item, pageNum, closeBook }) => {
                       }}
                     />
                   ) : (
-                    <div className="w-full h-32 bg-[#F5F5F5] flex items-center justify-center text-[#BDBDBD] text-xs">
+                    <div className="w-full h-24 md:h-32 bg-[#F5F5F5] flex items-center justify-center text-[#BDBDBD] text-xs">
                       No Image
                     </div>
                   )}
                 </div>
 
-                <h4 className="font-bold text-[#3E2723] text-sm mb-1 flex items-center gap-2">
-                   <span className="bg-[#8D6E63] text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-sm">{idx + 1}</span>
+                <h4 className="font-bold text-[#3E2723] text-xs md:text-sm mb-1 flex items-center gap-2">
+                   <span className="bg-[#8D6E63] text-white w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center text-[8px] md:text-[10px] shadow-sm">{idx + 1}</span>
                    {step.title}
                 </h4>
-                <p className="text-xs text-[#5D4037] leading-relaxed">
+                <p className="text-[10px] md:text-xs text-[#5D4037] leading-relaxed">
                   {step.text}
                 </p>
               </div>
@@ -449,9 +473,9 @@ const DetailPage = ({ item, pageNum, closeBook }) => {
           </div>
         )}
 
-        {/* 画像がない場合のプレースホルダー（ステップがないページ用） */}
+        {/* 画像がない場合のプレースホルダー */}
         {isOpen && (!item.steps || item.steps.length === 0) && (
-          <div className="w-full h-32 rounded border-2 border-dashed border-[#D7CCC8] flex items-center justify-center bg-[#F5F5F5]">
+          <div className="w-full h-24 md:h-32 rounded border-2 border-dashed border-[#D7CCC8] flex items-center justify-center bg-[#F5F5F5]">
              <span className="text-[#D7CCC8] text-xs font-bold">Image Area</span>
           </div>
         )}
@@ -463,12 +487,12 @@ const DetailPage = ({ item, pageNum, closeBook }) => {
           <a 
             href={item.path} 
             onClick={closeBook} 
-            className="block w-full text-center py-2 rounded bg-[#C62828] text-white text-sm font-bold shadow hover:bg-[#B71C1C] transition hover:-translate-y-0.5"
+            className="block w-full text-center py-2 rounded bg-[#C62828] text-white text-xs md:text-sm font-bold shadow hover:bg-[#B71C1C] transition hover:-translate-y-0.5"
           >
             この部屋へ行く &rarr;
           </a>
         ) : (
-          <button disabled className="block w-full text-center py-2 rounded bg-[#E0E0E0] text-[#9E9E9E] text-sm font-bold cursor-not-allowed">準備中です...</button>
+          <button disabled className="block w-full text-center py-2 rounded bg-[#E0E0E0] text-[#9E9E9E] text-xs md:text-sm font-bold cursor-not-allowed">準備中です...</button>
         )}
       </div>
     </div>
