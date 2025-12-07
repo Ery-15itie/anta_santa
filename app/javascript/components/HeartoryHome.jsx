@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { LogIn, Heart, BookOpen, Clock, Zap, Target, Aperture, Leaf, Users, Cookie, ChevronUp, LogOut } from 'lucide-react';
-// import { BrowserRouter } from 'react-router-dom'; ← 削除
 
 import EmotionHearth from './EmotionHearth';
 import EmotionStats from './EmotionStats';
 import SantasStudyRoom from './SantaStudy/SantasStudyRoom'; 
-import SantaBookModal from './SantaBookModal';
+// import SantaBookModal from './SantaBookModal'; // ← レイアウトファイル側で表示するため、ここでは不要
 
 // 画像URL定義
 const rooms = [
@@ -114,52 +113,60 @@ const HeartoryHome = () => {
   const HomeView = () => (
     <>
       <div className="relative mb-12 pt-6">
+        {/* EXITボタン */}
         <div className="absolute top-0 right-4 sm:right-10 z-20 group cursor-pointer" onClick={handleLogout}>
             <div className="absolute -top-6 left-4 w-1 h-12 bg-stone-400"></div>
             <div className="absolute -top-6 right-4 w-1 h-12 bg-stone-400"></div>
-            <div className="relative bg-[#5d4037] border-4 border-[#3e2723] rounded shadow-xl px-4 py-2 transform group-hover:rotate-2 transition-transform duration-300 origin-top">
+            <div className="relative bg-[#5d4037] border-4 border-[#3e2723] rounded shadow-xl px-3 py-2 transform group-hover:rotate-2 transition-transform duration-300 origin-top">
                 <div className="flex items-center gap-2 text-[#ffecb3] font-bold font-serif tracking-wider">
                     <LogOut size={18} />
-                    <span>EXIT</span>
+                    {/* ▼▼▼ 修正: スマホでは文字を隠してアイコンのみにする（被り防止） ▼▼▼ */}
+                    <span className="hidden sm:inline">EXIT</span>
                 </div>
                 <div className="absolute top-1 left-1 w-full h-[1px] bg-white/10"></div>
             </div>
         </div>
 
-        <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl font-black text-[#ffecb3] tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] font-serif" 
+        {/* タイトルエリア */}
+        {/* ▼▼▼ 修正: padding(px-12)を入れて、タイトル文字がボタンの下に潜り込まないように調整 ▼▼▼ */}
+        <div className="text-center px-12 sm:px-0">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#ffecb3] tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] font-serif" 
                 style={{ textShadow: '2px 2px 0px #3e2723, 4px 4px 0px #271c19' }}>
                 Heartory Home
             </h1>
-            <p className="text-[#d7ccc8] mt-2 font-medium tracking-widest text-sm sm:text-base shadow-black drop-shadow-md">
+            <p className="text-[#d7ccc8] mt-2 font-medium tracking-widest text-xs sm:text-base shadow-black drop-shadow-md">
                 ― ここは、あなたの心を見つめる温かい家 ―
             </p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto relative">
-        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-[95%] h-8 bg-[#3e2723] rounded-t-full shadow-xl z-0 flex items-center justify-center">
-             <div className="w-20 h-20 bg-[#3e2723] rotate-45 transform translate-y-6 border-4 border-[#5d4037]"></div>
+      <div className="max-w-6xl mx-auto relative px-2 sm:px-4">
+        <div className="absolute -top-6 sm:-top-8 left-1/2 transform -translate-x-1/2 w-[95%] h-8 bg-[#3e2723] rounded-t-full shadow-xl z-0 flex items-center justify-center">
+             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#3e2723] rotate-45 transform translate-y-6 border-4 border-[#5d4037]"></div>
         </div>
 
-        <div className="bg-[#fdf6e3] border-x-8 border-b-8 border-[#5d4037] rounded-b-lg shadow-2xl overflow-hidden relative z-10">
-            <div className="p-6 bg-[#fff8e1] border-b-8 border-[#5d4037] relative">
+        <div className="bg-[#fdf6e3] border-x-4 sm:border-x-8 border-b-4 sm:border-b-8 border-[#5d4037] rounded-b-lg shadow-2xl overflow-hidden relative z-10">
+            {/* 2階エリア */}
+            <div className="p-4 sm:p-6 bg-[#fff8e1] border-b-4 sm:border-b-8 border-[#5d4037] relative">
                 <div className="absolute top-0 left-0 w-full h-4 bg-[#4e342e] opacity-20"></div>
                 <div className="flex items-center mb-4">
-                    <div className="bg-[#5d4037] text-[#ffecb3] text-xs font-bold px-3 py-1 rounded shadow font-serif">2F: Future & Growth</div>
+                    <div className="bg-[#5d4037] text-[#ffecb3] text-[10px] sm:text-xs font-bold px-3 py-1 rounded shadow font-serif">2F: Future & Growth</div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {/* スマホは2列、PCは4列 */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     {roomsSecondFloor.map((room) => (
                     <RoomCard key={room.id} room={room} onClick={handleRoomClick} />
                     ))}
                 </div>
             </div>
 
-            <div className="p-6 bg-[#fff8e1] relative">
+            {/* 1階エリア */}
+            <div className="p-4 sm:p-6 bg-[#fff8e1] relative">
                  <div className="flex items-center mb-4">
-                    <div className="bg-[#5d4037] text-[#ffecb3] text-xs font-bold px-3 py-1 rounded shadow font-serif">1F: Core & Daily Life</div>
+                    <div className="bg-[#5d4037] text-[#ffecb3] text-[10px] sm:text-xs font-bold px-3 py-1 rounded shadow font-serif">1F: Core & Daily Life</div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                {/* スマホは2列、中画面は3列、大画面は5列 */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
                     {roomsFirstFloor.map((room) => (
                     <RoomCard key={room.id} room={room} onClick={handleRoomClick} />
                     ))}
@@ -169,21 +176,21 @@ const HeartoryHome = () => {
       </div>
       
       {roomBasement && (
-        <div className="max-w-xl mx-auto mt-12 pb-8">
+        <div className="max-w-xl mx-auto mt-8 sm:mt-12 pb-8 px-4">
           <div className="text-center mb-2">
-             <span className="bg-black/50 text-white px-3 py-1 rounded-full text-xs font-bold">▼ Basement Entrance</span>
+             <span className="bg-black/50 text-white px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold">▼ Basement Entrance</span>
           </div>
-          <div className="border-4 border-[#271c19] bg-[#1a1a1a] rounded-xl shadow-2xl p-1 mx-4 relative group cursor-pointer transform hover:translate-y-1 transition-transform">
+          <div className="border-4 border-[#271c19] bg-[#1a1a1a] rounded-xl shadow-2xl p-1 relative group cursor-pointer transform hover:translate-y-1 transition-transform">
              <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_45%,#000_45%,#000_55%,transparent_55%)] opacity-20 pointer-events-none"></div>
-            <div className="p-4">
+            <div className="p-2 sm:p-4">
               <RoomCard room={roomBasement} onClick={handleRoomClick} isBasement={true} />
             </div>
           </div>
         </div>
       )}
 
-      <div className="mt-12 mb-8 text-center border-t border-[#5d4037] pt-8 opacity-80 max-w-4xl mx-auto">
-        <ul className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-[#ffecb3] font-bold tracking-wider">
+      <div className="mt-12 mb-8 text-center border-t border-[#5d4037] pt-8 opacity-80 max-w-4xl mx-auto px-4">
+        <ul className="flex flex-wrap justify-center gap-4 sm:gap-6 text-[10px] sm:text-sm text-[#ffecb3] font-bold tracking-wider">
           <li><a href="/terms" className="hover:text-[#ffcc80]">利用規約 (村の掟)</a></li>
           <li><a href="/privacy" className="hover:text-[#ffcc80]">プライバシーポリシー (秘密の守り方)</a></li>
           <li><a href="/contact" className="hover:text-[#ffcc80]">お問い合わせフォーム</a></li>
@@ -211,24 +218,19 @@ const HeartoryHome = () => {
          return <SantasStudyRoom 
                   onBack={() => handleNavigation('/')} 
                 />;
-      // ▼▼▼ デフォルトはHomeを表示（真っ白対策）▼▼▼
       default: return <HomeView />;
     }
   };
 
   const content = renderView();
-  
-  // if (content === null) return null; ← 削除
 
   return (
-    // ▼▼▼ <BrowserRouter>を削除し、以前のシンプルな形に戻す ▼▼▼
     <div className="min-h-screen bg-[#3e2723] font-sans text-gray-800 flex flex-col">
       <div className="fixed inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #3e2723 25%, #4e342e 25%, #4e342e 50%, #3e2723 50%, #3e2723 75%, #4e342e 75%, #4e342e 100%)', backgroundSize: '20px 20px' }}></div>
       
       <MessageModal roomId={activeRoomId} />
       
-      {/* 本を表示 */}
-      <SantaBookModal />
+      {/* ▼▼▼ 修正: ここにあった <SantaBookModal /> は削除しました（二重表示防止） ▼▼▼ */}
 
       <main className="container mx-auto p-4 relative z-10 flex-grow">
         {content}
@@ -246,19 +248,21 @@ const RoomCard = ({ room, onClick, isBasement = false }) => {
   return (
     <div
       onClick={() => onClick(room)}
-      className={`group relative overflow-hidden rounded-lg cursor-pointer h-40 sm:h-48 w-full ${shadowClass} transition-all duration-300 transform hover:-translate-y-1 hover:brightness-110 border-4 ${borderClass} ${bgClass}`}
+      className={`group relative overflow-hidden rounded-lg cursor-pointer h-32 sm:h-48 w-full ${shadowClass} transition-all duration-300 transform hover:-translate-y-1 hover:brightness-110 border-2 sm:border-4 ${borderClass} ${bgClass}`}
     >
       <div className="absolute inset-0 z-0">
         <img src={room.image_url} alt={room.name} className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-110" />
         <div className={`absolute inset-0 bg-gradient-to-t ${isBasement ? 'from-black via-stone-900/70' : 'from-[#3e2723] via-transparent'} to-transparent opacity-90`} />
       </div>
-      <div className="absolute inset-0 z-10 flex flex-col justify-end p-3 text-white">
+      <div className="absolute inset-0 z-10 flex flex-col justify-end p-2 sm:p-3 text-white">
         <div className="flex items-center justify-between mb-1">
-            <div className={`p-1.5 rounded backdrop-blur-sm bg-black/30 border border-white/20 ${room.color}`}><Icon size={18} /></div>
-            {!isBasement && <ChevronUp size={16} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 rotate-90 text-[#ffecb3]" />}
+            <div className={`p-1 sm:p-1.5 rounded backdrop-blur-sm bg-black/30 border border-white/20 ${room.color}`}>
+              <Icon size={16} className="sm:w-[18px] sm:h-[18px]" />
+            </div>
+            {!isBasement && <ChevronUp size={16} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 rotate-90 text-[#ffecb3] hidden sm:block" />}
         </div>
-        <h4 className="font-bold text-sm sm:text-base leading-tight drop-shadow-md font-serif tracking-wide text-[#ffecb3]">{room.name}</h4>
-        <p className="text-[10px] sm:text-xs text-gray-200 mt-0.5 truncate opacity-90 font-light">{room.description}</p>
+        <h4 className="font-bold text-xs sm:text-base leading-tight drop-shadow-md font-serif tracking-wide text-[#ffecb3] line-clamp-1">{room.name}</h4>
+        <p className="text-[10px] sm:text-xs text-gray-200 mt-0.5 truncate opacity-90 font-light hidden sm:block">{room.description}</p>
       </div>
     </div>
   );
