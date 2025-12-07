@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 
-// ▼▼▼ デザイン用スタイル定義（絵本風フォント・紙の質感・クリスマス柄テープ） ▼▼▼
+// ▼▼▼ デザイン用スタイル定義 ▼▼▼
 const fontStyle = (
   <style>
     {`
@@ -11,13 +11,12 @@ const fontStyle = (
         font-family: 'Zen Maru Gothic', sans-serif;
       }
       
-      /* 紙の質感（中心が明るく、端が少し暗い） */
       .paper-texture {
         background-color: #fffbf0;
         background-image: radial-gradient(circle, #fffbf0 0%, #fff8e1 90%, #faeec7 100%);
       }
 
-      /* ▼▼▼ クリスマスカラーのストライプテープ ▼▼▼ */
+      /* クリスマスストライプテープ */
       .masking-tape {
         position: absolute;
         top: -12px;
@@ -26,20 +25,18 @@ const fontStyle = (
         width: 100px;
         height: 28px;
         
-        /* 斜めストライプ（赤・黄・緑・黄の繰り返し） */
         background-image: repeating-linear-gradient(
           -45deg,
-          rgba(211, 47, 47, 0.85) 0px,  /* 赤 */
+          rgba(211, 47, 47, 0.85) 0px,
           rgba(211, 47, 47, 0.85) 10px,
-          rgba(253, 216, 53, 0.9) 10px, /* 黄 */
+          rgba(253, 216, 53, 0.9) 10px,
           rgba(253, 216, 53, 0.9) 12px,
-          rgba(56, 142, 60, 0.85) 12px, /* 緑 */
+          rgba(56, 142, 60, 0.85) 12px,
           rgba(56, 142, 60, 0.85) 30px,
-          rgba(253, 216, 53, 0.9) 30px, /* 黄（つなぎ） */
+          rgba(253, 216, 53, 0.9) 30px,
           rgba(253, 216, 53, 0.9) 33px
         );
 
-        /* テープの端のギザギザ感 */
         border-left: 2px dotted rgba(255,255,255,0.8);
         border-right: 2px dotted rgba(255,255,255,0.8);
         box-shadow: 0 2px 4px rgba(0,0,0,0.15);
@@ -242,12 +239,10 @@ const SantaBookModal = () => {
     // === 目次ページ (Index) ===
     if (spreadIndex === 0) {
       return (
-        // スマホ: flex-col (縦並び), PC: flex-row (横並び)
         <div className="flex flex-col md:flex-row h-full paper-texture font-picture-book rounded-lg overflow-hidden">
           {/* 左側：イントロダクション */}
           <div className="flex-1 p-6 md:p-8 border-b md:border-b-0 md:border-r border-[#D7CCC8] border-dashed flex flex-col items-center justify-center text-center">
             
-            {/* 挿絵：スマホでは少し小さくする */}
             <div className="mb-4 md:mb-6 w-32 h-32 md:w-56 md:h-56 bg-white p-2 rounded shadow-md transform rotate-2 border border-[#E0E0E0]">
                <img 
                  src="/images/guide/intro_illustration.png"
@@ -269,7 +264,7 @@ const SantaBookModal = () => {
               <span className="md:hidden">下</span><span className="hidden md:inline">右</span>の目次から<br/>
               気になる部屋を探してみてください<br/>
               <span className="text-[#8D6E63] text-[10px] md:text-xs mt-2 block">
-                サンタさんが夜な夜な執筆中... ✍️
+                サンタさんが夜な夜な執筆中... ✍️<br/>(まだ未完成です)
               </span>
             </p>
           </div>
@@ -307,9 +302,9 @@ const SantaBookModal = () => {
 
     return (
       <div className="flex flex-col md:flex-row h-full overflow-y-auto md:overflow-hidden">
-        {/* スマホでは縦に積むので h-auto */}
+        {/* スマホでは縦に積むので h-auto。flex-1で画面いっぱい使わせる */}
         <div className="h-auto md:h-full flex-1">
-          <DetailPage item={leftItem} pageNum={startIndex + 1} closeBook={toggleBook} />
+          <DetailPage item={leftItem} closeBook={toggleBook} />
         </div>
         
         {/* 中央の影（PCのみ）/ 区切り線（スマホのみ） */}
@@ -320,11 +315,15 @@ const SantaBookModal = () => {
         
         {/* スマホで2ページ目がある場合は区切り線を入れる */}
         {rightItem && (
-          <div className="md:hidden w-full h-4 bg-[#D7CCC8]/30 border-y border-[#D7CCC8] border-dashed"></div>
+          <div className="md:hidden w-full h-8 bg-[#D7CCC8]/20 border-y border-[#D7CCC8] border-dashed relative">
+             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#A1887F] text-xs font-bold bg-[#fff8e1] px-2">
+               Next Room
+             </div>
+          </div>
         )}
 
         <div className="h-auto md:h-full flex-1">
-          <DetailPage item={rightItem} pageNum={startIndex + 2} closeBook={toggleBook} />
+          <DetailPage item={rightItem} closeBook={toggleBook} />
         </div>
       </div>
     );
@@ -334,7 +333,7 @@ const SantaBookModal = () => {
     <>
       {fontStyle}
 
-      {/* 🔴 トリガーボタン（スマホでは少し小さく） */}
+      {/* 🔴 トリガーボタン */}
       <button 
         onClick={toggleBook}
         className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 bg-[#B71C1C] text-[#FFD54F] p-3 md:p-4 rounded-full shadow-xl hover:scale-110 hover:bg-[#C62828] transition-all border-2 border-[#FFD54F] group"
@@ -361,7 +360,7 @@ const SantaBookModal = () => {
                  {renderSpread()}
               </div>
 
-              {/* フッター（ページ送り） */}
+              {/* フッター */}
               <div className="h-12 md:h-14 border-t border-[#D7CCC8] bg-[#FFF3E0] flex items-center justify-between px-4 md:px-6 select-none flex-shrink-0 font-picture-book">
                 <button 
                   onClick={prevPage}
@@ -399,15 +398,15 @@ const SantaBookModal = () => {
   );
 };
 
-// === 詳細ページのコンポーネント（デザイン強化版） ===
-const DetailPage = ({ item, pageNum, closeBook }) => {
+// === 詳細ページのコンポーネント（修正版：ページ番号削除） ===
+const DetailPage = ({ item, closeBook }) => {
   if (!item) return <div className="flex-1 paper-texture md:rounded-r-lg min-h-[50vh]"></div>; 
   const isOpen = item.status === "open";
 
   return (
     <div className="flex-1 p-4 md:p-8 flex flex-col h-full relative paper-texture font-picture-book">
-      {/* ページ番号（スマホでは小さく） */}
-      <div className="absolute top-2 right-4 text-[#A1887F] text-xs md:text-sm font-bold opacity-50">-{pageNum}-</div>
+      
+      {/* 🗑️ ページ番号（数字）を削除しました */}
       
       {/* ヘッダー */}
       <div className="flex items-center gap-3 mb-4 md:mb-6 border-b-2 border-dashed border-[#D7CCC8] pb-3 md:pb-4">
@@ -428,7 +427,7 @@ const DetailPage = ({ item, pageNum, closeBook }) => {
           {item.desc}
         </p>
         
-        {/* ▼▼▼ ステップ（手順）がある場合の表示 ▼▼▼ */}
+        {/* ステップ（手順） */}
         {isOpen && item.steps && item.steps.length > 0 && (
           <div className="space-y-6 md:space-y-10 pb-4 md:pb-8 px-1">
             <div className="text-center text-xs text-[#B71C1C] font-bold border-y border-dashed border-[#B71C1C] py-1 mb-4 md:mb-6">
@@ -439,7 +438,7 @@ const DetailPage = ({ item, pageNum, closeBook }) => {
               <div key={idx} className={`relative bg-white p-2 md:p-3 pt-5 md:pt-6 pb-3 md:pb-4 rounded shadow-sm border border-[#EFEBE9] 
                  ${idx % 2 === 0 ? 'rotate-1' : '-rotate-1'} hover:rotate-0 transition-transform duration-300`}>
                 
-                {/* マスキングテープ装飾 */}
+                {/* マスキングテープ */}
                 <div className="masking-tape"></div>
 
                 {/* 画像エリア */}
@@ -473,7 +472,7 @@ const DetailPage = ({ item, pageNum, closeBook }) => {
           </div>
         )}
 
-        {/* 画像がない場合のプレースホルダー */}
+        {/* プレースホルダー */}
         {isOpen && (!item.steps || item.steps.length === 0) && (
           <div className="w-full h-24 md:h-32 rounded border-2 border-dashed border-[#D7CCC8] flex items-center justify-center bg-[#F5F5F5]">
              <span className="text-[#D7CCC8] text-xs font-bold">Image Area</span>
