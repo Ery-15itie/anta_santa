@@ -3,25 +3,48 @@ import "@hotwired/turbo-rails"
 import "./controllers"
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import HeartoryHome from './components/HeartoryHome';
 
-// 【確認1】JSファイル自体が読み込まれたか？
-console.log("🚀 STEP1: JavaScript file is loaded!");
+// ▼▼▼ コンポーネントをインポート ▼▼▼
+import HeartoryHome from './components/HeartoryHome';
+import SantaBookModal from './components/SantaBookModal'; // ← 追加！
+
+console.log("🚀 JS Loaded");
 
 document.addEventListener('turbo:load', () => {
-  // 【確認2】画面の読み込み完了イベントが発火したか？
-  console.log("🚀 STEP2: Turbo Load Event Fired");
+  console.log("🚀 Turbo Load Event Fired");
 
-  const container = document.getElementById('heartory-home-root');
+  // =========================================================
+  // 【処理1】メインダッシュボード (HeartoryHome) の表示
+  // =========================================================
+  const homeContainer = document.getElementById('heartory-home-root');
   
-  // 【確認3】HTMLの中に「受け皿(div)」は見つかったか？
-  console.log("🚀 STEP3: Container found?", container);
+  if (homeContainer) {
+    // コンソールで確認（デバッグ用）
+    console.log("🏠 Found heartory-home-root, mounting React...");
+    
+    // 二重表示防止：中身が空の時だけレンダリング
+    if (!homeContainer.hasChildNodes()) {
+      const root = createRoot(homeContainer);
+      root.render(<HeartoryHome />);
+    }
+  }
 
-  if (container) {
-    console.log("🚀 STEP4: Mounting React...");
-    const root = createRoot(container);
-    root.render(<HeartoryHome />);
+  // =========================================================
+  // 【処理2】サンタのガイドブック (SantaBookModal) の表示
+  // =========================================================
+  // layout/application.html.erb に設置した <div id="santa-book-portal"> を探す
+  const bookContainer = document.getElementById('santa-book-portal');
+  
+  if (bookContainer) {
+    console.log("📖 Found santa-book-portal, mounting SantaBookModal...");
+    
+    // 二重表示防止
+    if (!bookContainer.hasChildNodes()) {
+      const root = createRoot(bookContainer);
+      root.render(<SantaBookModal />);
+    }
   } else {
-    console.log("⚠️ STEP3 FAILED: Container is null. Are you on the right page?");
+    // ギフトホールなどの画面でも出るはずなので、もし出なければここがログに出ます
+    console.log("⚠️ santa-book-portal container not found.");
   }
 });

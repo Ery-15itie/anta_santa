@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { LogIn, Heart, BookOpen, Clock, Zap, Target, Aperture, Leaf, Users, Cookie, ChevronUp, LogOut } from 'lucide-react';
+// import { BrowserRouter } from 'react-router-dom'; ← 削除
+
 import EmotionHearth from './EmotionHearth';
 import EmotionStats from './EmotionStats';
-// 新しい「書斎の部屋」コンポーネントを読み込み 
 import SantasStudyRoom from './SantaStudy/SantasStudyRoom'; 
+import SantaBookModal from './SantaBookModal';
 
 // 画像URL定義
 const rooms = [
@@ -27,18 +29,15 @@ const roomsSecondFloor = rooms.filter(r => r.floor === 2);
 const roomBasement = rooms.find(r => r.floor === 0);
 
 const HeartoryHome = () => {
-  // ▼▼▼ 修正: 初期値を「現在のURL」にすることで、リロード時も正しい画面を表示 ▼▼▼
   const [currentPath, setCurrentPath] = useState(window.location.pathname); 
   const [activeRoomId, setActiveRoomId] = useState(null); 
 
-  // ▼▼▼ 修正: ブラウザの履歴(URL)も更新するSPA遷移 ▼▼▼
   const handleNavigation = (path) => {
     window.history.pushState({}, '', path);
     setCurrentPath(path);
     setActiveRoomId(null);
   };
 
-  // ▼▼▼ 修正: ブラウザの「戻る/進む」ボタンに対応 ▼▼▼
   useEffect(() => {
     const onPopState = () => setCurrentPath(window.location.pathname);
     window.addEventListener('popstate', onPopState);
@@ -66,23 +65,18 @@ const HeartoryHome = () => {
   };
 
   const handleRoomClick = (room) => {
-    // ギフトホールはRailsのページへ完全遷移
     if (room.id === 'gift_hall') {
       window.location.href = '/gift-hall'; 
       return;
     }
-    // React内遷移
     if (room.id === 'emotion_hearth_living') {
       handleNavigation(room.path);
       return;
     }
-    // サンタの書斎へ遷移
     if (room.id === 'santa_study') {
-      handleNavigation(room.path); // path: '/santa-study'
+      handleNavigation(room.path);
       return;
     }
-    
-    // その他はComing Soon
     setActiveRoomId(room.id); 
   };
 
@@ -116,7 +110,7 @@ const HeartoryHome = () => {
       </div>
     );
   };
-    // 1. ホーム画面
+  
   const HomeView = () => (
     <>
       <div className="relative mb-12 pt-6">
@@ -202,41 +196,40 @@ const HeartoryHome = () => {
   const renderView = () => {
     switch (currentPath) {
       case '/': return <HomeView />;
-      
-      // 感情ログ
       case '/emotion-log': 
         return <EmotionHearth 
                  onBack={() => handleNavigation('/')} 
                  onOpenStats={() => handleNavigation('/emotion-stats')}
                  onLogout={handleLogout} 
                />;
-      
-      // 感情スタッツ
       case '/emotion-stats':
          return <EmotionStats 
                  onBack={() => handleNavigation('/emotion-log')} 
                  onLogout={handleLogout} 
                />;
-      
-      // 書斎の部屋
       case '/santa-study':
          return <SantasStudyRoom 
                   onBack={() => handleNavigation('/')} 
                 />;
-      
-      // ▼▼▼ 重要修正: 未知のパス(Rails側のページ)ならnullを返してReactを消す ▼▼▼
-      default: return null;
+      // ▼▼▼ デフォルトはHomeを表示（真っ白対策）▼▼▼
+      default: return <HomeView />;
     }
   };
 
-  // Reactがnullを返すときはコンテナ全体を表示しない (RailsのViewが表示されるようにする)
   const content = renderView();
-  if (content === null) return null;
+  
+  // if (content === null) return null; ← 削除
 
   return (
+    // ▼▼▼ <BrowserRouter>を削除し、以前のシンプルな形に戻す ▼▼▼
     <div className="min-h-screen bg-[#3e2723] font-sans text-gray-800 flex flex-col">
       <div className="fixed inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #3e2723 25%, #4e342e 25%, #4e342e 50%, #3e2723 50%, #3e2723 75%, #4e342e 75%, #4e342e 100%)', backgroundSize: '20px 20px' }}></div>
+      
       <MessageModal roomId={activeRoomId} />
+      
+      {/* 本を表示 */}
+      <SantaBookModal />
+
       <main className="container mx-auto p-4 relative z-10 flex-grow">
         {content}
       </main>

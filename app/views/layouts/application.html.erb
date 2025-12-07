@@ -48,7 +48,7 @@
 
   <body class="<%= content_for(:body_class) %> <%= content_for(:body_class).blank? ? 'bg-amber-100' : '' %>">
 
-        <%# フラッシュメッセージエリア %>
+    <%# フラッシュメッセージエリア %>
     <div class="flash-container">
       <% flash.each do |key, msg| %>
         <% if key.to_sym == :notice || key.to_sym == :alert %>
@@ -66,6 +66,9 @@
         <%= yield %>
       </div>
     </main>
+
+    <%# ▼▼▼ 修正: サンタのガイドブック表示エリア (JSで描画) ▼▼▼ %>
+    <div id="santa-book-portal"></div>
 
     <script>
       document.addEventListener('turbo:load', () => {

@@ -64,10 +64,10 @@
   
   <div class="text-center mb-12 relative z-10">
     <span class="bg-[#3e2723] text-[#ffecb3] px-4 py-1 rounded-full text-xs font-bold tracking-widest uppercase">GUIDE BOOK</span>
-    <h2 class="text-3xl font-black text-[#3e2723] mt-4 mb-4 font-serif">Heartory Home の歩き方</h2>
+    <h2 class="text-3xl font-black text-[#3e2723] mt-4 mb-4 font-serif">本アプリでできること<br>〜Heartory Home の歩き方〜</h2>
     <p class="text-[#5d4037] text-base leading-loose max-w-2xl mx-auto font-medium">
       Heart（心）＋ Story（物語）。<br>
-      ここは、自身の “心の物語を育てていく家” です。<br>
+      本アプリではここで自身の “心の物語” を育てていきます。<br>
       家の中の一つひとつの部屋には、あなたの内面を整理するための仕掛けが用意されています。
     </p>
   </div>
@@ -77,6 +77,10 @@
     <h3 class="text-xl font-bold text-[#3e2723] text-center mb-8 ">
     🏠家の間取りと役割
     </h3>
+    <p class="text-[#5d4037] text-center leading-loose max-w-2xl mx-auto font-medium">
+     ※詳しくは画面右下の本のアイコンをクリックしてください。<br>
+     ガイドブックの閲覧が可能です。
+    </p>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <%# 1階 %>
@@ -134,37 +138,6 @@
       </div>
     </div>
   </div>
-
-  <%# トナカイ一覧 %>
-  <div class="relative z-10">
-    <h3 class="text-xl font-bold text-[#3e2723] text-center mb-6 ">
-    🦌あなたが育てる9頭のトナカイたち（あなたの強み）
-    </h3>
-    <div class="overflow-x-auto rounded-lg border border-[#d7ccc8]">
-      <table class="w-full text-sm text-left text-[#5d4037] border-collapse">
-        <thead class="text-xs text-[#3e2723] uppercase bg-[#d7ccc8]">
-          <tr>
-            <th class="px-4 py-3">ICON</th>
-            <th class="px-4 py-3">NAME</th>
-            <th class="px-4 py-3">MEANING</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white">
-          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🔥</td><td class="px-4 py-2 font-bold">ブレイズ (Blaze)</td><td class="px-4 py-2">情熱・行動力</td></tr>
-          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">💡</td><td class="px-4 py-2 font-bold">ルキス (Lucis)</td><td class="px-4 py-2">洞察・気づき</td></tr>
-          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🍯</td><td class="px-4 py-2 font-bold">ミエル (Miel)</td><td class="px-4 py-2">優しさ・共感</td></tr>
-          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🎨</td><td class="px-4 py-2 font-bold">イデア (Idea)</td><td class="px-4 py-2">創造・アイデア</td></tr>
-          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🌱</td><td class="px-4 py-2 font-bold">クレスコ (Cresco)</td><td class="px-4 py-2">成長・努力</td></tr>
-          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🛡️</td><td class="px-4 py-2 font-bold">ノービレ (Nobile)</td><td class="px-4 py-2">誠実・責任感</td></tr>
-          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">❄️</td><td class="px-4 py-2 font-bold">カルマ (Calma)</td><td class="px-4 py-2">冷静・判断力</td></tr>
-          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">🤝</td><td class="px-4 py-2 font-bold">リアン (Lien)</td><td class="px-4 py-2">協力・つながり</td></tr>
-          <tr class="border-b border-[#efebe9] hover:bg-[#fff8e1]"><td class="px-4 py-2 font-bold">⚡</td><td class="px-4 py-2 font-bold">アウダ (Audax)</td><td class="px-4 py-2">挑戦・冒険</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-</div>
 
 <%# 3. 開発者からの手紙 (Story) %>
 <div class="w-full max-w-4xl bg-[#fffdf5] p-10 sm:p-16 rounded-sm shadow-2xl border border-[#d7ccc8] relative transform rotate-[0.5deg]">
@@ -236,15 +209,15 @@
 
  <%# ▼▼▼ フッターリンク ▼▼▼ %>
     <div class="mt-16 text-center border-t border-[#5d4037] pt-8 opacity-80">
-      <ul class="flex flex-wrap justify-center gap-6 text-sm text-[#ffecb3] font-bold tracking-wider">
+      <ul class="flex flex-wrap justify-center gap-6 text-sm text-[#8d6e63] font-bold tracking-wider">
         <li>
-          <%= link_to "利用規約(村の掟)", terms_path, class: "hover:text-[#ffcc80] transition border-b border-transparent hover:border-[#ffcc80]" %>
+          <%= link_to "利用規約(村の掟)", terms_path, class: "hover:text-[#f15a22] transition border-b border-transparent hover:border-[#ffcc80]" %>
         </li>
         <li>
-          <%= link_to "プライバシーポリシー(秘密の守り方)", privacy_path, class: "hover:text-[#ffcc80] transition border-b border-transparent hover:border-[#ffcc80]" %>
+          <%= link_to "プライバシーポリシー(秘密の守り方)", privacy_path, class: "hover:text-[#f15a22] transition border-b border-transparent hover:border-[#ffcc80]" %>
         </li>
         <li>
-          <%= link_to "お問い合わせフォーム", contact_path, class: "hover:text-[#ffcc80] transition border-b border-transparent hover:border-[#ffcc80]" %>
+          <%= link_to "お問い合わせフォーム", contact_path, class: "hover:text-[#f15a22] transition border-b border-transparent hover:border-[#ffcc80]" %>
         </li>
       </ul>
       <p class="text-[#8d6e63] text-xs mt-4 font-mono">© 2025 Anta-Santa. All Rights Reserved.</p>
