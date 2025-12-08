@@ -1,59 +1,65 @@
 <%# --- 共通部品: Anta-Santa村ガイド (掲示板・ガイド・メッセージ) --- %>
 
 <%# 1. アップデート情報 (村の掲示板) %>
-<div class="w-full max-w-4xl mb-16">
-  <div class="bg-[#5d4037] p-3 rounded-t-lg mx-4 border-x-4 border-t-4 border-[#3e2723] shadow-md relative z-0">
-    <h3 class="text-center text-[#ffecb3] font-bold tracking-[0.2em] text-sm">VILLAGE NOTICE BOARD</h3>
+<div class="w-full max-w-4xl mb-16 mx-auto px-4 sm:px-0">
+  <div class="bg-[#5d4037] p-3 rounded-t-lg mx-2 sm:mx-4 border-x-4 border-t-4 border-[#3e2723] shadow-md relative z-0">
+    <h3 class="text-center text-[#ffecb3] font-bold tracking-[0.2em] text-sm font-serif">VILLAGE NOTICE BOARD</h3>
   </div>
-  <div class="bg-[#fdf6e3] p-8 rounded-lg shadow-xl border-8 border-[#5d4037] relative z-10">
+  
+  <div class="bg-[#fdf6e3] p-4 sm:p-8 rounded-lg shadow-xl border-4 sm:border-8 border-[#5d4037] relative z-10">
     <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full bg-[#b71c1c] shadow-sm border border-[#e57373]"></div>
     
-    <h3 class="text-xl font-bold text-[#3e2723] text-center mb-6 border-b-2 border-dashed border-[#a1887f] pb-3 inline-block w-full">
+    <h3 class="text-lg sm:text-xl font-bold text-[#3e2723] text-center mb-4 sm:mb-6 border-b-2 border-dashed border-[#a1887f] pb-3 inline-block w-full">
       📢 アップデート情報など
     </h3>
     
-    <ul class="space-y-4 text-[#4e342e]">
+    <%# ▼▼▼ 修正: 高さ制限(300px)とスクロールバーを追加 ▼▼▼ %>
+    <div class="max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+      <ul class="space-y-4 text-[#4e342e]">
 
-      <li class="flex items-start gap-3">
-        <span class="bg-[#2e7d32] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">UPDATE</span>
-        <div>
-          <strong class="block text-sm font-bold">2025/11/24 初期アップデート（ギフトホールリニューアル）を行いました。</strong>
-          <span class="text-xs opacity-80">お手紙機能のデザインを一新し、より温かい体験をお届けできるようになりました。</span>
-        </div>
-      </li>
+        <%# ▼▼▼ 修正: 日付の新しい順（降順）に並び替えました ▼▼▼ %>
 
-      <li class="flex items-start gap-3">
-        <span class="bg-[#2e7d32] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">UPDATE</span>
-        <div>
-          <strong class="block text-sm font-bold">2025/11/24 新機能、「暖炉のリビング」を開放しました。</strong>
-          <span class="text-xs opacity-80">自身の感情を記録、昇華できる体験をお届けできるようになりました。</span>
-        </div>
-      </li>
+        <li class="flex items-start gap-3 border-b border-dashed border-[#d7ccc8] pb-3 last:border-0 last:pb-0">
+          <span class="bg-[#00aeef] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">RECOVER</span>
+          <div>
+            <strong class="block text-sm font-bold">2025/12/07 価値観のシェア機能を追加、暖炉の連続記録カードの不具合を修正しました。</strong>
+            <span class="text-xs opacity-80">12/5に発生しておりました上記2点の不具合は解消されました。</span>
+          </div>
+        </li>
 
-      <li class="flex items-start gap-3">
-        <span class="bg-[#F58220] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">ADDITION</span>
-        <div>
-          <strong class="block text-sm font-bold">2025/11/24 利用規約・プライバシーポリシーを策定しました。</strong>
-        </div>
-      </li>
+        <li class="flex items-start gap-3 border-b border-dashed border-[#d7ccc8] pb-3">
+          <span class="bg-[#2e7d32] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">UPDATE</span>
+          <div>
+            <strong class="block text-sm font-bold">2025/12/04 新機能、「サンタの書斎」を開放しました。</strong>
+            <span class="text-xs opacity-80">自身の価値観を深く見つめる体験をお届けできるようになりました。</span>
+          </div>
+        </li>
 
-      <li class="flex items-start gap-3">
-        <span class="bg-[#2e7d32] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">UPDATE</span>
-        <div>
-          <strong class="block text-sm font-bold">2025/12/04 新機能、「サンタの書斎」を開放しました。</strong>
-          <span class="text-xs opacity-80">自身の価値観を深く見つめる体験をお届けできるようになりました。</span>
-        </div>
-      </li>
+        <li class="flex items-start gap-3 border-b border-dashed border-[#d7ccc8] pb-3">
+          <span class="bg-[#F58220] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">ADDITION</span>
+          <div>
+            <strong class="block text-sm font-bold">2025/11/24 利用規約・プライバシーポリシーを策定しました。</strong>
+          </div>
+        </li>
 
-      <li class="flex items-start gap-3">
-        <span class="bg-[#00aeef] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">RECOVER</span>
-        <div>
-          <strong class="block text-sm font-bold">2025/12/07 価値観のシェア機能を追加、暖炉の連続記録カードの不具合を修正しました。</strong>
-          <span class="text-xs opacity-80">12/5に発生しておりました上記2点の不具合は解消されました。</span>
-        </div>
-      </li>
+        <li class="flex items-start gap-3 border-b border-dashed border-[#d7ccc8] pb-3">
+          <span class="bg-[#2e7d32] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">UPDATE</span>
+          <div>
+            <strong class="block text-sm font-bold">2025/11/24 新機能、「暖炉のリビング」を開放しました。</strong>
+            <span class="text-xs opacity-80">自身の感情を記録、昇華できる体験をお届けできるようになりました。</span>
+          </div>
+        </li>
 
-    </ul>
+        <li class="flex items-start gap-3">
+          <span class="bg-[#2e7d32] text-white text-[10px] px-2 py-1 rounded font-bold mt-1 shrink-0">UPDATE</span>
+          <div>
+            <strong class="block text-sm font-bold">2025/11/24 初期アップデート（ギフトホールリニューアル）を行いました。</strong>
+            <span class="text-xs opacity-80">お手紙機能のデザインを一新し、より温かい体験をお届けできるようになりました。</span>
+          </div>
+        </li>
+
+      </ul>
+    </div>
   </div>
 </div>
 
@@ -77,7 +83,7 @@
     <h3 class="text-xl font-bold text-[#3e2723] text-center mb-8 ">
     🏠家の間取りと役割
     </h3>
-    <p class="text-[#5d4037] text-center leading-loose max-w-2xl mx-auto font-medium">
+    <p class="text-[#5d4037] text-center leading-loose max-w-2xl mx-auto font-medium mb-6 bg-white/50 p-2 rounded">
      ※詳しくは画面右下の本のアイコンをクリックしてください<br>
      ガイドブックの閲覧が可能です
     </p>
@@ -101,7 +107,7 @@
           </li>
           <li class="flex gap-3">
             <span class="text-2xl shrink-0">❄️</span>
-            <div><strong class="text-[#3e2723] block font-bold">④ アトリエ：雪の結晶</strong><span class="text-[#5d4037]">性格診断。自分の特性を「結晶」として可視化し、強み・弱みを優しく知る場所。</span></div>
+            <div><strong class="text-[#3e2723] block font-bold">④ クリスタルアトリエ</strong><span class="text-[#5d4037]">性格診断。自分の特性を「結晶」として可視化し、強み・弱みを優しく知る場所。</span></div>
           </li>
           <li class="flex gap-3">
             <span class="text-2xl shrink-0">🍪</span>
@@ -225,3 +231,22 @@
 
   </div>
 </div>
+
+<%# ▼▼▼ スクロールバーのデザイン用CSS (このページのみに適用) ▼▼▼ %>
+<style>
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #e0e0e0;
+    border-radius: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #8d6e63;
+    border-radius: 4px;
+    border: 2px solid #e0e0e0;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #5d4037;
+  }
+</style>

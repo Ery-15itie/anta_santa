@@ -56,9 +56,7 @@ const fontStyle = (
 
 // === 📖 ガイドブックのデータ設定 ===
 const guideContent = [
-  // ----------------------------------------------------
-  // Page 1　ギフトホール
-  // ----------------------------------------------------
+  // Page 1
   {
     id: 1,
     title: "ギフトホール",
@@ -109,9 +107,7 @@ const guideContent = [
       },
     ]
   },
-   // ----------------------------------------------------
-  // Page 2　暖炉のリビング
-  // ----------------------------------------------------
+  // Page 2
   {
     id: 2,
     title: "暖炉のリビング",
@@ -147,9 +143,7 @@ const guideContent = [
       },
     ]
   },
-// ----------------------------------------------------
-  // Page 3: サンタの書斎
-  // ----------------------------------------------------
+  // Page 3
   {
     id: 3,
     title: "サンタの書斎",
@@ -162,16 +156,16 @@ const guideContent = [
         title: "書斎の入り口",
         text: "まずは「価値観の地図」を開いて星を探しに行くか、「心の航海日誌」で20の自分への問いに向き合うかを選びましょう。「星空の記録」から過去にあなたが選択した価値観を振り返ることができます。",
         img: "/images/guide/study_01_menu.png",
-        img2: "/images/guide/study_01_sub.png" // ★追加：2枚目の画像パス
+        img2: "/images/guide/study_01_sub.png"
       },
       {
         title: "価値観の地図（星空のパズル）",
-        text: "夜空に浮かぶ56個の価値観の中から、今のあなたにとって大切なものを最大10個まで選びます。星をクリックし、「この価値観を星として登録する」ボタンを押して価値観を登録しましょう。「過去・現在・未来」のタブを切り替えて、時系列で価値観の変化を見つめることもできます。",
+        text: "夜空に浮かぶ56個の価値観の中から、今のあなたにとって大切なものを最大10個まで選びます。「過去・現在・未来」のタブを切り替えて、時系列で価値観の変化を見つめることもできます。",
         img: "/images/guide/study_02_map.png"
       },
       {
         title: "星座の完成",
-        text: "星を選んで「決定して振り返る」を押すと、あなたの価値観の星空が完成します。この星空は保存するか空をリセットするかを選ぶことができます。",
+        text: "星を選んで「決定して振り返る」を押すと、あなたの価値観リストが完成します。選んだ価値観の星空は保存するか空をリセットするかを選ぶことができます。",
         img: "/images/guide/study_03_complete.png"
       },
       {
@@ -239,10 +233,9 @@ const guideContent = [
 
 const SantaBookModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [pageIndex, setPageIndex] = useState(0); // 0: Index, 1~10: Content Pages
+  const [pageIndex, setPageIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  // スマホ判定ロジック
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -252,12 +245,11 @@ const SantaBookModal = () => {
 
   const toggleBook = () => {
     setIsOpen(!isOpen);
-    setPageIndex(0); // 閉じるたびに目次に戻す
+    setPageIndex(0);
   };
 
   const nextPage = () => {
     if (pageIndex < guideContent.length) {
-      // スマホなら1ページ、PCなら2ページ進む（ただし上限は超えない）
       const increment = isMobile ? 1 : 2;
       setPageIndex(Math.min(pageIndex + increment, guideContent.length));
     }
@@ -265,24 +257,19 @@ const SantaBookModal = () => {
 
   const prevPage = () => {
     if (pageIndex > 0) {
-      // スマホなら1ページ、PCなら2ページ戻る（ただし0未満にはならない）
       const decrement = isMobile ? 1 : 2;
       setPageIndex(Math.max(pageIndex - decrement, 0));
     }
   };
 
   const jumpToPage = (targetContentIndex) => {
-    // コンテンツID（0始まり）からページ番号（1始まり）へ
-    // PCの場合は奇数ページ（見開きの左側）に合わせる
     let targetPage = targetContentIndex + 1;
     if (!isMobile && targetPage % 2 === 0) {
-      targetPage -= 1; // 偶数ページなら左側の奇数ページに寄せる
+      targetPage -= 1;
     }
     setPageIndex(targetPage);
   };
 
-  // PCでの見開き計算用
-  // pageIndexが 1 or 2 の時 -> Spread 1 (Content 0 & 1)
   const spreadStartContentIndex = Math.floor((pageIndex - 1) / 2) * 2;
 
   const renderContent = () => {
@@ -290,7 +277,6 @@ const SantaBookModal = () => {
     if (pageIndex === 0) {
       return (
         <div className="flex flex-col md:flex-row h-full paper-texture font-picture-book rounded-lg overflow-hidden">
-          {/* 左側：イントロダクション */}
           <div className="flex-1 p-6 md:p-8 border-b md:border-b-0 md:border-r border-[#D7CCC8] border-dashed flex flex-col items-center justify-center text-center">
             <div className="mb-4 md:mb-6 w-32 h-32 md:w-56 md:h-56 bg-white p-2 rounded shadow-md transform rotate-2 border border-[#E0E0E0]">
                <img 
@@ -311,12 +297,11 @@ const SantaBookModal = () => {
               {isMobile ? "下" : "右"}の目次から<br/>
               気になる部屋を探してみてください<br/>
               <span className="text-[#8D6E63] text-[10px] md:text-xs mt-2 block">
-                サンタさんが夜な夜な執筆中... ✍️<br/>(まだ未完成です)
+                サンタさんが夜な夜な執筆中... ✍️
               </span>
             </p>
           </div>
 
-          {/* 右側：目次リスト */}
           <div className="flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar">
             <h3 className="text-center font-bold text-[#3E2723] border-b-2 border-[#B71C1C] pb-2 mb-4 inline-block w-full text-sm md:text-base">
               I N D E X
@@ -344,10 +329,11 @@ const SantaBookModal = () => {
 
     // === スマホ表示：1ページのみ表示 ===
     if (isMobile) {
-      const item = guideContent[pageIndex - 1]; // pageIndex 1 -> guideContent[0]
+      const item = guideContent[pageIndex - 1];
       return (
         <div className="h-full">
-          <DetailPage item={item} closeBook={toggleBook} />
+          {/* position="right" を渡すことで右下に番号表示（スマホは1枚なのでどちらでもOKですが統一） */}
+          <DetailPage item={item} pageNum={pageIndex} position="right" closeBook={toggleBook} />
         </div>
       );
     }
@@ -359,18 +345,19 @@ const SantaBookModal = () => {
 
     return (
       <div className="flex h-full overflow-hidden">
-        <div className="flex-1 h-full">
-          <DetailPage item={leftItem} closeBook={toggleBook} />
+        <div className="flex-1 h-full relative">
+          {/* 左ページ：番号は左下 */}
+          <DetailPage item={leftItem} pageNum={spreadStartContentIndex + 1} position="left" closeBook={toggleBook} />
         </div>
         
-        {/* 中央の影（本ののど） */}
         <div className="w-0 relative">
            <div className="absolute inset-y-0 -left-4 w-8 bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.05)] to-transparent pointer-events-none z-10"></div>
            <div className="absolute inset-y-0 left-0 w-[1px] bg-[#D7CCC8]"></div>
         </div>
 
-        <div className="flex-1 h-full">
-          <DetailPage item={rightItem} closeBook={toggleBook} />
+        <div className="flex-1 h-full relative">
+          {/* 右ページ：番号は右下 */}
+          <DetailPage item={rightItem} pageNum={spreadStartContentIndex + 2} position="right" closeBook={toggleBook} />
         </div>
       </div>
     );
@@ -380,7 +367,6 @@ const SantaBookModal = () => {
     <>
       {fontStyle}
 
-      {/* 🔴 トリガーボタン */}
       <button 
         onClick={toggleBook}
         className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 bg-[#B71C1C] text-[#FFD54F] p-3 md:p-4 rounded-full shadow-xl hover:scale-110 hover:bg-[#C62828] transition-all border-2 border-[#FFD54F] group"
@@ -389,7 +375,6 @@ const SantaBookModal = () => {
         <BookOpen size={20} className="md:w-6 md:h-6 group-hover:animate-bounce" />
       </button>
 
-      {/* 📖 モーダル本体 */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-2 md:p-4 transition-opacity duration-300">
           <div className="relative bg-[#B71C1C] p-2 md:p-4 rounded-md md:rounded-r-xl md:rounded-l-md shadow-2xl max-w-5xl w-full h-[90vh] md:h-[85vh] flex flex-col border-l-4 md:border-l-8 border-[#8E1C1C]">
@@ -400,14 +385,13 @@ const SantaBookModal = () => {
               <X size={16} className="md:w-5 md:h-5" strokeWidth={3} />
             </button>
 
-            {/* 紙の部分 */}
             <div className="bg-[#FFF8E1] flex-grow rounded shadow-inner relative overflow-hidden flex flex-col">
               <div className="flex-grow overflow-y-auto relative custom-scrollbar">
                  <div className="absolute top-0 right-4 md:right-8 w-4 md:w-6 h-12 md:h-16 bg-[#C62828] rounded-b-lg shadow-md z-10 pointer-events-none opacity-90"></div>
                  {renderContent()}
               </div>
 
-              {/* フッター（ページ送り） */}
+              {/* フッター */}
               <div className="h-12 md:h-14 border-t border-[#D7CCC8] bg-[#FFF3E0] flex items-center justify-between px-4 md:px-6 select-none flex-shrink-0 font-picture-book">
                 <button 
                   onClick={prevPage}
@@ -451,15 +435,20 @@ const SantaBookModal = () => {
   );
 };
 
-// === 詳細ページのコンポーネント（番号削除版） ===
-const DetailPage = ({ item, closeBook }) => {
+// === 詳細ページのコンポーネント（修正版：ページ番号削除） ===
+const DetailPage = ({ item, pageNum, position, closeBook }) => {
   if (!item) return <div className="flex-1 paper-texture md:rounded-r-lg min-h-[50vh]"></div>; 
   const isOpen = item.status === "open";
 
   return (
     <div className="flex-1 p-4 md:p-8 flex flex-col h-full relative paper-texture font-picture-book">
       
-      {/* 🗑️ 右上のページ番号を削除しました */}
+      {/* ▼▼▼ 修正: ページ番号を左右の隅に配置 ▼▼▼ */}
+      <div className={`absolute bottom-3 text-[#A1887F] text-xs md:text-sm font-bold opacity-60
+        ${position === 'left' ? 'left-4 md:left-6' : 'right-4 md:right-6'}
+      `}>
+        p.{pageNum}
+      </div>
       
       {/* ヘッダー */}
       <div className="flex items-center gap-3 mb-4 md:mb-6 border-b-2 border-dashed border-[#D7CCC8] pb-3 md:pb-4">
@@ -475,7 +464,7 @@ const DetailPage = ({ item, closeBook }) => {
       </div>
 
       {/* コンテンツエリア */}
-      <div className="flex-grow pr-0 md:pr-2 overflow-y-auto custom-scrollbar">
+      <div className="flex-grow pr-0 md:pr-2 overflow-y-auto custom-scrollbar mb-6">
         <p className={`text-xs md:text-sm leading-relaxed font-medium mb-6 ${isOpen ? 'text-[#5D4037]' : 'text-[#9E9E9E]'}`}>
           {item.desc}
         </p>

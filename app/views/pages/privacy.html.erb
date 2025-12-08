@@ -1,4 +1,4 @@
-<%# プライバシーポリシー: 秘密の守り方 (Secret Scroll) - レイアウト調整版 %>
+<%# プライバシーポリシー: 秘密の守り方 (Secret Scroll) %>
 
 <div class="min-h-screen bg-[#271c19] font-serif pb-20 relative overflow-x-hidden text-[#3e2723]">
   
@@ -7,46 +7,47 @@
        style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');">
   </div>
 
-  <div class="container mx-auto px-4 py-12 max-w-3xl relative z-10">
+  <div class="container mx-auto px-4 py-8 sm:py-12 max-w-3xl relative z-10">
 
-    <%# ▼▼▼ 戻るボタン (調整箇所) ▼▼▼ %>
-    <div class="mb-12 text-center">
+    <%# ▼▼▼ 戻るボタン (スマホ対応: stickyで追従) ▼▼▼ %>
+    <div class="mb-8 text-center sticky top-4 z-20">
        <%= link_to root_path, class: "inline-block group relative" do %>
-         <div class="bg-[#4e342e] border-2 border-[#5d4037] px-6 py-2 rounded shadow-lg transform group-hover:-translate-y-1 transition duration-300 flex items-center gap-2">
-           <span class="text-[#ffecb3] font-bold text-sm tracking-widest">🏠 村へ戻る</span>
+         <div class="bg-[#4e342e] border-2 border-[#5d4037] px-4 sm:px-6 py-2 rounded shadow-lg transform group-hover:-translate-y-1 transition duration-300 flex items-center gap-2">
+           <span class="text-[#ffecb3] font-bold text-xs sm:text-sm tracking-widest">🏠 村へ戻る</span>
          </div>
        <% end %>
     </div>
 
-    <%# 巻物 (Scroll) %>
-    <div class="bg-[#fff8e1] p-12 sm:p-16 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative mx-auto transform rotate-1">
+    <%# 巻物 (Scroll) 本体 %>
+    <%# スマホではパディングを小さく(p-6)して文字領域を確保 %>
+    <div class="bg-[#fff8e1] px-6 py-10 sm:p-16 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative mx-auto transform rotate-1 mt-6 sm:mt-0">
       
-      <%# 紙の上下の巻き込み %>
-      <div class="absolute -top-6 left-0 right-0 h-12 bg-[#d7ccc8] rounded-full shadow-md border border-[#a1887f]"></div>
-      <div class="absolute -bottom-6 left-0 right-0 h-12 bg-[#d7ccc8] rounded-full shadow-md border border-[#a1887f]"></div>
+      <%# 紙の上下の巻き込み (スマホでは少し細く) %>
+      <div class="absolute -top-4 sm:-top-6 left-0 right-0 h-8 sm:h-12 bg-[#d7ccc8] rounded-full shadow-md border border-[#a1887f]"></div>
+      <div class="absolute -bottom-4 sm:-bottom-6 left-0 right-0 h-8 sm:h-12 bg-[#d7ccc8] rounded-full shadow-md border border-[#a1887f]"></div>
 
-      <%# 封蝋 %>
-      <div class="absolute top-8 right-8 w-20 h-20 bg-[#b71c1c] rounded-full flex items-center justify-center shadow-lg opacity-90 border-4 border-[#e57373] border-dashed text-[#ffcdd2] font-bold text-xs tracking-widest transform rotate-12">
+      <%# 封蝋 (スマホでは小さくして被り防止) %>
+      <div class="absolute top-2 right-2 sm:top-8 sm:right-8 w-14 h-14 sm:w-20 sm:h-20 bg-[#b71c1c] rounded-full flex items-center justify-center shadow-lg opacity-90 border-2 sm:border-4 border-[#e57373] border-dashed text-[#ffcdd2] font-bold text-[8px] sm:text-xs tracking-widest transform rotate-12 z-10">
         SECRET
       </div>
 
-      <h1 class="text-3xl font-black text-[#3e2723] mb-10 text-center border-b-2 border-double border-[#8d6e63] pb-4 inline-block w-full">
+      <h1 class="text-xl sm:text-3xl font-black text-[#3e2723] mb-6 sm:mb-10 text-center border-b-2 border-double border-[#8d6e63] pb-4 inline-block w-full mt-2 sm:mt-0">
         プライバシーポリシー
       </h1>
-      <p class="text-center text-[#8d6e63] mb-8 font-bold text-sm uppercase">秘密の守り方</p>
+      <p class="text-center text-[#8d6e63] mb-6 sm:mb-8 font-bold text-xs sm:text-sm uppercase tracking-widest">秘密の守り方</p>
 
-      <div class="space-y-8 text-[#4e342e] leading-relaxed text-justify">
+      <div class="space-y-6 sm:space-y-8 text-[#4e342e] leading-loose text-justify text-xs sm:text-sm font-medium">
         <p>
           Anta-Santa村（以下、本サービス）は、住民（ユーザー）の皆様の心の秘密（個人情報）を何よりも大切に扱います。
           ここに、私たちがどのように秘密を守るかを誓います。
         </p>
 
         <div>
-          <h3 class="font-bold text-lg mb-2 text-[#bf360c] border-l-4 border-[#bf360c] pl-2">1. お預かりする秘密</h3>
-          <p class="text-sm">
+          <h3 class="font-bold text-sm sm:text-lg mb-2 text-[#bf360c] border-l-4 border-[#bf360c] pl-2">1. お預かりする秘密</h3>
+          <p>
             本サービスは、以下の情報をお預かりします。
           </p>
-          <ul class="list-disc ml-5 mt-2 text-sm text-[#5d4037]">
+          <ul class="list-disc ml-4 sm:ml-5 mt-2 text-[#5d4037]">
             <li>あなたが登録したお名前（ニックネーム）、メールアドレス、パスワード</li>
             <li>あなたの感情や自己理解に関する情報</li>
             <li>あなたが誰かに送ったギフトレターの内容</li>
@@ -55,12 +56,12 @@
         </div>
 
         <div>
-          <h3 class="font-bold text-lg mb-2 text-[#bf360c] border-l-4 border-[#bf360c] pl-2">2. 秘密の使い方</h3>
-          <p class="text-sm">
-            お預かりした情報は、以下の目的のためにのみ使用します。<br>
+          <h3 class="font-bold text-sm sm:text-lg mb-2 text-[#bf360c] border-l-4 border-[#bf360c] pl-2">2. 秘密の使い方</h3>
+          <p>
+            お預かりした情報は、以下の目的のためにのみ使用します。<br class="hidden sm:inline">
             決して、第三者に無断で売り渡したりはしません。
           </p>
-          <ul class="list-disc ml-5 mt-2 text-sm text-[#5d4037]">
+          <ul class="list-disc ml-4 sm:ml-5 mt-2 text-[#5d4037]">
             <li>本サービスの提供・運営のため</li>
             <li>あなたへのお知らせ（通知）を送るため</li>
             <li>不正利用を防止し、村の安全を守るため</li>
@@ -69,16 +70,16 @@
         </div>
 
         <div>
-          <h3 class="font-bold text-lg mb-2 text-[#bf360c] border-l-4 border-[#bf360c] pl-2">3. 秘密の守り方</h3>
-          <p class="text-sm">
+          <h3 class="font-bold text-sm sm:text-lg mb-2 text-[#bf360c] border-l-4 border-[#bf360c] pl-2">3. 秘密の守り方</h3>
+          <p>
             情報の保管庫には厳重な鍵（SSL暗号化通信など）をかけ、限られた管理者（村長はじめ運営スタッフ）しか立ち入れないように管理しています。<br>
             また、パスワードは誰も読み取れない形（ハッシュ化）で保存されます。
           </p>
         </div>
 
         <div>
-          <h3 class="font-bold text-lg mb-2 text-[#bf360c] border-l-4 border-[#bf360c] pl-2">4. お問い合わせ</h3>
-          <p class="text-sm">
+          <h3 class="font-bold text-sm sm:text-lg mb-2 text-[#bf360c] border-l-4 border-[#bf360c] pl-2">4. お問い合わせ</h3>
+          <p>
             秘密の取り扱いに関するご質問は、村の「お問い合わせフォーム」までお寄せください。
           </p>
         </div>
