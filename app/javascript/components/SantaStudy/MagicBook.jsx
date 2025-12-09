@@ -1,29 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { fetchReflections, saveReflection } from '../../api/values';
-import { ChevronLeft, ChevronRight, X, PenTool, Book, Loader } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, PenTool, Book, Loader, Save } from 'lucide-react';
 
 /**
- * MagicBook コンポーネント
- * * 「心の航海日誌」機能を提供するモーダルコンポーネント。
- * APIから質問を取得し、本のようなUIで1ページずつ回答を入力・保存
- * * @param {function} onClose - 本を閉じる
+ * MagicBook コンポーネント (レスポンシブ対応版)
  */
 const MagicBook = ({ onClose }) => {
-  // --- State管理 ---
-  // questions: APIから取得した質問と回答のリスト
   const [questions, setQuestions] = useState([]);
-  // currentIndex: 現在開いている質問のインデックス（0始まり）
   const [currentIndex, setCurrentIndex] = useState(0);
-  // loading: 初期データ読み込み中かどうか
   const [loading, setLoading] = useState(true);
-  // isSaving: 回答の保存処理中かどうか（インジケーター表示用）
   const [isSaving, setIsSaving] = useState(false);
-  // error: データ取得時のエラーメッセージ
   const [error, setError] = useState(null);
 
-  /**
-   * 初期化処理: コンポーネントマウント時に質問データをAPIから取得
-   */
+  // データ取得
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -43,11 +32,7 @@ const MagicBook = ({ onClose }) => {
     loadData();
   }, []);
 
-  /**
-   * 回答保存ロジック
-   * * ページ遷移時や閉じる時に呼び出され、現在の回答をAPIに送信
-   * ユーザーが明示的に保存ボタンを押さなくても良い「自動保存」形式
-   */
+  // 保存処理
   const handleSave = async () => {
     if (!questions[currentIndex]) return;
     setIsSaving(true);
@@ -55,45 +40,32 @@ const MagicBook = ({ onClose }) => {
       await saveReflection(questions[currentIndex].id, questions[currentIndex].answer);
     } catch (e) {
       console.error("Save failed", e);
-      // エラー時はここでユーザーに通知する処理を入れても良い
     } finally {
       setIsSaving(false);
     }
   };
 
-  /**
-   * テキストエリア入力ハンドラー
-   * * ローカルのState（questions）を即時更新し、UIに入力を反映させる
-   */
+  // テキスト変更
   const handleTextChange = (e) => {
     const newText = e.target.value;
     const newQuestions = [...questions];
-    // 現在の質問の回答を更新
     newQuestions[currentIndex].answer = newText;
     setQuestions(newQuestions);
   };
 
-  /**
-   * 次のページへ進む
-   * 移動前に現在のページの内容を保存する
-   */
+  // ページ移動
   const handleNext = () => {
     handleSave();
     if (currentIndex < questions.length - 1) setCurrentIndex(prev => prev + 1);
   };
 
-  /**
-   * 前のページへ戻る
-   * 移動前に現在のページの内容を保存する
-   */
   const handlePrev = () => {
     handleSave();
     if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
   };
 
-  // --- レンダリング分岐 ---
+  // --- レンダリング ---
 
-  // 1. 読み込み中
   if (loading) {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
@@ -105,7 +77,6 @@ const MagicBook = ({ onClose }) => {
     );
   }
 
-  // 2. エラー発生時
   if (error) {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
@@ -119,84 +90,105 @@ const MagicBook = ({ onClose }) => {
     );
   }
 
-  // 3. メインビュー（本）
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/90 backdrop-blur-sm animate-fade-in">
       
-      {/* 本の外枠コンテナ: アスペクト比を固定して本の形状を維持 */}
-      <div className="relative w-full max-w-5xl aspect-[3/2] md:aspect-[2/1] bg-[#fdf6e3] rounded-r-2xl rounded-l-md shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex overflow-hidden border-8 border-[#3e2723]">
+      {/* 本の外枠: スマホは縦長(h-85vh), PCは横長(aspect-2/1) */}
+      <div className="relative w-full max-w-5xl h-[85vh] md:h-auto md:aspect-[2/1] bg-[#fdf6e3] rounded-lg md:rounded-r-2xl md:rounded-l-md shadow-2xl flex flex-col md:flex-row overflow-hidden border-4 md:border-8 border-[#3e2723]">
         
-        {/* 閉じるボタン: 閉じる際も保存を実行 */}
+        {/* 閉じるボタン */}
         <button 
           onClick={() => { handleSave(); onClose(); }} 
-          className="absolute top-4 right-4 z-20 text-[#5d4037] hover:bg-[#5d4037]/10 p-2 rounded-full transition-colors"
+          className="absolute top-2 right-2 md:top-4 md:right-4 z-30 text-[#5d4037] bg-[#fdf6e3]/50 hover:bg-[#5d4037]/10 p-2 rounded-full transition-colors"
         >
-          <X size={28} />
+          <X size={24} className="md:w-7 md:h-7" />
         </button>
 
-        {/* --- 左ページ (質問表示エリア) --- */}
-        <div className="flex-1 p-8 md:p-12 border-r border-[#d7ccc8] relative flex flex-col justify-center items-center text-center">
-          {/* 紙の質感をCSSグラデーションで表現 */}
-          <div className="absolute inset-0 bg-[#fdf6e3] opacity-50" style={{ backgroundImage: 'radial-gradient(#d7ccc8 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-          {/* 本のノド（中央）の影 */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/5 pointer-events-none"></div>
+        {/* --- [上段/左頁] 質問エリア --- */}
+        <div className="w-full md:w-1/2 p-6 md:p-12 border-b md:border-b-0 md:border-r border-[#d7ccc8] relative flex flex-col justify-center items-center text-center bg-[#fdf6e3] shrink-0">
+          {/* 紙の質感 */}
+          <div className="absolute inset-0 bg-[#fdf6e3] opacity-50 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#d7ccc8 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
           
-          <div className="relative z-10">
-            <div className="text-[#8d6e63] font-serif italic mb-6 flex items-center justify-center gap-2">
-              <Book size={16} />
+          <div className="relative z-10 max-h-[30vh] md:max-h-none overflow-y-auto w-full">
+            <div className="text-[#8d6e63] font-serif italic mb-2 md:mb-6 flex items-center justify-center gap-2 text-xs md:text-base">
+              <Book size={14} className="md:w-4 md:h-4" />
               <span>Question {currentIndex + 1} / {questions.length}</span>
             </div>
             
-            <h2 className="text-xl md:text-3xl font-bold text-[#3e2723] font-serif leading-relaxed mb-8">
+            <h2 className="text-lg md:text-3xl font-bold text-[#3e2723] font-serif leading-relaxed mb-4 md:mb-8">
               {questions[currentIndex].body}
             </h2>
             
-            <div className="text-[#8d6e63]/50">
+            <div className="text-[#8d6e63]/50 hidden md:block">
               <PenTool size={48} />
             </div>
           </div>
           
-          {/* ページ番号（奇数） */}
-          <div className="absolute bottom-6 left-6 text-[#8d6e63] font-serif">{currentIndex * 2 + 1}</div>
+          {/* PC用ページ番号 */}
+          <div className="absolute bottom-6 left-6 text-[#8d6e63] font-serif hidden md:block">{currentIndex * 2 + 1}</div>
         </div>
 
-        {/* --- 右ページ (回答入力エリア) --- */}
-        <div className="flex-1 p-8 md:p-12 relative bg-[#fffaf0]">
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/10 pointer-events-none"></div>
+        {/* --- [下段/右頁] 回答エリア --- */}
+        <div className="w-full md:w-1/2 flex-1 relative bg-[#fffaf0] flex flex-col">
+          {/* 影 (スマホは上から、PCは左から) */}
+          <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-l from-black/5 to-transparent pointer-events-none h-4 md:h-full md:w-4 z-10"></div>
           
-          <div className="h-full flex flex-col relative z-10">
-            {/* 罫線付きのテキストエリア */}
+          <div className="h-full flex flex-col relative z-0">
+            {/* 罫線付きテキストエリア */}
             <textarea
-              className="w-full h-full bg-transparent resize-none border-none focus:ring-0 text-[#3e2723] font-serif text-lg md:text-xl leading-loose p-4 placeholder-[#bcaaa4]"
+              className="w-full h-full bg-transparent resize-none border-none focus:ring-0 text-[#3e2723] font-serif p-4 md:p-8 placeholder-[#bcaaa4]
+                         text-base leading-[32px] md:text-xl md:leading-[40px]"
               style={{ 
-                // CSSグラデーションでノートの罫線を引く
-                backgroundImage: 'linear-gradient(transparent, transparent 39px, #d7ccc8 39px)', 
-                backgroundSize: '100% 40px', 
-                lineHeight: '40px' 
+                // スマホ: 32px間隔 / PC: 40px間隔
+                backgroundImage: 'linear-gradient(transparent, transparent calc(100% - 1px), #d7ccc8 calc(100% - 1px))', 
+                backgroundSize: '100% 32px', // モバイルデフォルト
               }}
+              // PC用のスタイル上書き
+              // (Tailwindのクラスだけでbackground-sizeの切り替えが難しいためstyle属性とメディアクエリを併用推奨だが、ここでは簡易的にJSで切り替えるか、CSSクラスで対応)
               placeholder="ここにあなたの答えを記してください..."
               value={questions[currentIndex].answer}
               onChange={handleTextChange}
             />
+            {/* styleの上書き用 (インラインスタイルだとメディアクエリが効かないため、ここで動的クラスを使用する代わりにstyleタグを埋め込む手法もありますが、今回は簡便のためstyle属性はモバイル合わせにし、PCはCSSクラスで調整することを想定。ただReactなのでstyleに条件分岐を入れるのが確実です) */}
+            <style>{`
+              @media (min-width: 768px) {
+                textarea {
+                  background-size: 100% 40px !important;
+                  line-height: 40px !important;
+                }
+              }
+            `}</style>
+
             {/* 保存中インジケーター */}
-            {isSaving && <span className="absolute bottom-4 right-12 text-xs text-[#8d6e63] animate-pulse">保存中...</span>}
+            <div className="absolute bottom-2 right-4 md:bottom-4 md:right-12 flex items-center gap-2 text-xs text-[#8d6e63]">
+              {isSaving ? <span className="animate-pulse flex items-center gap-1"><Loader size={12} className="animate-spin"/> 保存中...</span> : <span className="flex items-center gap-1 opacity-50"><Save size={12}/> 保存済み</span>}
+            </div>
           </div>
 
-          {/* ページ番号（偶数） */}
-          <div className="absolute bottom-6 right-6 text-[#8d6e63] font-serif">{currentIndex * 2 + 2}</div>
+          {/* PC用ページ番号 */}
+          <div className="absolute bottom-6 right-6 text-[#8d6e63] font-serif hidden md:block">{currentIndex * 2 + 2}</div>
         </div>
 
-        {/* --- ページめくりボタン --- */}
-        {currentIndex > 0 && (
-          <button onClick={handlePrev} className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-3 text-[#5d4037] hover:scale-110 transition bg-[#fdf6e3]/80 rounded-full shadow-lg">
-            <ChevronLeft size={32} />
-          </button>
-        )}
-        {currentIndex < questions.length - 1 && (
-          <button onClick={handleNext} className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-3 text-[#5d4037] hover:scale-110 transition bg-[#fdf6e3]/80 rounded-full shadow-lg">
-            <ChevronRight size={32} />
-          </button>
-        )}
+        {/* --- ナビゲーション (スマホ: 下部固定バー / PC: 左右矢印) --- */}
+        
+        {/* PC用矢印 (左右中央) */}
+        <button onClick={handlePrev} disabled={currentIndex === 0} className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 p-3 text-[#5d4037] hover:scale-110 transition bg-[#fdf6e3]/80 rounded-full shadow-lg disabled:opacity-0">
+          <ChevronLeft size={32} />
+        </button>
+        <button onClick={handleNext} disabled={currentIndex === questions.length - 1} className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 p-3 text-[#5d4037] hover:scale-110 transition bg-[#fdf6e3]/80 rounded-full shadow-lg disabled:opacity-0">
+          <ChevronRight size={32} />
+        </button>
+
+        {/* スマホ用操作バー (最下部) */}
+        <div className="md:hidden flex items-center justify-between px-6 py-3 bg-[#eefebe3] border-t border-[#d7ccc8] text-[#5d4037]">
+           <button onClick={handlePrev} disabled={currentIndex === 0} className="flex items-center gap-1 disabled:opacity-30 px-4 py-2">
+             <ChevronLeft size={20} /> <span className="text-sm font-bold">前へ</span>
+           </button>
+           <span className="font-serif text-sm">{currentIndex + 1} / {questions.length}</span>
+           <button onClick={handleNext} disabled={currentIndex === questions.length - 1} className="flex items-center gap-1 disabled:opacity-30 px-4 py-2">
+             <span className="text-sm font-bold">次へ</span> <ChevronRight size={20} /> 
+           </button>
+        </div>
         
       </div>
     </div>
