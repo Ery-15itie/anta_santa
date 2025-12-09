@@ -87,7 +87,7 @@ const guideContent = [
       },
       {
         title: "内容の確認",
-        text: "書き終わったら最終確認。切手を貼るように、心を込めて右下の送信ボタンを押します。",
+        text: "書き終わったら最終確認。切手を貼るように、心を込めて送信ボタンを押します。",
         img: "/images/guide/gift_05_confirm.png"
       },
       {

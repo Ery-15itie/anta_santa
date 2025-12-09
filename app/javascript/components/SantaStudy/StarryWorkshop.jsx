@@ -2,56 +2,85 @@ import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { fetchValueCategories, fetchUserSelections, createSelection, deleteSelection, uploadOgpImage } from '../../api/values';
 import PuzzlePiece from './PuzzlePiece';
 import {
-  Gift, Music, Snowflake, Star, Cloud, Send, Clock, MapPin, Compass,
-  ArrowLeft, Check, AlertCircle, Share2, Download, X, Loader
+  Star, Send, Clock, MapPin, Compass,
+  ArrowLeft, Check, AlertCircle, Share2, Download, X, Loader, Sparkles
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
-// カスタム通知コンポーネント
+// --- カスタム通知コンポーネント ---
 const Toast = ({ message, type = 'success' }) => {
-  const baseClass = "fixed top-10 left-1/2 -translate-x-1/2 z-[100] px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 animate-fade-in-down border";
+  const baseClass = "fixed top-4 sm:top-10 left-1/2 -translate-x-1/2 z-[100] px-4 py-3 sm:px-6 sm:py-4 rounded-lg shadow-2xl flex items-center gap-3 animate-fade-in-down border w-[90%] sm:w-auto justify-center";
   const colorClass = type === 'error'
     ? "bg-red-50 text-red-800 border-red-200"
     : "bg-white text-[#5d4037] border-[#d7ccc8]";
- 
   const iconBgClass = type === 'error' ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600";
 
   return (
     <div className={`${baseClass} ${colorClass}`}>
-      <div className={`p-1 rounded-full ${iconBgClass}`}>
+      <div className={`p-1 rounded-full ${iconBgClass} shrink-0`}>
         {type === 'error' ? <AlertCircle size={16} /> : <Check size={16} />}
       </div>
-      <span className="font-bold">{message}</span>
+      <span className="font-bold text-sm sm:text-base">{message}</span>
     </div>
   );
 };
 
+// --- PC用背景: 浮遊するおもちゃ ---
+const FloatingToys = () => {
+  const toys = ['🎁', '🧸', '🚂', '🤖', '🧩', '🥁', '🎺', '🎨', '🚀', '🏰', '🎠', '🎮'];
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden hidden md:block">
+       <div className="absolute top-1/2 left-0 animate-drift opacity-50" style={{ animationDelay: '5s' }}>
+           <div className="text-7xl filter grayscale brightness-200 contrast-0 blur-[1px] transform -rotate-6 drop-shadow-lg">🛷💨</div>
+       </div>
+       {[...Array(20)].map((_, i) => (
+          <div
+            key={`toy-${i}`}
+            className="absolute animate-drift-slow filter grayscale brightness-150 contrast-50 blur-[1px] drop-shadow-md"
+            style={{
+              top: `${Math.random() * 80 + 10}%`,
+              left: `${Math.random() * 90 + 5}%`,
+              fontSize: `${Math.random() * 2 + 1.5}rem`,
+              opacity: Math.random() * 0.2 + 0.1,
+              animationDelay: `${Math.random() * 10}s`,
+              animationDuration: `${Math.random() * 10 + 10}s`
+            }}
+          >
+            {toys[Math.floor(Math.random() * toys.length)]}
+          </div>
+       ))}
+    </div>
+  );
+};
+
+// --- メインコンポーネント ---
 const StarryWorkshop = ({ onBack }) => {
-  // --- State定義 ---
+  // State
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
- 
   const [selections, setSelections] = useState({ past: [], current: [], future: [] });
   const [activeTimeframe, setActiveTimeframe] = useState('current');
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState(null);
- 
   const [viewMode, setViewMode] = useState('workshop');
   const [reflectionText, setReflectionText] = useState("");
   const [selectedDetailCard, setSelectedDetailCard] = useState(null);
   const [shouldReset, setShouldReset] = useState(true);
 
-  // シェア機能用State
+  // Share State
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const shareRef = useRef(null);
 
+  // Animation Refs
   const cardRefs = useRef({});
-  const [lines, setLines] = useState([]);
+  const [pcLines, setPcLines] = useState([]); // PC用星座線
+  const [trainPath, setTrainPath] = useState(""); // スマホ用列車パス
+  const [pathLength, setPathLength] = useState(0);
 
-  // --- 初期データ読み込み ---
+  // --- データ取得 ---
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -84,8 +113,7 @@ const StarryWorkshop = ({ onBack }) => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // --- イベントハンドラー ---
-
+  // --- 操作系ハンドラー ---
   const handleCardClick = (card) => {
     if (viewMode !== 'workshop') return;
     setSelectedDetailCard(card);
@@ -104,7 +132,7 @@ const StarryWorkshop = ({ onBack }) => {
         newList = [...currentList, cardId];
         await createSelection({ value_card_id: cardId, timeframe: activeTimeframe });
       } else {
-        showToast("空に浮かべられる星は10個までです ⭐", 'error');
+        showToast("選べる星（価値観）は10個までです ⭐", 'error');
         return;
       }
     }
@@ -112,89 +140,115 @@ const StarryWorkshop = ({ onBack }) => {
     setSelectedDetailCard(null);
   };
 
-  // --- シェア機能: 画像生成 ---
+  // --- 描画計算ロジック (PC:線 / スマホ:列車) ---
+  useLayoutEffect(() => {
+    if (viewMode !== 'workshop') return;
+
+    const calculateVisuals = () => {
+      const currentIds = selections[activeTimeframe];
+      const isMobile = window.innerWidth < 768; // Tailwindのmdブレークポイント準拠
+
+      // 共通: 座標取得
+      const points = currentIds.map(id => {
+        const el = cardRefs.current[id];
+        if (el && el.offsetParent !== null) { // 表示されている要素のみ
+          const rect = el.getBoundingClientRect();
+          return {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+          };
+        }
+        return null;
+      }).filter(Boolean);
+
+      if (points.length === 0) {
+        setPcLines([]);
+        setTrainPath("");
+        return;
+      }
+
+      if (isMobile) {
+        // --- スマホ用: 列車パス (一筆書きループ) ---
+        let d = `M ${points[0].x} ${points[0].y}`;
+        if (points.length === 1) {
+          d += ` L ${points[0].x + 0.1} ${points[0].y} Z`;
+        } else {
+          for (let i = 1; i < points.length; i++) {
+            d += ` L ${points[i].x} ${points[i].y}`;
+          }
+          d += ` Z`; // 最初に戻る
+        }
+        setTrainPath(d);
+        setPathLength(points.length);
+        setPcLines([]); // PC用はクリア
+      } else {
+        // --- PC用: 星座線 (順次接続) ---
+        const lines = [];
+        for (let i = 0; i < points.length - 1; i++) {
+          lines.push({
+            x1: points[i].x, y1: points[i].y,
+            x2: points[i+1].x, y2: points[i+1].y
+          });
+        }
+        setPcLines(lines);
+        setTrainPath(""); // スマホ用はクリア
+      }
+    };
+
+    calculateVisuals();
+    window.addEventListener('resize', calculateVisuals);
+    window.addEventListener('scroll', calculateVisuals, true);
+    
+    // アニメーションフレームで追従
+    let animationFrameId;
+    const loop = () => {
+        calculateVisuals();
+        animationFrameId = requestAnimationFrame(loop);
+    };
+    loop();
+
+    return () => {
+      window.removeEventListener('resize', calculateVisuals);
+      window.removeEventListener('scroll', calculateVisuals, true);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [selections, activeTimeframe, loading, viewMode]);
+
+
+  // --- シェア・保存ロジック ---
   const handleShareOpen = async () => {
     const currentList = selections[activeTimeframe];
     if (currentList.length === 0) {
-      showToast("まずは星（価値観）を選んでください ⭐", 'error');
+      showToast("まずは価値観を選んでください ⭐", 'error');
       return;
     }
-   
     setShareModalOpen(true);
     setGeneratedImage(null);
     setIsGeneratingImage(true);
 
-    // モーダルが開いてDOMが描画されるのを待つ
     setTimeout(async () => {
       if (shareRef.current) {
         try {
-          const canvas = await html2canvas(shareRef.current, {
-            backgroundColor: '#0f172a',
-            scale: 2,
-            useCORS: true,
-            logging: false,
-          });
-          const imageData = canvas.toDataURL('image/png');
-          setGeneratedImage(imageData);
-        } catch (error) {
-          console.error("Image generation failed", error);
-          showToast("画像の生成に失敗しました", 'error');
-        } finally {
-          setIsGeneratingImage(false);
-        }
+          const canvas = await html2canvas(shareRef.current, { backgroundColor: '#0f172a', scale: 2, useCORS: true, logging: false });
+          setGeneratedImage(canvas.toDataURL('image/png'));
+        } catch (e) { showToast("生成失敗", 'error'); } finally { setIsGeneratingImage(false); }
       }
     }, 500);
   };
 
-  // --- シェア機能: アップロード & ツイート（修正版）---
   const handleTweet = async () => {
-    if (!generatedImage) {
-      showToast("画像が生成されていません", 'error');
-      return;
-    }
-    
+    if (!generatedImage) return;
     setIsUploading(true);
-    
     try {
-      // 画像をアップロード
       const res = await uploadOgpImage(generatedImage);
-      
-      if (!res.data || !res.data.url) {
-        throw new Error("URLの取得に失敗しました");
-      }
-      
+      if (!res.data || !res.data.url) throw new Error("URL error");
       const shareUrl = res.data.url;
-
-      const timeframeLabel =
-        activeTimeframe === 'past' ? '過去' :
-        activeTimeframe === 'future' ? '未来' : '現在';
-
-      // ツイート文を簡潔に
+      const timeframeLabel = activeTimeframe === 'past' ? '過去' : activeTimeframe === 'future' ? '未来' : '現在';
       const text = `【${timeframeLabel}の価値観】私の大切な価値観の星々✨\n\n#サンタの書斎 #AntaSanta #価値観パズル`;
-      
-      // Twitter Intent URLを構築
       const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
-      
-      // 新しいウィンドウで開く
-      const newWindow = window.open(tweetUrl, '_blank', 'noopener,noreferrer');
-      
-      if (!newWindow) {
-        showToast("ポップアップがブロックされました。ブラウザの設定を確認してください。", 'error');
-      } else {
-        showToast("𝕏のシェア画面を開きました！", 'success');
-        // モーダルを閉じる
-        setTimeout(() => {
-          setShareModalOpen(false);
-          setGeneratedImage(null);
-        }, 1000);
-      }
-
-    } catch (error) {
-      console.error("Upload or share failed", error);
-      showToast("シェア用URLの作成に失敗しました", 'error');
-    } finally {
-      setIsUploading(false);
-    }
+      window.open(tweetUrl, '_blank', 'noopener,noreferrer');
+      setShareModalOpen(false);
+    } catch (error) { showToast("シェアに失敗しました", 'error'); } finally { setIsUploading(false); }
   };
 
   const handleDownloadImage = () => {
@@ -203,221 +257,148 @@ const StarryWorkshop = ({ onBack }) => {
     link.href = generatedImage;
     link.download = `santas-study-values-${activeTimeframe}.png`;
     link.click();
-    showToast("画像をダウンロードしました 📥", 'success');
+    showToast("画像を保存しました 📥", 'success');
   };
 
-  // --- 振り返り・保存 ---
   const handleConfirm = () => setViewMode('reflection_input');
 
   const handleCompleteReflection = async () => {
     setIsSaving(true);
     const currentList = selections[activeTimeframe];
-   
     const selectedCardNames = currentList.map(id => {
       const c = categories.flatMap(cat => cat.value_cards).find(card => card.id === id);
       return c ? c.name : '';
     }).filter(Boolean).join(', ');
 
-    const timestamp = new Date().toLocaleString('ja-JP', { 
-      year: 'numeric', 
-      month: '2-digit', 
-      day: '2-digit', 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+    const timestamp = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
     const finalNote = `【${timestamp}の記録】\n⭐ 選んだ星: ${selectedCardNames}\n\n${reflectionText}`;
 
     try {
       if (currentList.length > 0) {
         const lastCardId = currentList[currentList.length - 1];
-        await createSelection({
-          value_card_id: lastCardId,
-          timeframe: activeTimeframe,
-          description: finalNote
-        });
+        await createSelection({ value_card_id: lastCardId, timeframe: activeTimeframe, description: finalNote });
       }
-
       showToast("航海日誌に記録しました ✒️");
-     
-      if (shouldReset) {
-        setSelections(prev => ({ ...prev, [activeTimeframe]: [] }));
-      }
-
+      if (shouldReset) setSelections(prev => ({ ...prev, [activeTimeframe]: [] }));
       setViewMode('workshop');
       setReflectionText("");
     } catch (e) {
-      console.error(e);
       showToast("保存に失敗しました", 'error');
     } finally {
       setIsSaving(false);
     }
   };
 
-  // --- 星座線の描画ロジック ---
-  useLayoutEffect(() => {
-    if (viewMode !== 'workshop') return;
-    const calculateLines = () => {
-      const currentIds = selections[activeTimeframe];
-      if (currentIds.length < 2) {
-        setLines([]); 
-        return;
-      }
-      const newLines = [];
-      for (let i = 0; i < currentIds.length - 1; i++) {
-        const startId = currentIds[i];
-        const endId = currentIds[i + 1];
-        const startEl = cardRefs.current[startId];
-        const endEl = cardRefs.current[endId];
-        if (startEl && endEl) {
-          const startRect = startEl.getBoundingClientRect();
-          const endRect = endEl.getBoundingClientRect();
-          newLines.push({
-            x1: startRect.left + startRect.width / 2,
-            y1: startRect.top + startRect.height / 2,
-            x2: endRect.left + endRect.width / 2,
-            y2: endRect.top + endRect.height / 2
-          });
-        }
-      }
-      setLines(newLines);
-    };
-    calculateLines();
-    window.addEventListener('resize', calculateLines);
-    return () => window.removeEventListener('resize', calculateLines);
-  }, [selections, activeTimeframe, loading, viewMode]);
-
-  // --- メッセージ定義 ---
   const getReflectionMessage = () => {
     switch(activeTimeframe) {
-      case 'past': 
-        return "あの頃、この価値観があなたをどう支えていましたか？\n当時のエピソードがあれば書き残しましょう。";
-      case 'current': 
-        return "今、これらの価値観を選んだ理由は何ですか？\n現在のあなたの指針となっている想いを言葉にしてみましょう。";
-      case 'future': 
-        return "この価値観を大切にして、どんな未来を描きますか？\n理想の自分に近づくための第一歩は何でしょう。";
-      default: 
-        return "今の気持ちを書き留めましょう。";
+      case 'past': return "あの頃、この価値観があなたをどう支えていましたか？";
+      case 'current': return "今、これらの価値観を選んだ理由は何ですか？";
+      case 'future': return "この価値観を大切にして、どんな未来を描きますか？";
+      default: return "今の気持ちを書き留めましょう。";
     }
   };
 
   const TimeTab = ({ id, label, icon: Icon }) => (
     <button
-      onClick={() => { 
-        setActiveTimeframe(id); 
-        setViewMode('workshop'); 
-      }}
-      className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 border backdrop-blur-md ${
+      onClick={() => { setActiveTimeframe(id); setViewMode('workshop'); }}
+      className={`flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full transition-all duration-300 border backdrop-blur-md text-xs sm:text-sm ${
         activeTimeframe === id 
           ? 'bg-yellow-500/90 text-white border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.5)] scale-105' 
           : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:border-white/30'
       }`}
     >
-      <Icon size={16} />
-      <span className="text-sm font-bold">{label}</span>
+      <Icon size={14} className="sm:w-4 sm:h-4" />
+      <span className="font-bold">{label}</span>
     </button>
   );
-
-  const toys = ['🎁', '🧸', '🚂', '🤖', '🧩', '🥁', '🎺', '🎨', '🚀', '🏰', '🎠', '🎮'];
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white font-sans fixed inset-0 z-50 overflow-y-auto overflow-x-hidden">
      
       {toast && <Toast message={toast.message} type={toast.type} />}
 
-      {/* --- 背景装飾 --- */}
+      {/* --- 背景装飾 (共通 & PC用おもちゃ) --- */}
       <div className="fixed inset-0 pointer-events-none z-0 select-none overflow-hidden">
         <style>{`
-          @keyframes float-random { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, -10px); } }
+          @keyframes float-random { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, -5px); } }
           @keyframes drift { 0% { transform: translateX(-10vw); opacity: 0; } 10% { opacity: 0.5; } 90% { opacity: 0.5; } 100% { transform: translateX(110vw); opacity: 0; } }
           @keyframes drift-slow { 0% { transform: translateX(-10vw) translateY(0); opacity: 0; } 20% { opacity: 0.3; } 80% { opacity: 0.3; } 100% { transform: translateX(110vw) translateY(20px); opacity: 0; } }
           @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
           @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
           @keyframes fade-in-down { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
-          .animate-float-random { animation: float-random 6s ease-in-out infinite; }
+          @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(253, 224, 71, 0); } 100% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0); } }
+          .animate-float-random { animation: float-random 4s ease-in-out infinite; }
           .animate-drift { animation: drift 60s linear infinite; }
           .animate-drift-slow { animation: drift-slow 90s linear infinite; }
-          .animate-twinkle { animation: twinkle 4s ease-in-out infinite; }
+          .animate-twinkle { animation: twinkle 3s ease-in-out infinite; }
           .animate-fade-in { animation: fade-in 0.3s ease-out; }
           .animate-fade-in-down { animation: fade-in-down 0.3s ease-out; }
+          .animate-pulse-glow { animation: pulse-glow 2s infinite; }
         `}</style>
-       
-        <div className="absolute top-[-5%] right-[-5%] w-[500px] h-[500px] bg-yellow-100/5 rounded-full blur-[100px]"></div>
-       
-        <div className="absolute top-1/2 left-0 animate-drift opacity-50" style={{ animationDelay: '5s' }}>
-           <div className="text-7xl filter grayscale brightness-200 contrast-0 blur-[1px] transform -rotate-6 drop-shadow-lg">🛷💨</div>
-        </div>
-
-        {[...Array(30)].map((_, i) => (
-          <div 
-            key={`star-${i}`} 
-            className="absolute text-yellow-100 animate-twinkle" 
-            style={{ 
-              top: `${Math.random()*100}%`, 
-              left: `${Math.random()*100}%`, 
-              opacity: Math.random()*0.5+0.1, 
-              animationDelay: `${Math.random()*5}s`, 
-              transform: `scale(${Math.random()*0.8+0.5})` 
-            }}
-          >
-            <Star size={Math.random() > 0.8 ? 16 : 8} fill="currentColor" />
+        
+        {/* 背景の星 (共通) */}
+        {[...Array(50)].map((_, i) => (
+          <div key={`star-${i}`} className="absolute text-yellow-100 animate-twinkle" style={{ top: `${Math.random()*100}%`, left: `${Math.random()*100}%`, opacity: Math.random()*0.5+0.1, animationDelay: `${Math.random()*5}s`, transform: `scale(${Math.random()*0.8+0.5})` }}>
+            <Star size={Math.random() > 0.8 ? 8 : 4} fill="currentColor" />
           </div>
         ))}
-
-        {[...Array(20)].map((_, i) => {
-          const toy = toys[Math.floor(Math.random() * toys.length)];
-          return (
-            <div
-              key={`toy-${i}`}
-              className="absolute animate-drift-slow filter grayscale brightness-150 contrast-50 blur-[1px] drop-shadow-md"
-              style={{
-                top: `${Math.random() * 80 + 10}%`,
-                left: `${Math.random() * 90 + 5}%`,
-                fontSize: `${Math.random() * 2 + 1.5}rem`,
-                opacity: Math.random() * 0.2 + 0.1,
-                animationDelay: `${Math.random() * 10}s`,
-                animationDuration: `${Math.random() * 10 + 10}s`
-              }}
-            >
-              {toy}
-            </div>
-          );
-        })}
+        
+        {/* PCのみ: 浮遊おもちゃ */}
+        <FloatingToys />
       </div>
 
-      <svg className="fixed inset-0 pointer-events-none z-0" style={{ width: '100%', height: '100%' }}>
+      {/* --- SVGレイヤー (PC:星座線 / スマホ:列車) --- */}
+      <svg className="fixed inset-0 pointer-events-none z-30" style={{ width: '100%', height: '100%' }}>
         <defs>
           <filter id="glow">
             <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        {lines.map((line, i) => (
+
+        {/* PC用: 星座線 */}
+        {pcLines.map((line, i) => (
           <line
-            key={i}
-            x1={line.x1} y1={line.y1}
-            x2={line.x2} y2={line.y2}
-            stroke="#fcd34d"
-            strokeWidth="2"
-            strokeDasharray="4, 4"
-            strokeOpacity="0.6"
-            filter="url(#glow)"
+            key={`line-${i}`} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
+            stroke="#fcd34d" strokeWidth="2" strokeDasharray="4, 4" strokeOpacity="0.6" filter="url(#glow)"
+            className="hidden md:block" // スマホでは非表示
           />
         ))}
+
+        {/* スマホ用: 列車アニメーション */}
+        {trainPath && (
+          <g className="md:hidden">
+            <path id="trainTrack" d={trainPath} fill="none" stroke="none" />
+            <text fontSize="24" dy="5">
+              <animateMotion dur={`${Math.max(3, pathLength * 1.5)}s`} repeatCount="indefinite" rotate="auto">
+                <mpath href="#trainTrack" />
+              </animateMotion>
+              🚂
+            </text>
+            <circle r="4" fill="#fbbf24" filter="blur(2px)">
+               <animateMotion dur={`${Math.max(3, pathLength * 1.5)}s`} repeatCount="indefinite" rotate="auto" begin="0.1s">
+                <mpath href="#trainTrack" />
+              </animateMotion>
+              <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />
+            </circle>
+          </g>
+        )}
       </svg>
 
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/10 shadow-2xl">
-        <div className="flex justify-between items-center mb-4 max-w-7xl mx-auto w-full">
-          <h1 className="text-xl font-bold text-yellow-100 flex items-center gap-3 font-serif tracking-wider">
+      {/* --- ヘッダー --- */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-4 py-3 sm:px-6 sm:py-4 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+        <div className="flex justify-between items-center mb-3 sm:mb-4 max-w-7xl mx-auto w-full">
+          {/* PC用タイトル */}
+          <h1 className="hidden md:flex text-xl font-bold text-yellow-100 items-center gap-3 font-serif tracking-wider">
             <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(253,224,71,0.5)]">📖</span>
             サンタの書斎
           </h1>
-          <button 
-            onClick={onBack} 
-            className="text-sm bg-white/5 hover:bg-white/10 px-5 py-2.5 rounded-full border border-white/10 flex items-center gap-2 transition-all"
-          >
+          {/* スマホ用タイトル */}
+          <h1 className="flex md:hidden text-lg font-bold text-yellow-100 items-center gap-2 font-serif tracking-wider">
+             <span className="text-2xl">🌌</span> サンタの書斎
+          </h1>
+
+          <button onClick={onBack} className="text-sm bg-white/5 hover:bg-white/10 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full border border-white/10 flex items-center gap-2 transition-all">
             <span>🏠</span> <span className="hidden sm:inline">部屋に戻る</span>
           </button>
         </div>
@@ -428,54 +409,106 @@ const StarryWorkshop = ({ onBack }) => {
         </div>
       </header>
 
-      {/* メインコンテンツ */}
-      <main className="container mx-auto px-4 pt-48 pb-40 relative z-10 max-w-7xl">
+      {/* --- メインコンテンツ --- */}
+      <main className="container mx-auto px-4 pt-36 sm:pt-48 pb-32 sm:pb-40 relative z-10 max-w-7xl">
+        
+        {/* スマホのみ表示: 旅の案内メッセージ */}
+        <div className="md:hidden text-center mb-6 animate-fade-in-down">
+          <h2 className="text-xl font-bold text-yellow-100 font-serif mb-1 drop-shadow-lg">ようこそ、銀河の旅へ！</h2>
+          <p className="text-xs text-slate-300 opacity-90">車窓に流れる星々から、あなたの大切な価値観を見つけてください</p>
+        </div>
+
         {loading ? (
           <div className="text-center mt-32 text-yellow-100 animate-pulse">星々を集めています...</div>
         ) : (
-          <div className={`grid grid-cols-1 md:grid-cols-2 gap-16 transition-all duration-700 ${
+          /* PC: grid-cols-2 / スマホ: grid-cols-1 (縦積み) */
+          <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-16 transition-all duration-700 ${
             viewMode !== 'workshop' ? 'opacity-20 blur-sm pointer-events-none' : 'opacity-100'
           }`}>
             {categories.map((category, index) => (
               <div
                 key={category.id}
-                className="relative p-8 transition-all duration-500 hover:scale-[1.02]"
-                style={{
+                className={`relative transition-all duration-500 hover:scale-[1.01] md:hover:scale-[1.02] 
+                  ${/* スマホ向けスタイル: シンプルな角丸 */ 'p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md'}
+                  ${/* PC向けスタイル: 独自形状 */ 'md:p-8 md:bg-transparent md:border-none md:shadow-none'}
+                `}
+                style={ window.innerWidth >= 768 ? {
                   background: `linear-gradient(135deg, ${category.theme_color}15 0%, ${category.theme_color}05 100%)`,
                   backdropFilter: 'blur(12px)',
                   boxShadow: `inset 0 0 40px ${category.theme_color}20, 0 10px 30px rgba(0,0,0,0.3)`,
                   border: `1px solid ${category.theme_color}30`,
                   borderRadius: index % 2 === 0 ? '60% 40% 70% 30% / 60% 30% 70% 40%' : '40% 60% 30% 70% / 50% 60% 30% 60%',
-                }}
+                } : {}}
               >
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#0f172a] px-5 py-2 rounded-full border border-white/20 shadow-xl flex items-center gap-3 z-20">
-                  <div 
-                    className="w-3 h-3 rounded-full shadow-[0_0_10px]" 
-                    style={{ 
-                      backgroundColor: category.theme_color, 
-                      boxShadow: `0 0 10px ${category.theme_color}` 
-                    }}
-                  ></div>
+                {/* カテゴリーヘッダー */}
+                <div className={`
+                  flex items-center gap-3 z-20 
+                  ${/* スマホ */ 'mb-4 border-b border-white/10 pb-2'}
+                  ${/* PC */ 'md:absolute md:-top-4 md:left-1/2 md:-translate-x-1/2 md:bg-[#0f172a] md:px-5 md:py-2 md:rounded-full md:border md:border-white/20 md:shadow-xl md:mb-0 md:border-b-0 md:pb-0'}
+                `}>
+                  <div className="w-8 h-8 md:w-3 md:h-3 rounded-full flex items-center justify-center shadow-[0_0_10px]" 
+                    style={{ backgroundColor: category.theme_color, boxShadow: `0 0 10px ${category.theme_color}` }}>
+                      {/* スマホのみ惑星アイコン表示 */}
+                      <span className="md:hidden text-xs">🪐</span>
+                  </div>
                   <h2 className="text-lg font-bold text-slate-200 font-serif tracking-wider whitespace-nowrap">
                     {category.name}
                   </h2>
                 </div>
-                <div className="flex flex-wrap justify-center items-center gap-6 mt-6 min-h-[140px] px-4">
-                  {category.value_cards.map((card, i) => (
-                    <div 
-                      key={card.id} 
-                      className="animate-float-random" 
-                      style={{ animationDelay: `${i * 0.5}s` }}
-                    >
-                      <PuzzlePiece
-                        ref={el => cardRefs.current[card.id] = el}
-                        card={card}
-                        color={category.theme_color}
-                        isSelected={selections[activeTimeframe].includes(card.id)}
-                        onClick={() => handleCardClick(card)}
-                      />
-                    </div>
-                  ))}
+
+                {/* 星の配置エリア */}
+                <div className="flex flex-wrap justify-center items-center gap-3 md:gap-6 mt-0 md:mt-6 min-h-[100px] md:min-h-[140px] px-1 md:px-4">
+                  {category.value_cards.map((card, i) => {
+                    const isSelected = selections[activeTimeframe].includes(card.id);
+                    // スマホ用: 駅番号
+                    const stationIndex = selections[activeTimeframe].indexOf(card.id) + 1;
+                    
+                    return (
+                      <div 
+                        key={card.id} 
+                        className="animate-float-random" 
+                        style={{ animationDelay: `${i * 0.5}s` }}
+                      >
+                         {/* PCでは従来のPuzzlePiece (props等はそのまま)
+                            スマホでは丸い星型ボタンに変形させる
+                            (PuzzlePieceコンポーネントの中身をいじらず、ここでラッパーとして処理するか、
+                             あるいはスタイルを上書きするか。ここでは直接ボタンを描画して、PC/スマホで切り替える手法をとる)
+                         */}
+                         
+                         {/* PC用表示 (md:block) */}
+                         <div className="hidden md:block">
+                           <PuzzlePiece
+                             ref={el => cardRefs.current[card.id] = el}
+                             card={card}
+                             color={category.theme_color}
+                             isSelected={isSelected}
+                             onClick={() => handleCardClick(card)}
+                           />
+                         </div>
+
+                         {/* スマホ用表示 (md:hidden) */}
+                         <button
+                           ref={el => { if(window.innerWidth < 768) cardRefs.current[card.id] = el }}
+                           onClick={() => handleCardClick(card)}
+                           className={`md:hidden relative flex flex-col items-center justify-center w-20 h-20 rounded-full transition-all duration-300
+                             ${isSelected 
+                                ? 'bg-yellow-400/20 border-2 border-yellow-400 text-yellow-100 animate-pulse-glow scale-110 z-10 shadow-[0_0_15px_rgba(250,204,21,0.5)]' 
+                                : 'bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10 hover:border-white/30'
+                             }
+                           `}
+                         >
+                            <Star size={isSelected ? 24 : 18} fill={isSelected ? "currentColor" : "none"} className={`mb-1 transition-all ${isSelected ? 'text-yellow-300' : 'text-slate-500'}`} />
+                            <span className="text-[10px] font-bold text-center leading-tight px-1">{card.name}</span>
+                            {isSelected && (
+                              <span className="absolute -top-2 -right-1 w-5 h-5 bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center rounded-full border border-indigo-400 shadow-lg">
+                                {stationIndex}
+                              </span>
+                            )}
+                         </button>
+
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
@@ -483,92 +516,65 @@ const StarryWorkshop = ({ onBack }) => {
         )}
       </main>
 
-      {/* フッター */}
+      {/* --- フッター --- */}
       {viewMode === 'workshop' && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0f172a]/90 border-t border-white/10 backdrop-blur-xl z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 bg-[#0f172a]/90 border-t border-white/10 backdrop-blur-xl z-50 pb-safe">
           <div className="container mx-auto flex justify-between items-center max-w-4xl">
-            <div className="text-sm text-slate-300 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-              <div>
-                <span className="text-slate-400">Stars:</span>
-                <span className={`text-2xl font-bold ml-1 ${
-                  selections[activeTimeframe].length === 10 ? 'text-green-400' : 'text-yellow-400'
-                }`}>
+            <div className="text-sm text-slate-300 flex items-center gap-2">
+              <Star size={20} className={selections[activeTimeframe].length === 10 ? 'text-green-400' : 'text-yellow-400'} fill="currentColor"/>
+              <div className="flex flex-col leading-tight sm:flex-row sm:items-baseline sm:gap-1">
+                <span className="text-[10px] sm:text-sm text-slate-400">Stars:</span>
+                <span className={`text-xl sm:text-2xl font-bold ${selections[activeTimeframe].length === 10 ? 'text-green-400' : 'text-yellow-400'}`}>
                   {selections[activeTimeframe].length}
                 </span>
-                <span className="text-slate-600 text-lg">/ 10</span>
+                <span className="text-slate-600 text-sm sm:text-lg">/ 10</span>
               </div>
             </div>
            
             <div className="flex gap-3 items-center">
-              {/* シェアボタン */}
               <button
                 onClick={handleShareOpen}
                 disabled={selections[activeTimeframe].length === 0}
-                className={`
-                  px-4 py-2 rounded-full border border-white/10 text-slate-300 flex items-center gap-2 transition-all
-                  ${selections[activeTimeframe].length > 0 
-                    ? 'hover:bg-black/50 hover:text-white hover:scale-105 cursor-pointer' 
-                    : 'opacity-50 cursor-not-allowed'}
-                `}
+                className={`px-3 py-2 sm:px-4 rounded-full border border-white/10 text-slate-300 flex items-center gap-2 transition-all ${selections[activeTimeframe].length > 0 ? 'hover:bg-black/50 hover:text-white' : 'opacity-50'}`}
               >
-                <Share2 size={16} /> <span className="hidden sm:inline">𝕏 でシェア</span>
+                <Share2 size={18} /> <span className="hidden sm:inline">シェア</span>
               </button>
 
               <button
                 onClick={handleConfirm}
                 disabled={selections[activeTimeframe].length === 0}
-                className={`px-8 py-3 rounded-full font-bold shadow-2xl transition-all flex items-center gap-3 ${
+                className={`px-6 py-3 rounded-full font-bold shadow-2xl transition-all flex items-center gap-2 ${
                   selections[activeTimeframe].length > 0 
                     ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:scale-105' 
                     : 'bg-white/5 text-slate-600 cursor-not-allowed'
                 }`}
               >
-                決定して振り返る <Send size={18} />
+                <span className="text-sm sm:text-base">決定</span> <Send size={18} />
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 詳細モーダル */}
+      {/* --- 詳細モーダル (共通) --- */}
       {selectedDetailCard && (
         <div 
           className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" 
           onClick={() => setSelectedDetailCard(null)}
         >
-          <div 
-            className="bg-[#1e1b4b] border-2 border-yellow-500/30 p-8 rounded-2xl max-w-md w-full shadow-[0_0_50px_rgba(251,191,36,0.2)] relative overflow-hidden" 
-            onClick={e => e.stopPropagation()}
-          >
-            <button 
-              onClick={() => setSelectedDetailCard(null)} 
-              className="absolute top-4 right-4 text-slate-400 hover:text-white"
-            >
-              <ArrowLeft size={24} />
-            </button>
+          <div className="bg-[#1e1b4b] border-2 border-yellow-500/30 p-6 sm:p-8 rounded-2xl max-w-md w-full shadow-[0_0_50px_rgba(251,191,36,0.2)] relative overflow-hidden" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setSelectedDetailCard(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><X size={24} /></button>
             <div className="flex flex-col items-center text-center">
-              <div className="w-20 h-20 rounded-full bg-yellow-500/20 flex items-center justify-center mb-6 border border-yellow-500/50 shadow-[0_0_30px_rgba(251,191,36,0.3)]">
-                <Star size={40} className="text-yellow-400 fill-yellow-400" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-yellow-500/20 flex items-center justify-center mb-6 border border-yellow-500/50 shadow-[0_0_30px_rgba(251,191,36,0.3)]">
+                <Star size={32} className="text-yellow-400 fill-yellow-400" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2 font-serif tracking-wider">
-                {selectedDetailCard.name}
-              </h3>
-              <p className="text-slate-200 text-lg leading-relaxed mb-8 font-medium">
-                {selectedDetailCard.description}
-              </p>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 font-serif">{selectedDetailCard.name}</h3>
+              <p className="text-slate-200 text-sm sm:text-lg leading-relaxed mb-8 font-medium">{selectedDetailCard.description}</p>
               {selections[activeTimeframe].includes(selectedDetailCard.id) ? (
-                <button 
-                  onClick={() => toggleSelection(selectedDetailCard.id)} 
-                  className="w-full py-3 rounded-xl border border-red-500/50 text-red-300 hover:bg-red-500/10 transition-colors"
-                >
-                  星を空から外す
-                </button>
+                <button onClick={() => toggleSelection(selectedDetailCard.id)} className="w-full py-3 rounded-xl border border-red-500/50 text-red-300 hover:bg-red-500/10 transition-colors">星を外す</button>
               ) : (
-                <button 
-                  onClick={() => toggleSelection(selectedDetailCard.id)} 
-                  className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-bold py-4 rounded-xl hover:brightness-110 shadow-lg flex justify-center items-center gap-2"
-                >
-                  この価値観を星として登録する <Star size={18} fill="currentColor" />
+                <button onClick={() => toggleSelection(selectedDetailCard.id)} className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-bold py-3 sm:py-4 rounded-xl hover:brightness-110 shadow-lg flex justify-center items-center gap-2">
+                   星を選択する <Sparkles size={18} />
                 </button>
               )}
             </div>
@@ -576,184 +582,74 @@ const StarryWorkshop = ({ onBack }) => {
         </div>
       )}
 
-      {/* 振り返り入力モーダル */}
+      {/* --- 振り返り入力モーダル (共通) --- */}
       {viewMode === 'reflection_input' && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
-          <div className="bg-[#1e1b4b]/95 border border-white/20 p-8 rounded-3xl max-w-lg w-full shadow-2xl relative overflow-hidden">
-            <button 
-              onClick={() => setViewMode('workshop')} 
-              className="absolute top-6 right-6 text-slate-400 hover:text-white"
-            >
-              <ArrowLeft size={24} />
-            </button>
-            <h3 className="text-2xl font-bold text-yellow-100 mb-2 font-serif flex items-center gap-3">
-              <span>✒️</span> 航海日誌
-            </h3>
-            <p className="text-slate-300 text-sm mb-6 opacity-80 whitespace-pre-wrap">
-              {getReflectionMessage()}
-            </p>
-            <p className="text-yellow-500/70 text-xs mb-4">※ 選んだ星も一緒に記録されます</p>
-            <div className="text-xs text-slate-500 mb-2 text-right">
-              Date: {new Date().toLocaleDateString('ja-JP')}
-            </div>
+          <div className="bg-[#1e1b4b]/95 border border-white/20 p-6 sm:p-8 rounded-3xl max-w-lg w-full shadow-2xl relative">
+            <button onClick={() => setViewMode('workshop')} className="absolute top-6 right-6 text-slate-400 hover:text-white"><ArrowLeft size={24} /></button>
+            <h3 className="text-xl sm:text-2xl font-bold text-yellow-100 mb-2 font-serif flex items-center gap-3"><span>✒️</span> 航海日誌</h3>
+            <p className="text-slate-300 text-xs sm:text-sm mb-6 opacity-80 whitespace-pre-wrap">{getReflectionMessage()}</p>
             <textarea
-              className="w-full h-40 bg-[#020617]/50 border border-white/10 rounded-xl p-5 text-slate-200 focus:ring-2 focus:ring-yellow-500/50 outline-none resize-none"
+              className="w-full h-32 sm:h-40 bg-[#020617]/50 border border-white/10 rounded-xl p-5 text-slate-200 focus:ring-2 focus:ring-yellow-500/50 outline-none resize-none"
               placeholder="ここに想いを書き留めてください..."
               value={reflectionText}
               onChange={(e) => setReflectionText(e.target.value)}
             />
             <div className="mt-4 flex items-center gap-2 cursor-pointer" onClick={() => setShouldReset(!shouldReset)}>
-              <div className={`w-5 h-5 rounded border border-slate-500 flex items-center justify-center ${
-                shouldReset ? 'bg-yellow-500 border-yellow-500' : ''
-              }`}>
-                {shouldReset && <Check size={14} className="text-black" />}
-              </div>
-              <span className="text-sm text-slate-300 select-none">
-                記録後に星空をリセットする（新しい星を探す）
-              </span>
+              <div className={`w-5 h-5 rounded border border-slate-500 flex items-center justify-center ${shouldReset ? 'bg-yellow-500 border-yellow-500' : ''}`}>{shouldReset && <Check size={14} className="text-black" />}</div>
+              <span className="text-xs sm:text-sm text-slate-300 select-none">記録後に星空をリセットする</span>
             </div>
-            <button 
-              onClick={handleCompleteReflection} 
-              disabled={isSaving} 
-              className="w-full mt-6 bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-bold py-4 rounded-xl hover:brightness-110 shadow-lg flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button onClick={handleCompleteReflection} disabled={isSaving} className="w-full mt-6 bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-bold py-3 sm:py-4 rounded-xl hover:brightness-110 shadow-lg flex justify-center items-center gap-2 disabled:opacity-50">
               {isSaving ? '記録中...' : '記録を保存する'} <Send size={18} />
             </button>
           </div>
         </div>
       )}
 
-      {/* シェア用画像生成モーダル */}
+      {/* --- シェアモーダル (共通) --- */}
       {shareModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
-          <div className="flex flex-col items-center gap-6 max-w-4xl w-full">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="flex flex-col items-center gap-6 max-w-4xl w-full my-auto">
             <div className="flex justify-between items-center w-full text-white">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Share2 className="text-yellow-400" /> 価値観をシェア
-              </h3>
-              <button 
-                onClick={() => { 
-                  setShareModalOpen(false); 
-                  setGeneratedImage(null); 
-                }} 
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-              >
-                <X />
-              </button>
+              <h3 className="text-xl font-bold flex items-center gap-2"><Share2 className="text-yellow-400" /> シェア</h3>
+              <button onClick={() => { setShareModalOpen(false); setGeneratedImage(null); }} className="p-2 hover:bg-white/10 rounded-full"><X /></button>
             </div>
-            
             <div className="relative w-full flex justify-center items-center bg-[#0f172a] rounded-xl overflow-hidden border border-white/10 shadow-2xl p-4 min-h-[300px]">
-              {/* 生成中のローディング表示 */}
-              {isGeneratingImage && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0f172a] z-20 text-yellow-100">
-                  <div className="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                  <p>星空を撮影しています...</p>
-                </div>
-              )}
-              
-              {/* 生成された画像のプレビュー */}
-              {generatedImage && !isGeneratingImage && (
-                <img 
-                  src={generatedImage} 
-                  alt="My Values" 
-                  className="max-w-full h-auto rounded-lg shadow-lg animate-fade-in" 
-                />
-              )}
-              
-              {/* 画像生成用の非表示DOM */}
-              <div
-                ref={shareRef}
-                className="absolute top-0 left-0 pointer-events-none"
-                style={{ 
-                  width: '1200px', 
-                  height: '630px', 
-                  background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)', 
-                  opacity: generatedImage ? 0 : 1, 
-                  zIndex: generatedImage ? -1 : 10 
-                }}
-              >
+              {isGeneratingImage && <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0f172a] z-20 text-yellow-100"><Loader className="animate-spin mb-4"/><p>星空を撮影しています...</p></div>}
+              {generatedImage && !isGeneratingImage && <img src={generatedImage} alt="Share" className="max-w-full h-auto rounded-lg shadow-lg max-h-[60vh] object-contain" />}
+              {/* OGP画像生成用DOM */}
+              <div ref={shareRef} className="absolute top-0 left-0 pointer-events-none" style={{ width: '1200px', height: '630px', background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)', opacity: generatedImage ? 0 : 1, zIndex: generatedImage ? -1 : 10 }}>
                 <div className="w-full h-full relative flex flex-col items-center justify-center p-16 text-white font-sans">
-                  {/* 背景パターン */}
-                  <div 
-                    className="absolute top-0 left-0 w-full h-full opacity-30" 
-                    style={{ 
-                      backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px)', 
-                      backgroundSize: '40px 40px' 
-                    }}
-                  ></div>
-                  
-                  {/* グラデーション装飾 */}
-                  <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-yellow-500/10 rounded-full blur-[100px]"></div>
-                  <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[100px]"></div>
-                  
-                  {/* タイトル */}
-                  <h1 className="text-5xl font-bold text-yellow-100 mb-4 font-serif drop-shadow-lg z-10">
-                    私の選んだ価値観の星たち
-                  </h1>
-                  
-                  {/* サブタイトル */}
-                  <p className="text-2xl text-slate-300 mb-12 tracking-widest uppercase opacity-80 z-10">
-                    Santa's Study - {activeTimeframe.toUpperCase()}
-                  </p>
-                  
-                  {/* 選択された価値観カード */}
+                  <div className="absolute top-0 left-0 w-full h-full opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+                  <h1 className="text-5xl font-bold text-yellow-100 mb-4 font-serif drop-shadow-lg z-10">私の選んだ価値観の星たち</h1>
+                  <p className="text-2xl text-slate-300 mb-12 tracking-widest uppercase opacity-80 z-10">Santa's Study - {activeTimeframe.toUpperCase()}</p>
                   <div className="flex flex-wrap justify-center gap-4 max-w-4xl z-10">
                     {selections[activeTimeframe].map(id => {
                       const card = categories.flatMap(c => c.value_cards).find(c => c.id === id);
                       return card ? (
-                        <div 
-                          key={id} 
-                          className="flex items-center gap-2 px-6 py-3 bg-white/10 rounded-full border border-white/20 shadow-lg backdrop-blur-md"
-                        >
+                        <div key={id} className="flex items-center gap-2 px-6 py-3 bg-white/10 rounded-full border border-white/20 shadow-lg backdrop-blur-md">
                           <Star size={24} className="text-yellow-400 fill-yellow-400" />
                           <span className="text-2xl font-bold text-white">{card.name}</span>
                         </div>
                       ) : null;
                     })}
                   </div>
-                  
-                  {/* フッター情報 */}
                   <div className="absolute bottom-8 right-12 flex items-center gap-3 opacity-70 z-10">
                     <span className="text-xl font-bold">Anta-Santa</span>
-                    <div className="w-12 h-1 bg-white/50"></div>
                     <span className="text-lg">{new Date().toLocaleDateString('ja-JP')}</span>
                   </div>
                 </div>
               </div>
             </div>
-            
-            {/* アクションボタン */}
             {generatedImage && !isGeneratingImage && (
               <div className="flex gap-4 w-full justify-center">
-                <button 
-                  onClick={handleDownloadImage} 
-                  className="flex items-center gap-2 bg-white text-[#0f172a] px-6 py-3 rounded-full font-bold hover:bg-slate-200 transition shadow-lg"
-                >
-                  <Download size={20} /> 画像を保存
-                </button>
-                <button
-                  onClick={handleTweet}
-                  disabled={isUploading}
-                  className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-full font-bold hover:bg-gray-800 transition shadow-lg border border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isUploading ? (
-                    <>
-                      <Loader className="animate-spin" size={20} />
-                      <span>アップロード中...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Share2 size={20} />
-                      <span>𝕏 でポスト</span>
-                    </>
-                  )}
-                </button>
+                <button onClick={handleDownloadImage} className="flex items-center gap-2 bg-white text-[#0f172a] px-6 py-3 rounded-full font-bold hover:bg-slate-200 transition shadow-lg"><Download size={20} /> 保存</button>
+                <button onClick={handleTweet} disabled={isUploading} className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-full font-bold hover:bg-gray-800 transition shadow-lg border border-white/20">{isUploading ? <Loader className="animate-spin" size={20}/> : <Share2 size={20}/>} ポスト</button>
               </div>
             )}
           </div>
         </div>
       )}
-
     </div>
   );
 };
