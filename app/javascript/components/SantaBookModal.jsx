@@ -299,6 +299,11 @@ const SantaBookModal = () => {
               <span className="text-[#8D6E63] text-[10px] md:text-xs mt-2 block">
                 サンタさんが夜な夜な執筆中... ✍️
               </span>
+              <span className="block mt-4 pt-2 border-t border-dashed border-[#8d6e63]/40 text-[10px] md:text-xs text-[#5d4037] font-normal opacity-90">
+              <span className="font-bold text-[#d32f2f]">※注意：</span>
+               本アプリでは世界観を大切にしているためログアウトボタンは存在しません。
+               Heartory Homeの外に出たい場合は「Exit」を選択してください。
+            </span>
             </p>
           </div>
 
