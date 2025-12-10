@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
+import React, { useEffect, useState, useRef, useLayoutEffect, useMemo } from 'react';
 import { fetchValueCategories, fetchUserSelections, createSelection, deleteSelection, uploadOgpImage } from '../../api/values';
 import PuzzlePiece from './PuzzlePiece';
 import {
@@ -7,55 +7,119 @@ import {
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
-// --- カスタム通知コンポーネント ---
+// --- カスタム通知 ---
 const Toast = ({ message, type = 'success' }) => {
   const baseClass = "fixed top-4 sm:top-10 left-1/2 -translate-x-1/2 z-[100] px-4 py-3 sm:px-6 sm:py-4 rounded-lg shadow-2xl flex items-center gap-3 animate-fade-in-down border w-[90%] sm:w-auto justify-center";
-  const colorClass = type === 'error'
-    ? "bg-red-50 text-red-800 border-red-200"
-    : "bg-white text-[#5d4037] border-[#d7ccc8]";
+  const colorClass = type === 'error' ? "bg-red-50 text-red-800 border-red-200" : "bg-white text-[#5d4037] border-[#d7ccc8]";
   const iconBgClass = type === 'error' ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600";
-
   return (
     <div className={`${baseClass} ${colorClass}`}>
-      <div className={`p-1 rounded-full ${iconBgClass} shrink-0`}>
-        {type === 'error' ? <AlertCircle size={16} /> : <Check size={16} />}
-      </div>
+      <div className={`p-1 rounded-full ${iconBgClass} shrink-0`}>{type === 'error' ? <AlertCircle size={16} /> : <Check size={16} />}</div>
       <span className="font-bold text-sm sm:text-base">{message}</span>
     </div>
   );
 };
 
-// --- PC用背景: 浮遊するおもちゃ ---
-const FloatingToys = () => {
+// --- タイムタブ ---
+const TimeTab = ({ id, label, icon: Icon, activeTimeframe, onClick }) => (
+  <button
+    onClick={() => onClick(id)}
+    className={`flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full transition-all duration-300 border backdrop-blur-md text-xs sm:text-sm ${
+      activeTimeframe === id 
+        ? 'bg-yellow-500/90 text-white border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.5)] scale-105' 
+        : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:border-white/30'
+    }`}
+  >
+    <Icon size={14} className="sm:w-4 sm:h-4" />
+    <span className="font-bold">{label}</span>
+  </button>
+);
+
+// --- 背景コンポーネント ---
+const StarryBackground = React.memo(() => {
   const toys = ['🎁', '🧸', '🚂', '🤖', '🧩', '🥁', '🎺', '🎨', '🚀', '🏰', '🎠', '🎮'];
+
+  const starsData = useMemo(() => {
+    return [...Array(50)].map(() => ({
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      duration: Math.random() * 60 + 60,
+      delay: Math.random() * 60,
+      scale: Math.random() * 0.6 + 0.4
+    }));
+  }, []);
+
+  const toyData = useMemo(() => {
+    return [...Array(40)].map(() => ({
+      char: toys[Math.floor(Math.random() * toys.length)],
+      top: Math.random() * 90,
+      fontSize: Math.random() * 1.5 + 1.5,
+      duration: Math.random() * 40 + 40, 
+      delay: -(Math.random() * 100)
+    }));
+  }, []);
+
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden hidden md:block">
-       <div className="absolute top-1/2 left-0 animate-drift opacity-50" style={{ animationDelay: '5s' }}>
-           <div className="text-7xl filter grayscale brightness-200 contrast-0 blur-[1px] transform -rotate-6 drop-shadow-lg">🛷💨</div>
-       </div>
-       {[...Array(20)].map((_, i) => (
+    <div className="fixed inset-0 pointer-events-none z-0 select-none overflow-hidden">
+      <style>{`
+        @keyframes drift-across {
+          from { transform: translateX(-10vw) rotate(0deg); }
+          to   { transform: translateX(110vw) rotate(10deg); }
+        }
+        @keyframes twinkle-super-slow {
+          0%, 100% { opacity: 0.2; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.1); }
+        }
+      `}</style>
+
+      {starsData.map((data, i) => (
+        <div 
+          key={`star-${i}`} 
+          className="absolute text-yellow-100"
+          style={{
+            top: `${data.top}%`,
+            left: `${data.left}%`,
+            transform: `scale(${data.scale})`,
+            animation: `twinkle-super-slow ${data.duration}s ease-in-out infinite`,
+            animationDelay: `-${data.delay}s`
+          }}
+        >
+          <Star size={Math.random() > 0.8 ? 6 : 3} fill="currentColor" />
+        </div>
+      ))}
+
+      <div className="hidden md:block">
+        <div 
+          className="absolute top-1/2 left-0 text-7xl filter grayscale brightness-50 contrast-50 blur-[1px] opacity-20"
+          style={{ 
+            animation: 'drift-across 800s linear infinite', 
+            animationDelay: '-400s' 
+          }}
+        >
+          🛷💨
+        </div>
+        {toyData.map((data, i) => (
           <div
             key={`toy-${i}`}
-            className="absolute animate-drift-slow filter grayscale brightness-150 contrast-50 blur-[1px] drop-shadow-md"
+            className="absolute filter grayscale brightness-75 contrast-50 blur-[0.5px] drop-shadow-sm opacity-10"
             style={{
-              top: `${Math.random() * 80 + 10}%`,
-              left: `${Math.random() * 90 + 5}%`,
-              fontSize: `${Math.random() * 2 + 1.5}rem`,
-              opacity: Math.random() * 0.2 + 0.1,
-              animationDelay: `${Math.random() * 10}s`,
-              animationDuration: `${Math.random() * 10 + 10}s`
+              top: `${data.top}%`,
+              left: '0', 
+              fontSize: `${data.fontSize}rem`,
+              animation: `drift-across ${data.duration}s linear infinite`,
+              animationDelay: `${data.delay}s`
             }}
           >
-            {toys[Math.floor(Math.random() * toys.length)]}
+            {data.char}
           </div>
-       ))}
+        ))}
+      </div>
     </div>
   );
-};
+});
 
 // --- メインコンポーネント ---
 const StarryWorkshop = ({ onBack }) => {
-  // State
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selections, setSelections] = useState({ past: [], current: [], future: [] });
@@ -67,43 +131,30 @@ const StarryWorkshop = ({ onBack }) => {
   const [selectedDetailCard, setSelectedDetailCard] = useState(null);
   const [shouldReset, setShouldReset] = useState(true);
 
-  // Share State
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const shareRef = useRef(null);
 
-  // Animation Refs
   const cardRefs = useRef({});
-  const [pcLines, setPcLines] = useState([]); // PC用星座線
-  const [trainPath, setTrainPath] = useState(""); // スマホ用列車パス
+  const [pcLines, setPcLines] = useState([]); 
+  const [trainPath, setTrainPath] = useState(""); 
   const [pathLength, setPathLength] = useState(0);
 
-  // --- データ取得 ---
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [catRes, selRes] = await Promise.all([
-          fetchValueCategories(),
-          fetchUserSelections()
-        ]);
+        const [catRes, selRes] = await Promise.all([fetchValueCategories(), fetchUserSelections()]);
         if (catRes.data) setCategories(catRes.data);
-       
         const newSelections = { past: [], current: [], future: [] };
         if (selRes.data) {
           selRes.data.forEach(s => {
-            if (newSelections[s.timeframe]) {
-              newSelections[s.timeframe].push(s.value_card_id);
-            }
+            if (newSelections[s.timeframe]) newSelections[s.timeframe].push(s.value_card_id);
           });
         }
         setSelections(newSelections);
-      } catch (error) {
-        console.error("Data load failed", error);
-      } finally {
-        setLoading(false);
-      }
+      } catch (error) { console.error(error); } finally { setLoading(false); }
     };
     loadData();
   }, []);
@@ -113,17 +164,12 @@ const StarryWorkshop = ({ onBack }) => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // --- 操作系ハンドラー ---
-  const handleCardClick = (card) => {
-    if (viewMode !== 'workshop') return;
-    setSelectedDetailCard(card);
-  };
+  const handleCardClick = (card) => { if (viewMode === 'workshop') setSelectedDetailCard(card); };
 
   const toggleSelection = async (cardId) => {
     const currentList = selections[activeTimeframe];
     let newList;
     let isAdding = !currentList.includes(cardId);
-
     if (!isAdding) {
       newList = currentList.filter(id => id !== cardId);
       await deleteSelection(cardId, activeTimeframe);
@@ -132,7 +178,7 @@ const StarryWorkshop = ({ onBack }) => {
         newList = [...currentList, cardId];
         await createSelection({ value_card_id: cardId, timeframe: activeTimeframe });
       } else {
-        showToast("選べる星（価値観）は10個までです ⭐", 'error');
+        showToast("選べる星は10個までです ⭐", 'error');
         return;
       }
     }
@@ -140,23 +186,17 @@ const StarryWorkshop = ({ onBack }) => {
     setSelectedDetailCard(null);
   };
 
-  // --- 描画計算ロジック (PC:線 / スマホ:列車) ---
   useLayoutEffect(() => {
     if (viewMode !== 'workshop') return;
-
     const calculateVisuals = () => {
       const currentIds = selections[activeTimeframe];
-      const isMobile = window.innerWidth < 768; // Tailwindのmdブレークポイント準拠
+      const isMobile = window.innerWidth < 768; 
 
-      // 共通: 座標取得
       const points = currentIds.map(id => {
         const el = cardRefs.current[id];
-        if (el && el.offsetParent !== null) { // 表示されている要素のみ
+        if (el && el.offsetParent !== null) {
           const rect = el.getBoundingClientRect();
-          return {
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2
-          };
+          return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
         }
         return null;
       }).filter(Boolean);
@@ -168,7 +208,6 @@ const StarryWorkshop = ({ onBack }) => {
       }
 
       if (isMobile) {
-        // --- スマホ用: 列車パス (一筆書きループ) ---
         let d = `M ${points[0].x} ${points[0].y}`;
         if (points.length === 1) {
           d += ` L ${points[0].x + 0.1} ${points[0].y} Z`;
@@ -176,22 +215,18 @@ const StarryWorkshop = ({ onBack }) => {
           for (let i = 1; i < points.length; i++) {
             d += ` L ${points[i].x} ${points[i].y}`;
           }
-          d += ` Z`; // 最初に戻る
+          d += ` Z`;
         }
         setTrainPath(d);
         setPathLength(points.length);
-        setPcLines([]); // PC用はクリア
+        setPcLines([]);
       } else {
-        // --- PC用: 星座線 (順次接続) ---
         const lines = [];
         for (let i = 0; i < points.length - 1; i++) {
-          lines.push({
-            x1: points[i].x, y1: points[i].y,
-            x2: points[i+1].x, y2: points[i+1].y
-          });
+          lines.push({ x1: points[i].x, y1: points[i].y, x2: points[i+1].x, y2: points[i+1].y });
         }
         setPcLines(lines);
-        setTrainPath(""); // スマホ用はクリア
+        setTrainPath("");
       }
     };
 
@@ -199,12 +234,8 @@ const StarryWorkshop = ({ onBack }) => {
     window.addEventListener('resize', calculateVisuals);
     window.addEventListener('scroll', calculateVisuals, true);
     
-    // アニメーションフレームで追従
     let animationFrameId;
-    const loop = () => {
-        calculateVisuals();
-        animationFrameId = requestAnimationFrame(loop);
-    };
+    const loop = () => { calculateVisuals(); animationFrameId = requestAnimationFrame(loop); };
     loop();
 
     return () => {
@@ -214,18 +245,13 @@ const StarryWorkshop = ({ onBack }) => {
     };
   }, [selections, activeTimeframe, loading, viewMode]);
 
+  const handleTabChange = (id) => {
+    setActiveTimeframe(id);
+    setViewMode('workshop');
+  };
 
-  // --- シェア・保存ロジック ---
   const handleShareOpen = async () => {
-    const currentList = selections[activeTimeframe];
-    if (currentList.length === 0) {
-      showToast("まずは価値観を選んでください ⭐", 'error');
-      return;
-    }
-    setShareModalOpen(true);
-    setGeneratedImage(null);
-    setIsGeneratingImage(true);
-
+    setShareModalOpen(true); setGeneratedImage(null); setIsGeneratingImage(true);
     setTimeout(async () => {
       if (shareRef.current) {
         try {
@@ -235,10 +261,8 @@ const StarryWorkshop = ({ onBack }) => {
       }
     }, 500);
   };
-
   const handleTweet = async () => {
-    if (!generatedImage) return;
-    setIsUploading(true);
+    if (!generatedImage) return; setIsUploading(true);
     try {
       const res = await uploadOgpImage(generatedImage);
       if (!res.data || !res.data.url) throw new Error("URL error");
@@ -248,20 +272,13 @@ const StarryWorkshop = ({ onBack }) => {
       const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
       window.open(tweetUrl, '_blank', 'noopener,noreferrer');
       setShareModalOpen(false);
-    } catch (error) { showToast("シェアに失敗しました", 'error'); } finally { setIsUploading(false); }
+    } catch (error) { showToast("シェア失敗", 'error'); } finally { setIsUploading(false); }
   };
-
   const handleDownloadImage = () => {
     if (!generatedImage) return;
-    const link = document.createElement('a');
-    link.href = generatedImage;
-    link.download = `santas-study-values-${activeTimeframe}.png`;
-    link.click();
-    showToast("画像を保存しました 📥", 'success');
+    const link = document.createElement('a'); link.href = generatedImage; link.download = `santas-study-values-${activeTimeframe}.png`; link.click(); showToast("保存しました", 'success');
   };
-
   const handleConfirm = () => setViewMode('reflection_input');
-
   const handleCompleteReflection = async () => {
     setIsSaving(true);
     const currentList = selections[activeTimeframe];
@@ -269,10 +286,8 @@ const StarryWorkshop = ({ onBack }) => {
       const c = categories.flatMap(cat => cat.value_cards).find(card => card.id === id);
       return c ? c.name : '';
     }).filter(Boolean).join(', ');
-
     const timestamp = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
     const finalNote = `【${timestamp}の記録】\n⭐ 選んだ星: ${selectedCardNames}\n\n${reflectionText}`;
-
     try {
       if (currentList.length > 0) {
         const lastCardId = currentList[currentList.length - 1];
@@ -280,15 +295,9 @@ const StarryWorkshop = ({ onBack }) => {
       }
       showToast("航海日誌に記録しました ✒️");
       if (shouldReset) setSelections(prev => ({ ...prev, [activeTimeframe]: [] }));
-      setViewMode('workshop');
-      setReflectionText("");
-    } catch (e) {
-      showToast("保存に失敗しました", 'error');
-    } finally {
-      setIsSaving(false);
-    }
+      setViewMode('workshop'); setReflectionText("");
+    } catch (e) { showToast("保存失敗", 'error'); } finally { setIsSaving(false); }
   };
-
   const getReflectionMessage = () => {
     switch(activeTimeframe) {
       case 'past': return "あの頃、この価値観があなたをどう支えていましたか？";
@@ -298,56 +307,12 @@ const StarryWorkshop = ({ onBack }) => {
     }
   };
 
-  const TimeTab = ({ id, label, icon: Icon }) => (
-    <button
-      onClick={() => { setActiveTimeframe(id); setViewMode('workshop'); }}
-      className={`flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full transition-all duration-300 border backdrop-blur-md text-xs sm:text-sm ${
-        activeTimeframe === id 
-          ? 'bg-yellow-500/90 text-white border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.5)] scale-105' 
-          : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:border-white/30'
-      }`}
-    >
-      <Icon size={14} className="sm:w-4 sm:h-4" />
-      <span className="font-bold">{label}</span>
-    </button>
-  );
-
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white font-sans fixed inset-0 z-50 overflow-y-auto overflow-x-hidden">
-     
       {toast && <Toast message={toast.message} type={toast.type} />}
 
-      {/* --- 背景装飾 (共通 & PC用おもちゃ) --- */}
-      <div className="fixed inset-0 pointer-events-none z-0 select-none overflow-hidden">
-        <style>{`
-          @keyframes float-random { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, -5px); } }
-          @keyframes drift { 0% { transform: translateX(-10vw); opacity: 0; } 10% { opacity: 0.5; } 90% { opacity: 0.5; } 100% { transform: translateX(110vw); opacity: 0; } }
-          @keyframes drift-slow { 0% { transform: translateX(-10vw) translateY(0); opacity: 0; } 20% { opacity: 0.3; } 80% { opacity: 0.3; } 100% { transform: translateX(110vw) translateY(20px); opacity: 0; } }
-          @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
-          @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-          @keyframes fade-in-down { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
-          @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(253, 224, 71, 0); } 100% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0); } }
-          .animate-float-random { animation: float-random 4s ease-in-out infinite; }
-          .animate-drift { animation: drift 60s linear infinite; }
-          .animate-drift-slow { animation: drift-slow 90s linear infinite; }
-          .animate-twinkle { animation: twinkle 3s ease-in-out infinite; }
-          .animate-fade-in { animation: fade-in 0.3s ease-out; }
-          .animate-fade-in-down { animation: fade-in-down 0.3s ease-out; }
-          .animate-pulse-glow { animation: pulse-glow 2s infinite; }
-        `}</style>
-        
-        {/* 背景の星 (共通) */}
-        {[...Array(50)].map((_, i) => (
-          <div key={`star-${i}`} className="absolute text-yellow-100 animate-twinkle" style={{ top: `${Math.random()*100}%`, left: `${Math.random()*100}%`, opacity: Math.random()*0.5+0.1, animationDelay: `${Math.random()*5}s`, transform: `scale(${Math.random()*0.8+0.5})` }}>
-            <Star size={Math.random() > 0.8 ? 8 : 4} fill="currentColor" />
-          </div>
-        ))}
-        
-        {/* PCのみ: 浮遊おもちゃ */}
-        <FloatingToys />
-      </div>
+      <StarryBackground />
 
-      {/* --- SVGレイヤー (PC:星座線 / スマホ:列車) --- */}
       <svg className="fixed inset-0 pointer-events-none z-30" style={{ width: '100%', height: '100%' }}>
         <defs>
           <filter id="glow">
@@ -355,64 +320,54 @@ const StarryWorkshop = ({ onBack }) => {
             <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-
-        {/* PC用: 星座線 */}
         {pcLines.map((line, i) => (
           <line
             key={`line-${i}`} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
             stroke="#fcd34d" strokeWidth="2" strokeDasharray="4, 4" strokeOpacity="0.6" filter="url(#glow)"
-            className="hidden md:block" // スマホでは非表示
+            className="hidden md:block"
           />
         ))}
-
-        {/* スマホ用: 列車アニメーション */}
         {trainPath && (
           <g className="md:hidden">
             <path id="trainTrack" d={trainPath} fill="none" stroke="none" />
             <text fontSize="24" dy="5">
-              <animateMotion dur={`${Math.max(3, pathLength * 1.5)}s`} repeatCount="indefinite" rotate="auto">
+              <animateMotion dur="40s" repeatCount="indefinite" rotate="auto">
                 <mpath href="#trainTrack" />
               </animateMotion>
               🚂
             </text>
             <circle r="4" fill="#fbbf24" filter="blur(2px)">
-               <animateMotion dur={`${Math.max(3, pathLength * 1.5)}s`} repeatCount="indefinite" rotate="auto" begin="0.1s">
+               <animateMotion dur="40s" repeatCount="indefinite" rotate="auto" begin="0.1s">
                 <mpath href="#trainTrack" />
               </animateMotion>
-              <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />
+              <style>{`@keyframes pulse-smoke { 0% { opacity: 0.6; } 50% { opacity: 0.8; } 100% { opacity: 0.6; } }`}</style>
+              <animate attributeName="opacity" values="0.6;0.8;0.6" dur="2s" repeatCount="indefinite" />
             </circle>
           </g>
         )}
       </svg>
 
-      {/* --- ヘッダー --- */}
       <header className="fixed top-0 left-0 right-0 z-50 px-4 py-3 sm:px-6 sm:py-4 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/10 shadow-2xl">
         <div className="flex justify-between items-center mb-3 sm:mb-4 max-w-7xl mx-auto w-full">
-          {/* PC用タイトル */}
           <h1 className="hidden md:flex text-xl font-bold text-yellow-100 items-center gap-3 font-serif tracking-wider">
             <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(253,224,71,0.5)]">📖</span>
             サンタの書斎
           </h1>
-          {/* スマホ用タイトル */}
           <h1 className="flex md:hidden text-lg font-bold text-yellow-100 items-center gap-2 font-serif tracking-wider">
              <span className="text-2xl">🌌</span> サンタの書斎
           </h1>
-
           <button onClick={onBack} className="text-sm bg-white/5 hover:bg-white/10 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full border border-white/10 flex items-center gap-2 transition-all">
             <span>🏠</span> <span className="hidden sm:inline">部屋に戻る</span>
           </button>
         </div>
         <div className="flex justify-center gap-3 sm:gap-6">
-          <TimeTab id="past" label="過去" icon={Clock} />
-          <TimeTab id="current" label="現在" icon={MapPin} />
-          <TimeTab id="future" label="未来" icon={Compass} />
+          <TimeTab id="past" label="過去" icon={Clock} activeTimeframe={activeTimeframe} onClick={handleTabChange} />
+          <TimeTab id="current" label="現在" icon={MapPin} activeTimeframe={activeTimeframe} onClick={handleTabChange} />
+          <TimeTab id="future" label="未来" icon={Compass} activeTimeframe={activeTimeframe} onClick={handleTabChange} />
         </div>
       </header>
 
-      {/* --- メインコンテンツ --- */}
       <main className="container mx-auto px-4 pt-36 sm:pt-48 pb-32 sm:pb-40 relative z-10 max-w-7xl">
-        
-        {/* スマホのみ表示: 旅の案内メッセージ */}
         <div className="md:hidden text-center mb-6 animate-fade-in-down">
           <h2 className="text-xl font-bold text-yellow-100 font-serif mb-1 drop-shadow-lg">ようこそ、銀河の旅へ！</h2>
           <p className="text-xs text-slate-300 opacity-90">車窓に流れる星々から、あなたの大切な価値観を見つけてください</p>
@@ -421,7 +376,6 @@ const StarryWorkshop = ({ onBack }) => {
         {loading ? (
           <div className="text-center mt-32 text-yellow-100 animate-pulse">星々を集めています...</div>
         ) : (
-          /* PC: grid-cols-2 / スマホ: grid-cols-1 (縦積み) */
           <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-16 transition-all duration-700 ${
             viewMode !== 'workshop' ? 'opacity-20 blur-sm pointer-events-none' : 'opacity-100'
           }`}>
@@ -429,8 +383,8 @@ const StarryWorkshop = ({ onBack }) => {
               <div
                 key={category.id}
                 className={`relative transition-all duration-500 hover:scale-[1.01] md:hover:scale-[1.02] 
-                  ${/* スマホ向けスタイル: シンプルな角丸 */ 'p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md'}
-                  ${/* PC向けスタイル: 独自形状 */ 'md:p-8 md:bg-transparent md:border-none md:shadow-none'}
+                  ${/* スマホ */ 'p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md'}
+                  ${/* PC */ 'md:p-8 md:bg-transparent md:border-none md:shadow-none'}
                 `}
                 style={ window.innerWidth >= 768 ? {
                   background: `linear-gradient(135deg, ${category.theme_color}15 0%, ${category.theme_color}05 100%)`,
@@ -440,7 +394,6 @@ const StarryWorkshop = ({ onBack }) => {
                   borderRadius: index % 2 === 0 ? '60% 40% 70% 30% / 60% 30% 70% 40%' : '40% 60% 30% 70% / 50% 60% 30% 60%',
                 } : {}}
               >
-                {/* カテゴリーヘッダー */}
                 <div className={`
                   flex items-center gap-3 z-20 
                   ${/* スマホ */ 'mb-4 border-b border-white/10 pb-2'}
@@ -448,7 +401,6 @@ const StarryWorkshop = ({ onBack }) => {
                 `}>
                   <div className="w-8 h-8 md:w-3 md:h-3 rounded-full flex items-center justify-center shadow-[0_0_10px]" 
                     style={{ backgroundColor: category.theme_color, boxShadow: `0 0 10px ${category.theme_color}` }}>
-                      {/* スマホのみ惑星アイコン表示 */}
                       <span className="md:hidden text-xs">🪐</span>
                   </div>
                   <h2 className="text-lg font-bold text-slate-200 font-serif tracking-wider whitespace-nowrap">
@@ -456,11 +408,9 @@ const StarryWorkshop = ({ onBack }) => {
                   </h2>
                 </div>
 
-                {/* 星の配置エリア */}
                 <div className="flex flex-wrap justify-center items-center gap-3 md:gap-6 mt-0 md:mt-6 min-h-[100px] md:min-h-[140px] px-1 md:px-4">
                   {category.value_cards.map((card, i) => {
                     const isSelected = selections[activeTimeframe].includes(card.id);
-                    // スマホ用: 駅番号
                     const stationIndex = selections[activeTimeframe].indexOf(card.id) + 1;
                     
                     return (
@@ -469,13 +419,6 @@ const StarryWorkshop = ({ onBack }) => {
                         className="animate-float-random" 
                         style={{ animationDelay: `${i * 0.5}s` }}
                       >
-                         {/* PCでは従来のPuzzlePiece (props等はそのまま)
-                            スマホでは丸い星型ボタンに変形させる
-                            (PuzzlePieceコンポーネントの中身をいじらず、ここでラッパーとして処理するか、
-                             あるいはスタイルを上書きするか。ここでは直接ボタンを描画して、PC/スマホで切り替える手法をとる)
-                         */}
-                         
-                         {/* PC用表示 (md:block) */}
                          <div className="hidden md:block">
                            <PuzzlePiece
                              ref={el => cardRefs.current[card.id] = el}
@@ -486,7 +429,6 @@ const StarryWorkshop = ({ onBack }) => {
                            />
                          </div>
 
-                         {/* スマホ用表示 (md:hidden) */}
                          <button
                            ref={el => { if(window.innerWidth < 768) cardRefs.current[card.id] = el }}
                            onClick={() => handleCardClick(card)}
@@ -516,9 +458,9 @@ const StarryWorkshop = ({ onBack }) => {
         )}
       </main>
 
-      {/* --- フッター --- */}
+      {/* フッター (★修正点: pb-8 で下部余白確保、px-4で横余白確保) */}
       {viewMode === 'workshop' && (
-        <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 bg-[#0f172a]/90 border-t border-white/10 backdrop-blur-xl z-50 pb-safe">
+        <div className="fixed bottom-0 left-0 right-0 px-4 py-3 pb-8 sm:p-4 bg-[#0f172a]/90 border-t border-white/10 backdrop-blur-xl z-50">
           <div className="container mx-auto flex justify-between items-center max-w-4xl">
             <div className="text-sm text-slate-300 flex items-center gap-2">
               <Star size={20} className={selections[activeTimeframe].length === 10 ? 'text-green-400' : 'text-yellow-400'} fill="currentColor"/>
@@ -556,7 +498,6 @@ const StarryWorkshop = ({ onBack }) => {
         </div>
       )}
 
-      {/* --- 詳細モーダル (共通) --- */}
       {selectedDetailCard && (
         <div 
           className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" 
@@ -582,7 +523,6 @@ const StarryWorkshop = ({ onBack }) => {
         </div>
       )}
 
-      {/* --- 振り返り入力モーダル (共通) --- */}
       {viewMode === 'reflection_input' && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
           <div className="bg-[#1e1b4b]/95 border border-white/20 p-6 sm:p-8 rounded-3xl max-w-lg w-full shadow-2xl relative">
@@ -606,7 +546,6 @@ const StarryWorkshop = ({ onBack }) => {
         </div>
       )}
 
-      {/* --- シェアモーダル (共通) --- */}
       {shareModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in overflow-y-auto">
           <div className="flex flex-col items-center gap-6 max-w-4xl w-full my-auto">
@@ -617,7 +556,6 @@ const StarryWorkshop = ({ onBack }) => {
             <div className="relative w-full flex justify-center items-center bg-[#0f172a] rounded-xl overflow-hidden border border-white/10 shadow-2xl p-4 min-h-[300px]">
               {isGeneratingImage && <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0f172a] z-20 text-yellow-100"><Loader className="animate-spin mb-4"/><p>星空を撮影しています...</p></div>}
               {generatedImage && !isGeneratingImage && <img src={generatedImage} alt="Share" className="max-w-full h-auto rounded-lg shadow-lg max-h-[60vh] object-contain" />}
-              {/* OGP画像生成用DOM */}
               <div ref={shareRef} className="absolute top-0 left-0 pointer-events-none" style={{ width: '1200px', height: '630px', background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)', opacity: generatedImage ? 0 : 1, zIndex: generatedImage ? -1 : 10 }}>
                 <div className="w-full h-full relative flex flex-col items-center justify-center p-16 text-white font-sans">
                   <div className="absolute top-0 left-0 w-full h-full opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
