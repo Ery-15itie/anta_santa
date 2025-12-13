@@ -4,8 +4,11 @@ class User < ApplicationRecord
   # =========================================================
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
-         :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist 
-  
+         :jwt_authenticatable, 
+         :omniauthable, 
+         jwt_revocation_strategy: JwtDenylist,
+         omniauth_providers: %i[github google_oauth2]
+
   # =========================================================
   # 評価（お手紙）機能の関連 
   # =========================================================
@@ -51,39 +54,89 @@ class User < ApplicationRecord
   # =========================================================
   
   # EmotionLogの連続投稿日数を計算
-  # 複雑なSQLを避け、Ruby側で計算することで保守性と安定性を向上させています
   def emotion_streak
-    # 1. ログの日付リストを取得（降順、重複なし、Date型に変換）
-    # in_time_zoneを使うことで、アプリのタイムゾーン設定（東京など）を考慮した日付になります
+    # 1. ログの日付リストを取得
     log_dates = emotion_logs.order(created_at: :desc)
                             .pluck(:created_at)
                             .map { |time| time.in_time_zone.to_date }
                             .uniq
 
-    # 記録が一つもない場合は0
     return 0 if log_dates.empty?
 
     # 2. ストリークが「現役」かチェック
-    # 最新の記録が「昨日」より前（一昨日以前）なら、既に途切れているので0を返す
     latest_date = log_dates.first
     return 0 if latest_date < Date.yesterday
 
     # 3. 連続日数をカウント
     streak = 0
-    # カウントを開始する基準日（最新の記録日）
     check_date = latest_date
 
     log_dates.each do |date|
       if date == check_date
         streak += 1
-        # 次のループでは「1日前」が存在するかを確認するため日付を戻す
         check_date -= 1.day 
       else
-        # 日付が連続しなくなったらそこで終了
         break
       end
     end
 
     streak
+  end
+
+  # =========================================================
+  # 🚑 管理者用救済機能 (Rescue Code)
+  # =========================================================
+  
+  # 管理者が実行するメソッド
+  def generate_rescue_code!
+    # 視認性の悪い文字(I, l, 1, O, 0)を除いた8桁の英数字
+    chars = [('A'..'H').to_a, ('J'..'N').to_a, ('P'..'Z').to_a, ('2'..'9').to_a].flatten
+    code = (0...8).map { chars[rand(chars.length)] }.join
+    
+    update!(
+      rescue_code: code,
+      rescue_code_expires_at: 24.hours.from_now
+    )
+    code # 管理画面(コンソール)に表示するために返す
+  end
+
+  # コード検証 & ユーザー特定
+  def self.authenticate_with_rescue_code(code)
+    return nil if code.blank?
+    
+    # 大文字小文字を無視して検索
+    user = where("UPPER(rescue_code) = ?", code.upcase)
+           .where("rescue_code_expires_at > ?", Time.current)
+           .first
+           
+    if user
+      # セキュリティのため即座に無効化（ワンタイム）
+      user.update!(rescue_code: nil, rescue_code_expires_at: nil)
+      return user
+    end
+    nil
+  end
+
+  # =========================================================
+  # 🔗 Google連携機能
+  # =========================================================
+  
+  # コントローラーから呼ばれる検索用メソッド
+  def self.from_omniauth(auth)
+    where(provider: auth.provider, uid: auth.uid).first
+  end
+
+  # 既存ユーザーにGoogle情報を紐付ける
+  def link_google_account(auth_hash)
+    # 重複チェック
+    if User.exists?(provider: 'google_oauth2', uid: auth_hash[:uid])
+      errors.add(:base, "このGoogleアカウントは既に他のユーザーに使用されています")
+      return false
+    end
+
+    update(
+      provider: 'google_oauth2',
+      uid: auth_hash[:uid]
+    )
   end
 end

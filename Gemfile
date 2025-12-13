@@ -5,14 +5,13 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gem "rails", "~> 7.2.2" 
 
 # データベース
-# gem 'mysql2', '~> 0.5.5' # MySQL/MariaDB用 
 gem 'pg', "~> 1.5" # PostgreSQL用
 
 # Webサーバー
 gem "puma", "~> 6.0"
 
 # ---------------------------------------------------
-# ▼ React導入のために追加・確認
+# ▼ React / Frontend 関連
 # ---------------------------------------------------
 # Asset Pipeline (画像やCSSの管理)
 gem 'sprockets-rails', "~> 3.2"
@@ -23,9 +22,8 @@ gem "sass-rails", ">= 6"
 # Importmap (既存のJS用)
 gem "importmap-rails"
 
-# Reactのビルドに必須 (esbuildを使えるようにする)
+# Reactのビルドに必須 (esbuildを使用)
 gem "jsbundling-rails"
-# ---------------------------------------------------
 
 # Hotwire (Turbo and Stimulus)
 gem "turbo-rails"
@@ -36,23 +34,33 @@ gem 'bootstrap', "~> 5.3"
 gem 'chartkick'
 gem 'groupdate'
 
+# ---------------------------------------------------
+# ▼ 認証・認可・API 関連 
+# ---------------------------------------------------
+gem 'devise'
+
+# JWT認証 (API連携・モバイルアプリ連携用)
+gem 'devise-jwt', "~> 0.12.1"
+
+# OmniAuth (SNS連携基盤)
+gem 'omniauth'
+gem 'omniauth-rails_csrf_protection' # Railsセキュリティ対策（必須）
+
+# SNSプロバイダー
+gem 'omniauth-google-oauth2'         # ★今回追加: Google連携・引継ぎ用
+gem 'omniauth-github', "~> 2.0"      # 既存: GitHub連携 (Octokit等で使用するため維持)
+
+# ---------------------------------------------------
+# ▼ 外部API・ジョブ・ユーティリティ
+# ---------------------------------------------------
+# GitHub API操作用 (Repo情報取得など)
+gem 'octokit', "~> 4.0"
+
 # PDF生成
 gem 'prawn'
 gem 'prawn-table'
 
-# 認証・認可
-gem 'devise'
-gem 'omniauth'
-gem 'omniauth-github', "~> 2.0"
-gem 'omniauth-rails_csrf_protection'
-
-# JWT認証 (API連携用)
-gem 'devise-jwt', "~> 0.12.1"
-
-# GitHub API
-gem 'octokit', "~> 4.0"
-
-# Faraday関連
+# HTTPクライアント
 gem 'faraday-retry'
 
 # バックグラウンドジョブ
@@ -65,13 +73,15 @@ gem 'rails-i18n'
 # 画像処理
 gem "image_processing", "~> 1.12"
 
-# タイムゾーンデータ 
+# タイムゾーンデータ
 gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # ブートタイム短縮
 gem "bootsnap", require: false
 
-# 開発・テスト環境
+# ---------------------------------------------------
+# ▼ 開発・テスト環境
+# ---------------------------------------------------
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rspec-rails', "~> 6.0"
@@ -79,6 +89,10 @@ group :development, :test do
   gem 'faker', "~> 3.2"
   gem 'pry-rails'
   gem 'pry-byebug'
+
+  # ★推奨追加: 環境変数管理 (.envファイル用)
+  # Google Client ID等をローカルで管理するのに必須
+  gem 'dotenv-rails' 
 end
 
 group :development do
@@ -89,7 +103,7 @@ group :development do
   gem 'annotate'
   gem 'bullet'
   
-  # letter_opener関連
+  # メール確認用
   gem 'letter_opener'
   gem 'letter_opener_web'
 end

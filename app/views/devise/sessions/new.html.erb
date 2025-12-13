@@ -58,6 +58,10 @@
           </div>
         <% end %>
 
+        <%# ▼▼▼ 救済コード入力フォーム (Reactマウント用) ▼▼▼ %>
+        <div class="my-6 border-t border-dashed border-[#d7ccc8]"></div>
+        <div id="rescue-code-form-root"></div>
+
         <div class="mt-8 text-center pt-6 border-t border-orange-100">
           <p class="text-xs text-gray-500 mb-2">まだアカウントをお持ちでないですか？</p>
           <%= link_to new_registration_path(resource_name), class: "text-orange-600 font-bold hover:text-orange-800 hover:underline inline-flex items-center gap-1" do %>

@@ -6,7 +6,9 @@ import { createRoot } from 'react-dom/client';
 
 // ▼▼▼ コンポーネントをインポート ▼▼▼
 import HeartoryHome from './components/HeartoryHome';
-import SantaBookModal from './components/SantaBookModal'; // ← 追加！
+import SantaBookModal from './components/SantaBookModal';
+import RescuePanel from './components/admin/RescuePanel';
+import RescueCodeForm from './components/RescueCodeForm'; // ユーザー用救済フォーム
 
 console.log("🚀 JS Loaded");
 
@@ -19,10 +21,7 @@ document.addEventListener('turbo:load', () => {
   const homeContainer = document.getElementById('heartory-home-root');
   
   if (homeContainer) {
-    // コンソールで確認（デバッグ用）
     console.log("🏠 Found heartory-home-root, mounting React...");
-    
-    // 二重表示防止：中身が空の時だけレンダリング
     if (!homeContainer.hasChildNodes()) {
       const root = createRoot(homeContainer);
       root.render(<HeartoryHome />);
@@ -32,19 +31,39 @@ document.addEventListener('turbo:load', () => {
   // =========================================================
   // 【処理2】サンタのガイドブック (SantaBookModal) の表示
   // =========================================================
-  // layout/application.html.erb に設置した <div id="santa-book-portal"> を探す
   const bookContainer = document.getElementById('santa-book-portal');
   
   if (bookContainer) {
     console.log("📖 Found santa-book-portal, mounting SantaBookModal...");
-    
-    // 二重表示防止
     if (!bookContainer.hasChildNodes()) {
       const root = createRoot(bookContainer);
       root.render(<SantaBookModal />);
     }
-  } else {
-    // ギフトホールなどの画面でも出るはずなので、もし出なければここがログに出ます
-    console.log("⚠️ santa-book-portal container not found.");
+  }
+
+  // =========================================================
+  // 【処理3】管理者用救済パネル (RescuePanel) の表示
+  // =========================================================
+  const rescueContainer = document.getElementById('admin-rescue-root');
+
+  if (rescueContainer) {
+    console.log("🚑 Found admin-rescue-root, mounting RescuePanel...");
+    if (!rescueContainer.hasChildNodes()) {
+      const root = createRoot(rescueContainer);
+      root.render(<RescuePanel />);
+    }
+  }
+
+  // =========================================================
+  // 【処理4】ユーザー用救済コード入力フォーム (RescueCodeForm) の表示 
+  // =========================================================
+  const rescueFormContainer = document.getElementById('rescue-code-form-root');
+  
+  if (rescueFormContainer) {
+    console.log("🆘 Found rescue-code-form-root, mounting RescueCodeForm...");
+    if (!rescueFormContainer.hasChildNodes()) {
+      const root = createRoot(rescueFormContainer);
+      root.render(<RescueCodeForm />);
+    }
   }
 });

@@ -24,7 +24,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-       <%# フラッシュメッセージ固定表示用のCSS %>
+    <%# フラッシュメッセージ固定表示用のCSS %>
     <style>
       .flash-container {
         position: fixed;
@@ -48,6 +48,17 @@
 
   <body class="<%= content_for(:body_class) %> <%= content_for(:body_class).blank? ? 'bg-amber-100' : '' %>">
 
+    <%# ▼▼▼ 管理者用救済ボタン (ログイン中の管理者のみ表示) ▼▼▼ %>
+    <% if user_signed_in? && current_user.email == ENV['ADMIN_EMAIL'] %>
+      <div class="fixed top-4 right-4 z-[100]">
+        <%= link_to admin_path, class: "flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-red-700 hover:scale-105 transition transform font-bold text-sm border-2 border-white" do %>
+          <span class="text-lg">🚑</span>
+          <span>救済コード発行</span>
+        <% end %>
+      </div>
+    <% end %>
+    <%# ▲▲▲ ここまで ▲▲▲ %>
+
     <%# フラッシュメッセージエリア %>
     <div class="flash-container">
       <% flash.each do |key, msg| %>
@@ -67,7 +78,7 @@
       </div>
     </main>
 
-    <%# ▼▼▼ 修正: サンタのガイドブック表示エリア (JSで描画) ▼▼▼ %>
+    <%# ▼▼▼ サンタのガイドブック表示エリア (JSで描画) ▼▼▼ %>
     <div id="santa-book-portal"></div>
 
     <script>

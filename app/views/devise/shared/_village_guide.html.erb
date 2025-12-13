@@ -221,7 +221,19 @@
 </div>
 
  <%# ▼▼▼ フッターリンク ▼▼▼ %>
-    <div class="mt-16 text-center border-t border-[#5d4037] pt-8 opacity-80">
+    <div class="mt-16 text-center border-t border-[#5d4037] pt-12 opacity-90">
+      
+      <%# 救済コード用ボタン %>
+      <div class="mb-10">
+        <p class="text-[#8d6e63] text-xs mb-2 font-bold">なんらかの事情でHeartory Homeに帰れなくなり、<br>村長の助けを求めた方へ
+        (救済コードの依頼はお問い合わせから)</p>
+        <%= link_to new_user_session_path, class: "inline-flex items-center gap-2 bg-[#b71c1c] text-[#ffecb3] px-8 py-3 rounded-full text-sm font-bold shadow-md hover:bg-[#d32f2f] hover:shadow-lg transition transform hover:-translate-y-0.5" do %>
+          <span class="text-lg">🚑</span>
+          <span>救済コードを入力する (ログイン画面へ)</span>
+        <% end %>
+      </div>
+
+      <%# 既存のリンク集 %>
       <ul class="flex flex-wrap justify-center gap-6 text-sm text-[#8d6e63] font-bold tracking-wider">
         <li>
           <%= link_to "利用規約(村の掟)", terms_path, class: "hover:text-[#f15a22] transition border-b border-transparent hover:border-[#ffcc80]" %>
@@ -233,12 +245,8 @@
           <%= link_to "お問い合わせフォーム", contact_path, class: "hover:text-[#f15a22] transition border-b border-transparent hover:border-[#ffcc80]" %>
         </li>
       </ul>
-      <p class="text-[#8d6e63] text-xs mt-4 font-mono">© 2025 Anta-Santa. All Rights Reserved.</p>
+      <p class="text-[#8d6e63] text-xs mt-6 font-mono">© 2025 Anta-Santa. All Rights Reserved.</p>
     </div>
-
-  </div>
-</div>
-
 <%# ▼▼▼ スクロールバーのデザイン用CSS (このページのみに適用) ▼▼▼ %>
 <style>
   .custom-scrollbar::-webkit-scrollbar {
