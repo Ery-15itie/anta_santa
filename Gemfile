@@ -2,7 +2,7 @@ source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Railsのバージョン指定
-gem "rails", "~> 7.2.2" 
+gem "rails", "~> 7.2.3" 
 
 # データベース
 gem 'pg', "~> 1.5" # PostgreSQL用
