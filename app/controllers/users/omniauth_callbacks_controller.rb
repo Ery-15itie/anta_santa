@@ -1,5 +1,5 @@
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
-  # GitHubだけでなく、Google認証時もCSRF保護をスキップする必要がある
+  # GitHub、Google認証時CSRF保護をスキップ
   skip_before_action :verify_authenticity_token, only: [:github, :google_oauth2]
 
   # =================================================================
@@ -7,7 +7,6 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   # =================================================================
   def github
     auth = request.env['omniauth.auth']
-    # 注意: Userモデルに self.from_omniauth が実装されている前提
     @user = User.from_omniauth(auth)
 
     if @user.persisted?
@@ -27,13 +26,38 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   # =================================================================
-  # 2. Google認証 
+  # 2. Google認証 ( ログインと連携の両対応)
   # =================================================================
   def google_oauth2
-    # まずは「接続テスト」として、Googleから届いた情報を画面に表示します。
-    # これが表示されれば、通信設定は100%成功です。
     auth = request.env['omniauth.auth']
-    render plain: "Google連携成功！\n\n取得データ: #{auth.inspect}"
+
+    # 【パターンA: 既にログインしている場合 (プロフィール設定からの連携)】
+    if user_signed_in?
+      # 1. そのGoogleアカウントが既に他の誰かに使われていないかチェック
+      if User.exists?(provider: auth.provider, uid: auth.uid)
+        redirect_to root_path, alert: 'このGoogleアカウントは既に他のユーザーに使用されています。'
+      else
+        # 2. 現在のユーザーに紐付け（連携）
+        current_user.update(provider: auth.provider, uid: auth.uid)
+        redirect_to root_path, notice: 'Googleアカウントと連携しました！'
+      end
+
+    # 【パターンB: ログインしていない場合 (ログイン画面からのサインイン)】
+    else
+      # Userモデルの from_omniauth でユーザーを探す（または作る）
+      @user = User.from_omniauth(auth)
+
+      if @user&.persisted?
+        # ログイン成功
+        sign_in_and_redirect @user, event: :authentication
+        set_flash_message(:notice, :success, kind: "Google") if is_navigational_format?
+      else
+        # ユーザーが見つからない/作れない場合
+        session['devise.google_data'] = auth.except('extra')
+        # 新規登録画面ではなくログイン画面に戻すのが一般的（アカウントがない旨を伝える）
+        redirect_to new_user_session_url, alert: 'アカウントが見つかりません。'
+      end
+    end
   end
 
   # =================================================================

@@ -1,4 +1,4 @@
-<%# ユーザー詳細画面: アンティークポートレート風  %>
+<%# ユーザー詳細画面: アンティークポートレート風 + プロフィール設定機能 %>
 
 <div class="min-h-screen bg-[#3e2723] font-serif pb-20 relative overflow-x-hidden text-[#3e2723]">
   
@@ -52,10 +52,27 @@
           </div>
         </div>
 
-        <%# ユーザー名 %>
-        <h1 class="text-3xl font-bold text-[#3e2723] mb-6 border-b-2 border-[#d7ccc8] pb-4 inline-block min-w-[50%]" style="font-family: 'Courier New', Courier, monospace;">
-          <%= @user.username %>
-        </h1>
+        <%# 名前エリア (設定ボタン & 公開ID追加) %>
+        <div class="mb-6 border-b-2 border-[#d7ccc8] pb-4 inline-block min-w-[50%]">
+          
+          <div class="flex items-center justify-center gap-3">
+            <h1 class="text-3xl font-bold text-[#3e2723]" style="font-family: 'Courier New', Courier, monospace;">
+              <%= @user.username %>
+            </h1>
+
+            <%# ★設定ボタン (自分が見ている時だけ表示) %>
+            <% if user_signed_in? && current_user == @user %>
+              <button id="open-profile-settings" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#efebe9] text-[#5d4037] hover:bg-[#d7ccc8] transition shadow-sm border border-[#d7ccc8] cursor-pointer" title="プロフィール設定">
+                ⚙️
+              </button>
+            <% end %>
+          </div>
+
+          <%# 公開ID表示 %>
+          <% if @user.public_id.present? %>
+            <p class="text-xs text-[#8d6e63] font-mono mt-1">@<%= @user.public_id %></p>
+          <% end %>
+        </div>
         
         <%# フォロー情報 (スタンプ風) %>
         <div class="flex justify-center space-x-8 mb-8">
@@ -114,3 +131,8 @@
     
   </div>
 </div>
+
+<%#  Reactマウント用コンテナ (自分の場合のみ) %>
+<% if user_signed_in? && current_user == @user %>
+  <div id="profile-settings-root"></div>
+<% end %>

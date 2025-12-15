@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   # ----------------------------------------------------
   #  1. Devise（認証機能）
   # ----------------------------------------------------
+  # 作成した registrations コントローラーを読み込ませる
   devise_for :users, controllers: {
     sessions: 'users/sessions',
     registrations: 'users/registrations',
@@ -48,13 +49,18 @@ Rails.application.routes.draw do
       resources :ogp_images, only: [:create]
 
       # ==========================================
-      # 引継ぎ・救済機能用エンドポイント
+      # 引継ぎ・救済・プロフィール機能用
       # ==========================================
+      
+      # プロフィール設定（取得・更新）
+      resource :profile, only: [:show, :update]
+
       # 1. 救済コード認証 (ログインできないユーザー向け)
       resource :rescue_session, only: [:create]
 
-      # 2. ソーシャル連携 (ログイン中のユーザー向け)
-      resource :social_provider, only: [:create, :destroy]
+      # 2. ソーシャル連携解除 (ログイン中のユーザー向け)
+      # ※連携(create)はOmniauthCallbacksControllerで行うため、ここはdestroyのみ
+      resource :social_provider, only: [:destroy]
 
       # 管理者専用APIエリア
       namespace :admin do

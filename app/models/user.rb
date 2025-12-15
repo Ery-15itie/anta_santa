@@ -38,7 +38,19 @@ class User < ApplicationRecord
   has_many :user_reflections, dependent: :destroy
 
   # =========================================================
-  # バリデーション
+  # 公開ID (Public ID) 設定  
+  # =========================================================
+  # URLや検索に使うためのID。英数字とアンダースコアのみ許可
+  validates :public_id, presence: true, 
+            uniqueness: { case_sensitive: false }, # ← ★ここが重要です！
+            format: { with: /\A[a-zA-Z0-9_]+\z/, message: "は半角英数字とアンダースコア(_)のみ使用できます" },
+            length: { minimum: 4, maximum: 20 }
+
+  # 新規作成時に自動でIDを生成する
+  before_validation :set_default_public_id, on: :create
+
+  # =========================================================
+  # その他のバリデーション
   # =========================================================
   validates :username, presence: true, uniqueness: true, length: { maximum: 50 }
 
@@ -138,5 +150,22 @@ class User < ApplicationRecord
       provider: 'google_oauth2',
       uid: auth_hash[:uid]
     )
+  end
+
+  private
+
+  # =========================================================
+  # 非公開メソッド (Callbacks) 
+  # =========================================================
+  def set_default_public_id
+    # public_id が空の場合のみ生成
+    return if public_id.present?
+
+    # ランダムな8文字のIDを生成 (例: user_a1b2)
+    # 重複していたら作り直すループ処理
+    loop do
+      self.public_id = "user_#{SecureRandom.alphanumeric(8).downcase}"
+      break unless User.exists?(public_id: public_id)
+    end
   end
 end

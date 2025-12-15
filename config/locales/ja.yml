@@ -4,49 +4,61 @@ ja:
   # -----------------------------------------------------------------------------
   devise:
     sessions:
-      signed_in: 'ようこそ！ログインしました。'
+      signed_in: 'ログインしました。' # テストに合わせてシンプルに修正
       signed_out: 'ログアウトしました。'
+      already_signed_out: '既にログアウトしています。'
     registrations:
-      signed_up: 'アカウントを登録しました。'
+      signed_up: 'アカウント登録が完了しました。'
+      updated: 'アカウント情報を変更しました。' # ★これがないと更新時のテストが落ちます
+      destroyed: 'アカウントを削除しました。またのご利用をお待ちしております。'
     failure:
-      unauthenticated: 'ログインが必要です。'
+      unauthenticated: 'ログインまたは登録が必要です。'
       invalid: 'メールアドレスまたはパスワードが違います。'
       not_found_in_database: 'メールアドレスまたはパスワードが違います。'
       timeout: 'セッションがタイムアウトしました。もう一度ログインしてください。'
-    # パスワードリセット関連 (追記/修正箇所)
+      inactive: 'アカウントが有効化されていません。'
     passwords:
-      send_instructions: "パスワード再設定の案内を、数分以内にメールで送信します。" # ★これがリセット成功メッセージ
+      send_instructions: "パスワード再設定の案内を、数分以内にメールで送信します。"
       updated: "パスワードが正常に変更されました。ログインしています。"
       updated_not_active: "パスワードが正常に変更されました。"
       no_token: "このページにアクセスするには、パスワードリセットメールのリンクが必要です。"
-    # メールアドレス確認関連 (必要であれば)
     confirmations:
       send_instructions: "本人確認用のメールを数分以内に送信します。"
       confirmed: "アカウントが正常に認証されました。"
       send_paranoid_instructions: "アカウントが既に認証済み、またはメールアドレスがデータベースに存在しない場合は、数分以内に本人確認メールが届きます。"
-    # Omniauth (ソーシャルログイン: GitHub連携など) のメッセージ
     omniauth_callbacks:
       success: '%{kind} アカウントと連携し、ログインしました。'
       failure: '%{kind} アカウントでの認証に失敗しました。'
       
   # -----------------------------------------------------------------------------
-  # Railsのバリデーションエラーメッセージの日本語化
+  # Railsのバリデーションエラーメッセージ
   # -----------------------------------------------------------------------------
   errors:
     format: "%{attribute}%{message}"
     messages:
       accepted: "を承諾してください"
       blank: "を入力してください"
-      too_short: "は%{count}文字以上で入力してください"
-      too_long: "は%{count}文字以内で入力してください"
-      invalid: "は無効です"
-      not_a_number: "は数値で入力してください"
-      taken: "は既に使用されています"
-      confirmation: "と%{attribute}の入力が一致しません"
       present: "は入力しないでください"
+      confirmation: "と%{attribute}の入力が一致しません"
       empty: "を入力してください"
+      equal_to: "は%{count}にしてください"
+      even: "は偶数にしてください"
+      exclusion: "は予約されています"
       greater_than: "は%{count}より大きい値にしてください"
+      greater_than_or_equal_to: "は%{count}以上の値にしてください"
+      inclusion: "は一覧にありません"
+      invalid: "は不正な値です"
       less_than: "は%{count}より小さい値にしてください"
+      less_than_or_equal_to: "は%{count}以下の値にしてください"
+      model_invalid: "バリデーションに失敗しました: %{errors}"
+      not_a_number: "は数値で入力してください"
+      not_an_integer: "は整数で入力してください"
+      odd: "は奇数にしてください"
+      required: "を入力してください"
+      taken: "はすでに存在します" 
+      too_long: "は%{count}文字以内で入力してください"
+      too_short: "は%{count}文字以上で入力してください"
+      wrong_length: "は%{count}文字で入力してください"
       other_than: "は%{count}以外の値にしてください"
 
   # -----------------------------------------------------------------------------
@@ -67,15 +79,17 @@ ja:
       template_item: '評価項目'
     attributes:
       user:
-        display_name: 'ユーザー名'
+        public_id: "公開ID"          
+        username: "名前"             
         email: 'メールアドレス'
         password: 'パスワード'
+        password_confirmation: "パスワード（確認）" 
+        current_password: "現在のパスワード"        
       evaluation:
         message: 'メッセージ本文'
         evaluated_user_id: 'お手紙を送る相手'
         item_ids: '褒めたい項目'
         created_at: '作成日時'
-        base: ''
       template_item:
         title: '項目名'
         category: '大分類'
