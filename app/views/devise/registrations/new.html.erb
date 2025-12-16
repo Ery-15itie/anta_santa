@@ -61,13 +61,27 @@
           </div>
         <% end %>
 
+        <%# ▼▼▼ Googleボタンエリア ▼▼▼ %>
+        <div class="mt-6 text-center">
+          <p class="text-xs text-[#8d6e63] mb-3 font-bold">—— または ——</p>
+          <div class="w-full">
+            <%# Tailwind CSSに合わせたスタイル + 下線(underline)を追加 %>
+            <%= button_to "Googleアカウントで登録", 
+                user_google_oauth2_omniauth_authorize_path, 
+                method: :post, 
+                data: { turbo: false }, 
+                class: "w-full py-3 px-4 bg-white border-2 border-[#8d6e63] text-[#5d4037] font-bold rounded-full shadow-sm hover:bg-[#d7ccc8] transition duration-200 cursor-pointer underline" %>
+          </div>
+        </div>
+        <%# ▲▲▲ ここまで ▲▲▲ %>
+
         <div class="mt-6 text-center pt-4 border-t border-[#ffe0b2]">
           <p class="text-xs text-[#8d6e63] mb-2">すでに住民登録がお済みですか？</p>
           <%= link_to "ログインはこちら", new_session_path(resource_name), class: "text-[#e65100] font-bold hover:text-[#bf360c] hover:underline" %>
         </div>
       </div>
 
- <%# 右側: ウェルカムビジュアル %>
+      <%# 右側: ウェルカムビジュアル %>
       <div class="w-full md:w-1/2 p-10 lg:p-16 flex flex-col justify-center items-center text-center relative overflow-hidden text-white"
            style="background: linear-gradient(135deg, #d84315 0%, #ef6c00 50%, #ff9800 100%);">
         <div class="absolute top-0 left-0 w-full h-full bg-black opacity-10 mix-blend-overlay"></div>
@@ -86,7 +100,6 @@
     </div>
 
     <%# --- 2. 共通コンテンツ (パーシャル読み込み) --- %>
-    <%# 掲示板、ガイド、メッセージ、フッターリンクはここで読み込み%>
     <%= render "devise/shared/village_guide" %>
 
   </div>

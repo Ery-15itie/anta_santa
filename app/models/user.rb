@@ -129,13 +129,31 @@ class User < ApplicationRecord
     nil
   end
 
-  # =========================================================
+ # =========================================================
   # 🔗 Google連携機能
   # =========================================================
   
   # コントローラーから呼ばれる検索用メソッド
+  # 既存ユーザーがいればログイン、いなければ新規登録(自動作成)
   def self.from_omniauth(auth)
-    where(provider: auth.provider, uid: auth.uid).first
+    where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
+      user.email = auth.info.email
+      
+      # パスワードは必須なので、安全なランダム文字列を生成
+      user.password = Devise.friendly_token[0, 20]
+      user.password_confirmation = user.password # 確認用にも同じ値をセット
+
+      # 名前(Username)の設定
+      # Googleの名前があればそれ、なければメアドの@より前を使う
+      user.username = auth.info.name || auth.info.email.split('@')[0]
+      
+      # 公開ID(Public ID)の自動生成
+      # 必須項目かつ重複NGなので、ランダムな文字列で生成します
+      user.public_id = "user_#{SecureRandom.alphanumeric(8).downcase}"
+      
+      # ※画像URLを保存するカラム(image_url)設定したら以下を有効化
+      # user.image_url = auth.info.image
+    end
   end
 
   # 既存ユーザーにGoogle情報を紐付ける

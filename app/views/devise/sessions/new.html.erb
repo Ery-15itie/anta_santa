@@ -32,20 +32,20 @@
           <div>
             <%= f.label :email, "メールアドレス", class: "block text-xs font-bold text-[#ef6c00] mb-1" %>
             <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "santa@example.com",
-                class: "w-full bg-white border border-orange-200 text-gray-700 px-4 py-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition" %>
+                class: "w-full bg-white border border-[#ffcc80] text-[#3e2723] px-4 py-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ef6c00] focus:border-transparent transition" %>
           </div>
 
           <div>
             <%= f.label :password, "パスワード", class: "block text-xs font-bold text-[#ef6c00] mb-1" %>
             <%= f.password_field :password, autocomplete: "current-password", placeholder: "••••••••",
-                class: "w-full bg-white border border-orange-200 text-gray-700 px-4 py-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition" %>
+                class: "w-full bg-white border border-[#ffcc80] text-[#3e2723] px-4 py-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ef6c00] focus:border-transparent transition" %>
           </div>
 
           <div class="flex items-center justify-between text-sm">
             <% if devise_mapping.rememberable? %>
               <div class="flex items-center">
-                <%= f.check_box :remember_me, class: "h-4 w-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" %>
-                <%= f.label :remember_me, "ログインしたままにする", class: "ml-2 text-gray-700 font-medium" %>
+                <%= f.check_box :remember_me, class: "h-4 w-4 text-[#ef6c00] border-gray-300 rounded focus:ring-[#ef6c00]" %>
+                <%= f.label :remember_me, "ログインしたままにする", class: "ml-2 text-[#5d4037] font-medium" %>
               </div>
             <% end %>
             
@@ -54,17 +54,31 @@
 
           <div class="pt-4">
             <%= f.submit "扉を開ける (ログイン)", 
-                class: "w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-full shadow-lg hover:from-orange-600 hover:to-red-600 hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer" %>
+                class: "w-full py-3 px-4 bg-gradient-to-r from-[#ef6c00] to-[#c62828] text-white font-bold rounded-full shadow-lg hover:from-[#f57c00] hover:to-[#d32f2f] hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border-2 border-[#fff3e0]" %>
           </div>
         <% end %>
+
+        <%# ▼▼▼ Googleログインボタン  ▼▼▼ %>
+        <div class="mt-6 text-center">
+          <p class="text-xs text-[#8d6e63] mb-3 font-bold">—— または ——</p>
+          <div class="w-full">
+            <%# Tailwind CSSに合わせたスタイル + 下線(underline)を追加 %>
+            <%= button_to "Googleアカウントでログイン / 新規登録", 
+                user_google_oauth2_omniauth_authorize_path, 
+                method: :post, 
+                data: { turbo: false }, 
+                class: "w-full py-3 px-4 bg-white border-2 border-[#8d6e63] text-[#5d4037] font-bold rounded-full shadow-sm hover:bg-[#d7ccc8] transition duration-200 cursor-pointer underline" %>
+          </div>
+        </div>
+        <%# ▲▲▲ ここまで ▲▲▲ %>
 
         <%# ▼▼▼ 救済コード入力フォーム (Reactマウント用) ▼▼▼ %>
         <div class="my-6 border-t border-dashed border-[#d7ccc8]"></div>
         <div id="rescue-code-form-root"></div>
 
-        <div class="mt-8 text-center pt-6 border-t border-orange-100">
-          <p class="text-xs text-gray-500 mb-2">まだアカウントをお持ちでないですか？</p>
-          <%= link_to new_registration_path(resource_name), class: "text-orange-600 font-bold hover:text-orange-800 hover:underline inline-flex items-center gap-1" do %>
+        <div class="mt-6 text-center pt-4 border-t border-[#ffe0b2]">
+          <p class="text-xs text-[#8d6e63] mb-2">まだアカウントをお持ちでないですか？</p>
+          <%= link_to new_registration_path(resource_name), class: "text-[#e65100] font-bold hover:text-[#bf360c] hover:underline inline-flex items-center gap-1" do %>
             <span>新規登録はこちら</span>
             <span>&rarr;</span>
           <% end %>
@@ -93,7 +107,6 @@
     </div>
 
     <%# --- 2. 共通コンテンツ (パーシャル読み込み) --- %>
-    <%#  _village_guide.html.erb を呼び出し %>
     <%= render "devise/shared/village_guide" %>
 
   </div>
