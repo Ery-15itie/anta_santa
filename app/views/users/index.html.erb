@@ -81,7 +81,10 @@
               </div>
               <div class="overflow-hidden">
                 <%= link_to user.username, user_path(user), class: "text-xl font-bold text-[#3e2723] hover:text-[#d32f2f] transition font-serif border-b border-transparent hover:border-[#d32f2f] truncate block" %>
-                <p class="text-xs text-[#8d6e63] font-mono mt-1">ID: <%= user.id %></p>
+                
+                <%# 修正: ID: @3nntasan のように公開id表示 ▼▼▼ %>
+                <p class="text-xs text-[#8d6e63] font-mono mt-1">ID: @<%= user.public_id %></p>
+              
               </div>
             </div>
             
@@ -95,6 +98,7 @@
               </div>
               
               <%# 2. お手紙を送るボタン %>
+              <%# ※注意: リンク先の receiver_id はシステム上のID(数字)のままで大丈夫です %>
               <%= link_to new_evaluation_path(receiver_id: user.id), 
                   class: 'flex items-center gap-2 px-4 py-2 bg-[#3e2723] text-[#ffecb3] text-sm font-bold rounded shadow hover:bg-[#271c19] transition border border-[#5d4037]',
                   data: { turbo: false } do %>
