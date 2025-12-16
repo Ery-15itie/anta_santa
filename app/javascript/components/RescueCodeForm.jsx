@@ -17,7 +17,6 @@ const RescueCodeForm = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // ログイン前なのでAuthorizationヘッダーは不要
         },
         body: JSON.stringify({ code: code }),
       });
@@ -25,33 +24,42 @@ const RescueCodeForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // 成功！
-        setMessage("認証に成功しました！ログイン処理を行います...");
+        // --- 成功時の処理 ---
+        setMessage(data.message || "認証に成功しました！移動します...");
         
-        // ここでJWTトークンを保存して、ダッシュボードへリダイレクト
-        localStorage.setItem('token', data.token);
+        // もしAPIがトークンを返しているなら保存（セッションCookieがあれば必須ではありませんが一応）
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
         
-        // 少し待ってからリダイレクト（ユーザーに成功メッセージを見せるため）
+        // ユーザーにメッセージを見せるため少し待ってから移動
         setTimeout(() => {
-          // Reactのダッシュボード(ルート)へ移動
-          window.location.href = '/'; 
+          // ★サーバーから指定されたURL（プロフィール編集画面）へ移動
+          // fallbackとして '/users/edit' を指定
+          window.location.href = data.redirect_url || '/users/edit'; 
         }, 1500);
 
       } else {
+        // --- エラー時の処理 ---
         setError(data.error || 'コードが無効です');
       }
     } catch (err) {
-      setError('通信エラーが発生しました');
+      setError('通信エラーが発生しました。もう一度お試しください。');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="mt-4 p-4 border rounded bg-gray-50">
-      <h4 className="text-sm font-bold text-gray-700 mb-2">🚑 救済コードをお持ちの方</h4>
-      <p className="text-xs text-gray-500 mb-3">
-        運営から発行された8桁のコードを入力してください。
+    // デザインをログイン画面（Anta-Santa Village）に合わせて調整
+    <div className="mt-4 p-5 border-2 border-[#ffcc80] rounded-xl bg-[#fff8e1]">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-xl">🚑</span>
+        <h4 className="text-sm font-bold text-[#e65100]">救済コードをお持ちの方</h4>
+      </div>
+      
+      <p className="text-xs text-[#8d6e63] mb-4 font-medium leading-relaxed">
+        ログインできない場合、運営から発行された<br/>8桁の救済コードを入力してください。
       </p>
 
       <form onSubmit={handleSubmit}>
@@ -59,30 +67,31 @@ const RescueCodeForm = () => {
           <input
             type="text"
             value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())} // 自動で大文字に
+            onChange={(e) => setCode(e.target.value.toUpperCase())} // 入力時に自動で大文字へ
             placeholder="A1B2C3D4"
-            className="flex-1 p-2 border rounded text-sm font-mono uppercase"
+            className="flex-1 p-3 border border-[#ffcc80] rounded-lg text-sm font-mono uppercase text-[#3e2723] focus:outline-none focus:ring-2 focus:ring-[#ef6c00] placeholder-orange-200"
             maxLength={8}
             required
+            disabled={loading} // 送信中は入力不可
           />
           <button
             type="submit"
             disabled={loading || code.length < 8}
-            className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
+            className="bg-[#ef6c00] text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-[#d84315] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
           >
-            {loading ? '送信...' : '認証'}
+            {loading ? '送信中...' : '認証'}
           </button>
         </div>
       </form>
 
       {/* メッセージ表示エリア */}
       {message && (
-        <div className="mt-2 text-sm text-green-600 font-bold">
+        <div className="mt-3 p-2 bg-green-50 text-green-700 text-sm font-bold rounded text-center border border-green-200 animate-pulse">
           ✅ {message}
         </div>
       )}
       {error && (
-        <div className="mt-2 text-sm text-red-600">
+        <div className="mt-3 p-2 bg-red-50 text-red-600 text-sm font-bold rounded text-center border border-red-200">
           ⚠️ {error}
         </div>
       )}
