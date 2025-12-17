@@ -8,7 +8,7 @@ gem "rails", "~> 7.2.2"
 gem 'pg', "~> 1.5" # PostgreSQL用
 
 # Webサーバー
-gem "puma", "~> 6.0"
+gem "puma", "~> 7.1"
 
 # ---------------------------------------------------
 # ▼ React / Frontend 関連
