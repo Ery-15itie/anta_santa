@@ -8,7 +8,7 @@ module Api
       # 暖炉メイン画面用
       def index
         fire_state = EmotionLog.current_fire_state(current_user)
-        logs = current_user.emotion_logs.recent.limit(30) # タイムライン用に多めに取得
+        logs = current_user.emotion_logs.recent.limit(30)
         render json: { fire_state: fire_state, logs: logs }
       end
 
@@ -31,17 +31,15 @@ module Api
         total_logs = user_logs.count
         magic_powder_count = user_logs.where.not(magic_powder: 0).count
         
-        # ▼▼▼ 修正: モデルの高速計算メソッドを使用 ▼▼▼
+        # 現在の連続日数 (Userモデルのメソッド)
         current_streak = current_user.emotion_streak
 
-        # 1. レベル計算 (段階的ロジック)
+        # レベルと称号の計算
         level = calculate_level(total_logs)
-        
-        # 2. 称号判定
         title = calculate_title(level)
 
-        # 3. カード判定 (計算済みの streak を渡す)
-        badges = calculate_badges(user_logs, total_logs, magic_powder_count, current_streak)
+        # バッジ判定 (獲得済みのものはDBから読み出し、新規獲得ならDBへ保存)
+        badges = check_and_award_badges(user_logs, total_logs, magic_powder_count, current_streak)
 
         history = user_logs.recent.limit(30)
 
@@ -51,7 +49,7 @@ module Api
             magic_powder_count: magic_powder_count,
             level: level,
             title: title,
-            streak: current_streak # フロントエンド表示用にここにも含めておくと便利です
+            streak: current_streak
           },
           badges: badges,
           history: history
@@ -64,7 +62,7 @@ module Api
         params.require(:emotion_log).permit(:emotion, :body, :intensity, :magic_powder)
       end
 
-      # レベル計算 (Lv30まではサクサク、以降は徐々にハードに)
+      # レベル計算
       def calculate_level(total_logs)
         level = 1
         phase1_cap = 150; rate1 = 5
@@ -102,45 +100,69 @@ module Api
         end
       end
 
-      # カード判定ロジック
-      # ▼▼▼ 修正: streak を引数で受け取るように変更 ▼▼▼
-      def calculate_badges(logs, total, powder_total, streak)
-        badges = []
-        
-        # ※以前の非効率な Rubyによる日付計算ロジックは削除しました
+      # バッジ判定＆DB保存ロジック
+      def check_and_award_badges(logs, total, powder_total, current_streak)
+        # バッジの獲得条件定義
+        all_badge_defs = [
+          # --- 継続系 (DB保存されるため、ストリークが途切れてもバッジは残る) ---
+          { id: 'first_fire', name: '🕯️ 初点火', desc: '初めて薪をくべる。記念すべき最初の一歩です。', condition: -> { total >= 1 } },
+          { id: '3_days', name: '🔥 3日の炎', desc: '3日連続で記録する。習慣の種が芽生え始めました。', condition: -> { current_streak >= 3 } },
+          { id: 'weekly', name: '🔥🔥 ウィークリーマスター', desc: '7日連続で記録する。一週間、炎を絶やさなかった証です。', condition: -> { current_streak >= 7 } },
+          { id: 'monthly', name: '🔥🔥🔥 マンスリーレジェンド', desc: '30日連続で記録する。あなたは真の火守り人です。', condition: -> { current_streak >= 30 } },
+          { id: 'immortal', name: '🌟🔥🌟 不滅の炎', desc: '100日連続で記録する。炎はもはやあなたの生活の一部です。', condition: -> { current_streak >= 100 } },
 
-        # --- 継続系 ---
-        badges << { id: 'first_fire', name: '🕯️ 初点火', desc: '初めて薪をくべる。記念すべき最初の一歩です。', earned: total >= 1 }
-        badges << { id: '3_days', name: '🔥 3日の炎', desc: '3日連続で記録する。習慣の種が芽生え始めました。', earned: streak >= 3 }
-        badges << { id: 'weekly', name: '🔥🔥 ウィークリーマスター', desc: '7日連続で記録する。一週間、炎を絶やさなかった証です。', earned: streak >= 7 }
-        badges << { id: 'monthly', name: '🔥🔥🔥 マンスリーレジェンド', desc: '30日連続で記録する。あなたは真の火守り人です。', earned: streak >= 30 }
-        badges << { id: 'immortal', name: '🌟🔥🌟 不滅の炎', desc: '100日連続で記録する。炎はもはやあなたの生活の一部です。', earned: streak >= 100 }
+          # --- 感情の多様性 ---
+          { id: 'explorer', name: '🎭 感情の探求者', desc: '5種類の異なる感情を記録する。', condition: -> { logs.select(:emotion).distinct.count >= 5 } },
+          { id: 'master', name: '🌈 エモーションマスター', desc: '全種類の感情を記録する。', condition: -> { logs.select(:emotion).distinct.count >= 10 } },
 
-        # --- 感情の多様性 ---
-        # NOTE: distinct count はDB側で行われるので高速です
-        unique_emotions = logs.select(:emotion).distinct.count
-        badges << { id: 'explorer', name: '🎭 感情の探求者', desc: '5種類の異なる感情を記録する。心の色彩に気づき始めました。', earned: unique_emotions >= 5 }
-        badges << { id: 'master', name: '🌈 エモーションマスター', desc: '全種類の感情を記録する。全ての感情を受け入れる心が育っています。', earned: unique_emotions >= 10 }
+          # --- 魔法の粉 ---
+          { id: 'first_magic', name: '✨ はじめての錬金術', desc: '初めて魔法の粉を使う。', condition: -> { powder_total >= 1 } },
+          { id: 'apprentice', name: '🔮 錬金術師の弟子', desc: '魔法の粉を10回使用する。', condition: -> { powder_total >= 10 } },
+          { id: 'master_alchemist', name: '💫 マスターアルケミスト', desc: '魔法の粉を50回使用する。', condition: -> { powder_total >= 50 } },
 
-        # --- 魔法の粉 ---
-        badges << { id: 'first_magic', name: '✨ はじめての錬金術', desc: '初めて魔法の粉を使う。負の感情を美しく変える術を知りました。', earned: powder_total >= 1 }
-        badges << { id: 'apprentice', name: '🔮 錬金術師の弟子', desc: '魔法の粉を10回使用する。昇華の技術が身についてきました。', earned: powder_total >= 10 }
-        badges << { id: 'master_alchemist', name: '💫 マスターアルケミスト', desc: '魔法の粉を50回使用する。あなたは感情変容の達人です。', earned: powder_total >= 50 }
+          # --- 薪の本数 ---
+          { id: '50_logs', name: '🪵 初めての50本', desc: '合計50本の薪をくべる。', condition: -> { total >= 50 } },
+          { id: '100_logs', name: '🪵🪵 百薪達成', desc: '合計100本の薪をくべる。', condition: -> { total >= 100 } },
+          
+          # --- 時間帯 ---
+          { id: 'night_owl', name: '🌙 夜更かしの炎', desc: '深夜0時〜4時に記録する。', condition: -> { 
+              logs.order(created_at: :desc).limit(100).any? { |l| l.created_at.hour >= 0 && l.created_at.hour < 4 } 
+            } 
+          },
+          { id: 'early_bird', name: '🌅 朝の儀式', desc: '午前4時〜6時に記録する。', condition: -> { 
+              logs.order(created_at: :desc).limit(100).any? { |l| l.created_at.hour >= 4 && l.created_at.hour < 6 } 
+            } 
+          }
+        ]
 
-        # --- 薪の本数 ---
-        badges << { id: '50_logs', name: '🪵 初めての50本', desc: '合計50本の薪をくべる。50の感情、あなたの歴史。', earned: total >= 50 }
-        badges << { id: '100_logs', name: '🪵🪵 百薪達成', desc: '合計100本の薪をくべる。100の物語が暖炉に刻まれました。', earned: total >= 100 }
+        # 1. ユーザーが既にDBに持っているバッジIDリストを取得
+        earned_badge_ids = current_user.user_badges.pluck(:badge_id)
+        result_badges = []
 
-        # --- 時間帯 ---
-        # 直近100件だけ取得して判定（全件ロードを防ぐためlimitを使用）
-        recent_logs = logs.order(created_at: :desc).limit(100)
-        has_night = recent_logs.any? { |l| l.created_at.hour >= 0 && l.created_at.hour < 4 }
-        has_morning = recent_logs.any? { |l| l.created_at.hour >= 4 && l.created_at.hour < 6 }
+        all_badge_defs.each do |badge_def|
+          is_earned = false
 
-        badges << { id: 'night_owl', name: '🌙 夜更かしの炎', desc: '深夜0時〜4時に記録する。静かな夜、心と向き合った証。', earned: has_night }
-        badges << { id: 'early_bird', name: '🌅 朝の儀式', desc: '午前4時〜6時に記録する。朝一番に心を整える習慣。', earned: has_morning }
+          if earned_badge_ids.include?(badge_def[:id])
+            # A. 既にDBにある場合 -> 獲得済みとする (再計算しないので途切れてもOK)
+            is_earned = true
+          else
+            # B. 持っていない場合 -> 条件チェック
+            if badge_def[:condition].call
+              # 条件達成！ -> DBに保存して永続化する
+              current_user.user_badges.create(badge_id: badge_def[:id], earned_at: Time.current)
+              is_earned = true
+            end
+          end
 
-        badges
+          result_badges << {
+            id: badge_def[:id],
+            name: badge_def[:name],
+            desc: badge_def[:desc],
+            earned: is_earned
+          }
+        end
+
+        result_badges
       end
     end
   end
