@@ -15,6 +15,9 @@ class User < ApplicationRecord
   # GitHub連携プロフィール (コントローラーでの保存処理に必要)
   has_one :github_profile, dependent: :destroy
 
+  # 追加: バッジ機能 (獲得した称号を保存) 
+  has_many :user_badges, dependent: :destroy
+
   # 評価（お手紙）機能
   has_many :sent_evaluations, class_name: 'Evaluation', foreign_key: 'evaluator_id', dependent: :destroy
   has_many :received_evaluations, class_name: 'Evaluation', foreign_key: 'evaluated_user_id', dependent: :destroy
@@ -56,6 +59,11 @@ class User < ApplicationRecord
   # =========================================================
   def following?(other_user)
     following.include?(other_user)
+  end
+
+  # 指定したバッジIDを持っているか確認する便利メソッド 
+  def has_badge?(badge_id)
+    user_badges.exists?(badge_id: badge_id)
   end
 
   # =========================================================

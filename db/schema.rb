@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_14_221318) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_17_091434) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -151,6 +151,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_14_221318) do
     t.index ["user_id"], name: "index_templates_on_user_id"
   end
 
+  create_table "user_badges", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "badge_id", null: false
+    t.datetime "earned_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "badge_id"], name: "index_user_badges_on_user_id_and_badge_id", unique: true
+    t.index ["user_id"], name: "index_user_badges_on_user_id"
+  end
+
   create_table "user_card_selections", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "value_card_id", null: false
@@ -236,6 +246,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_14_221318) do
   add_foreign_key "relationships", "users", column: "follower_id"
   add_foreign_key "template_items", "templates"
   add_foreign_key "templates", "users"
+  add_foreign_key "user_badges", "users"
   add_foreign_key "user_card_selections", "users"
   add_foreign_key "user_card_selections", "value_cards"
   add_foreign_key "user_reflections", "reflection_questions"
